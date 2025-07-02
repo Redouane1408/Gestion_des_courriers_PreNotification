@@ -225,6 +225,7 @@ export const mailService = {
         formData.append('status', data.updatedCouriel?.status || '');
         formData.append('subject', data.updatedCouriel?.subject || '');
         formData.append('description', data.updatedCouriel?.description || '');
+        formData.append('returnDate', data.updatedCouriel?.returnDate || '');
 
         // Append existing files
         if (data.existingFiles && Array.isArray(data.existingFiles)) {

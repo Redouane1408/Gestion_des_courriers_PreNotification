@@ -45,19 +45,19 @@ interface Direction {
 const adminFormSchema = z.object({
   nomComplet: z.string().min(1, "Le nom est requis"),
   email: z.string().email("Email invalide"),
-  telephone: z.string().min(1, "Le téléphone est requis"),
+  telephone: z.string().optional(), // Changed to optional
   quatreChiffres: z.string().length(4, "Doit contenir exactement 4 chiffres").regex(/^\d+$/, "Doit contenir uniquement des chiffres").optional(),
   direction: z.number().min(1, "La direction est requise").optional(),
-  profession: z.string().min(1, "La profession est requise").optional()
+  profession: z.string().optional() // Changed to optional
 })
 
 const userFormSchema = z.object({
   nomComplet: z.string().min(1, "Le nom est requis"),
   email: z.string().email("Email invalide"),
-  telephone: z.string().min(1, "Le téléphone est requis"),
+  telephone: z.string().optional(), // Changed to optional
   quatreChiffres: z.string().length(4, "Doit contenir exactement 4 chiffres").regex(/^\d+$/, "Doit contenir uniquement des chiffres").optional(),
   sousdirection: z.string().min(1, "La sous-direction est requise"),
-  profession: z.string().min(1, "La profession est requise").optional()
+  profession: z.string().optional() // Changed to optional
 })
 
 // Helper components
@@ -583,7 +583,7 @@ const handleCopyPassword = () => {
 
       {/* Create/Edit User Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-full max-w-fit overflow-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedUser 

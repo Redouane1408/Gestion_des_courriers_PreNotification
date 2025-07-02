@@ -1,8 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import { Dialog, DialogPanel } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // Import motion
 
@@ -175,7 +172,7 @@ export function Example() {
 </div>
 {/* Simple Footer for Support Team */}
     <footer className="bg-black py-8 text-center text-gray-400">
-        <p>Pour toute question ou problème, veuillez contacter l'équipe de support à <a href="support@mf.gov.dz" className="text-teal-400 hover:underline">support@example.com</a>.</p>
+        <p>Pour toute question ou problème, veuillez contacter l'équipe de support à <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" className="text-teal-400 hover:underline">support@mf.gov.dz</a>.</p>
     </footer>
 
 </div>

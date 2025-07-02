@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
-import { FileText, X, Download } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { mailService } from '@/services/mail-service';
 import { useToast } from '@/hooks/use-toast';
 import type { Mail } from '@/types/mail';
@@ -27,6 +27,7 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
   const [status, setStatus] = useState<string>("");
   const [subject, setSubject] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [returnDate, setReturnDate] = useState<string>(""); // Add this line
   // Modifier le type pour correspondre à la structure de courielFiles
   const [existingFiles, setExistingFiles] = useState<Array<{
 
@@ -44,6 +45,8 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
       setStatus(mail.status === "Archivé" ? "ARCHIVER" : "EN_COURS");
       setSubject(mail.subject || "");
       setDescription(mail.description || "");
+      setReturnDate(mail.returnDate ? new Date(mail.returnDate).toISOString().split('T')[0] : ""); // Add this line
+      
       
       // Utiliser directement courielFiles du mail au lieu de faire un appel API
       setExistingFiles(mail.courielFiles || []);
@@ -122,7 +125,8 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
         priority,
         status,
         subject,
-        description
+        description,
+        returnDate // Add this line
       };
       
       // Logs pour déboguer
@@ -138,6 +142,7 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
       formData.append('status', status);
       formData.append('subject', subject);
       formData.append('description', description);
+      formData.append('returnDate', returnDate); // Add this line
 
       // Append new files (binary) under 'newFiles'
       files.forEach(file => {
@@ -236,6 +241,16 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="min-h-[100px]"
+              />
+            </div>
+
+            <div className="space-y-2"> {/* Add this block */}
+              <Label htmlFor="returnDate">Date de retour</Label>
+              <Input
+                id="returnDate"
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
               />
             </div>
 

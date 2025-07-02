@@ -7,8 +7,10 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-import { motion } from 'framer-motion'; // Import motion
+//import { motion } from 'framer-motion'; // Import motion
 import { useTheme } from "@/components/theme-provider"
+
+
 
 export default function LoginPage() {
     const { theme } = useTheme();
@@ -112,10 +114,10 @@ export default function LoginPage() {
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-tr from-[#0457c4ce] to-[#015169] opacity-70 hover:bg-sky-700" 
+                className="w-full bg-gradient-to-tr from-[#0457c4ce] to-[#015169] opacity-70 hover:bg-white" 
                 disabled={isLoading}
               >
-                {isLoading ? "Connexion en cours..." : "Se connecter"}
+                <span className="text-white">{isLoading ? "Connexion en cours..." : "Se connecter"}</span>
               </Button>
             </form>
           </CardContent>

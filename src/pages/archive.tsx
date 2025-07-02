@@ -948,7 +948,7 @@ const mapNatureToBackend = (nature: string): string => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">
-                      <Checkbox
+                      <Checkbox className="x-auto"
                         checked={
                           selectedMails.length === filteredMails.length &&
                           filteredMails.length > 0
@@ -961,6 +961,7 @@ const mapNatureToBackend = (nature: string): string => {
                     <TableHead>Nature</TableHead>
                     <TableHead>Objet</TableHead>
                     <TableHead>Date d'enregistrement</TableHead>
+                    <TableHead>Date de retour</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Priorité</TableHead>
                     <TableHead>Expéditeur</TableHead>
@@ -985,6 +986,9 @@ const mapNatureToBackend = (nature: string): string => {
                       </TableCell>
                       <TableCell>
                         {new Date(mail.registrationDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        {mail.returnDate ? new Date(mail.returnDate).toLocaleDateString() : 'N/A'}
                       </TableCell>
                       <TableCell>
                         <span
@@ -1050,10 +1054,6 @@ const mapNatureToBackend = (nature: string): string => {
                               <History className="mr-2 h-4 w-4" />
                               Historique
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDownloadAttachments(mail)}>
-                              <FileText className="mr-2 h-4 w-4" />
-                              Pièces jointes
-                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -1101,6 +1101,10 @@ const mapNatureToBackend = (nature: string): string => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                <div>
+                  <Label className="font-medium">N° de courrier</Label>
+                  <div>{selectedMail.courielNumber}</div>
+                </div>
                 <div>
                   <Label className="font-medium">Type</Label>
                   <div>{selectedMail.type}</div>
@@ -1159,6 +1163,15 @@ const mapNatureToBackend = (nature: string): string => {
                     </div>
                   </div>
                 )}
+                {selectedMail.sentDate && (
+                  <div>
+                    <Label className="font-medium">Date d'envoi</Label>
+                    <div>
+                      {new Date(selectedMail.sentDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="md:col-span-2">
                   <Label className="font-medium">Description</Label>
                   <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded-md">

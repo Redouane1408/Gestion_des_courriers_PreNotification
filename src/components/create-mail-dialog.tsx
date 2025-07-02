@@ -355,7 +355,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-full max-w-fit overflow-auto">
         <DialogHeader>
           <DialogTitle>Ajouter un nouveau courrier</DialogTitle>
           <p className="text-sm text-muted-foreground">Remplissez les informations du courrier à archiver.</p>
