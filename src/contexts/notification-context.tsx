@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './auth-context'; // Assuming you have an auth context
-import { toast } from '@/hooks/use-toast'; // Your toast component
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './auth-context';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 interface Notification {
   id: string;
@@ -23,8 +25,9 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, userEmail, getToken } = useAuth(); // Corrected: use userEmail and getToken
+  const { isAuthenticated, userEmail, getToken } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const navigate = useNavigate();
 
   // Function to fetch initial unread notifications
   const fetchUnreadNotifications = async () => {
@@ -62,6 +65,18 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       toast({
         title: "New Notification",
         description: newNotification.message,
+        action: newNotification.relatedEntityId ? (
+          <ToastAction
+            altText="View notification"
+            onClick={() => {
+              // Example: Navigate to a mail detail page
+              navigate(`/mail/${newNotification.relatedEntityId}`);
+              markAsRead(newNotification.id); // Mark as read when clicked
+            }}
+          >
+            View
+          </ToastAction>
+        ) : undefined,
       });
     };
 

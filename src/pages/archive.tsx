@@ -538,8 +538,8 @@ const mapNatureToBackend = (nature: string): string => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tous les types</SelectItem>
-                    <SelectItem value="Entrant">Entrant</SelectItem>
-                    <SelectItem value="Sortant">Sortant</SelectItem>
+                    <SelectItem value="Entrant">Arrivé</SelectItem>
+                    <SelectItem value="Sortant">Départ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

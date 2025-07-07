@@ -193,7 +193,7 @@ export function Dashboard() {
       <Tabs defaultValue="overview" className="space-y-4 w-full">
         <TabsList>
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="mails">Courriers Récent</TabsTrigger>
+          <TabsTrigger value="mails">Courriers Récents</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4 w-full">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
@@ -280,14 +280,17 @@ export function Dashboard() {
                   <p className="text-muted-foreground">Graphiques analytiques</p>
                 )}
               </div>
+              
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="mails" className="space-y-4 w-full">
+            
           <Card className="w-full">
+            
             <CardHeader>
               <CardTitle>Liste des courriers</CardTitle>
-              <CardDescription>Tous les courriers</CardDescription>
+              <CardDescription>Les cinqs derniers courriers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between py-2">

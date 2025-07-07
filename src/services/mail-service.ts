@@ -61,9 +61,9 @@ export const mapResponseToMails = (data: any[]): Mail[] => {
     nature: mail.nature || "",
     subject: mail.subject || "",
     sender: mail.fromExternal || 
-           (mail.fromDivisionId ? `Division ${mail.fromDivisionId}${mail.fromDirectionId ? ` - Direction ${mail.fromDirectionId}` : ''}` : ""),
+           (mail.fromDivisionId ? `${mail.fromDivisionId}${mail.fromDirectionId ? ` - ${mail.fromDirectionId}` : ''}` : ""),
     recipient: mail.toExternal || 
-              (mail.toDivisionId ? `Division ${mail.toDivisionId}${mail.toDirectionId ? ` - Direction ${mail.toDirectionId}` : ''}` : ""),
+              (mail.toDivisionId ? ` ${mail.toDivisionId}${mail.toDirectionId ? ` -  ${mail.toDirectionId}` : ''}` : ""),
     date: mail.arrivedDate || mail.sentDate || new Date().toISOString(),
     registrationDate: mail.savedDate || mail.arrivedDate || new Date().toISOString(),
     returnDate: mail.returnDate || null,

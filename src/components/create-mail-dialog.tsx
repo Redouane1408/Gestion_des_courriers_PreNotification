@@ -389,8 +389,8 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Sortant">Sortant</SelectItem>
-                  <SelectItem value="Entrant">Entrant</SelectItem>
+                  <SelectItem value="Sortant">Départ</SelectItem>
+                  <SelectItem value="Entrant">Arrivé</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -719,7 +719,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
             placeholder="Description du courrier"
             className="min-h-[100px]"
             onChange={(e) => handleInputChange('description', e.target.value)}
-            required
+            
           />
 
           <div className="flex justify-end space-x-2">

@@ -70,7 +70,7 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
   if (!password) return null;
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} modal={true}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Mot de passe généré</DialogTitle>
@@ -517,7 +517,7 @@ const handleCopyPassword = () => {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">
-          {shouldShowAdminForm() ? "Gestion des administrateurs de direction" : "Gestion des utilisateurs"}
+          {shouldShowAdminForm() ? "Gestion des administrateurs de directions" : "Gestion des utilisateurs"}
         </h1>
         <Button onClick={() => {
           setSelectedUser(null);
