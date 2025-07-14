@@ -1,142 +1,137 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from './auth-context';
-import { toast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/toast';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  ReactNode,
+} from 'react';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
+// Types
 interface Notification {
-  id: string;
+  id: number;
   userId: string;
   message: string;
   type: string;
   readStatus: boolean;
   timestamp: string;
   relatedEntityId?: string;
+  time: string;
+  operation: string;
+  courrielNumber: string;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  markAsRead: (id: string) => void;
+  markAsRead: (id: number) => void;
   markAllAsRead: () => void;
-  // ... other actions like delete
+}
+
+interface NotificationProviderProps {
+  children: ReactNode;
+  token: string;
+  username: string;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, userEmail, getToken } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const navigate = useNavigate();
+// 💡 Adjust according to your env
+const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8081/websocket';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
 
-  // Function to fetch initial unread notifications
+export const NotificationProvider = ({ token, username, children }: NotificationProviderProps) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const stompClientRef = useRef<Client | null>(null);
+
+  useEffect(() => {
+    if (token && username) {
+      connectWebSocket();
+      fetchUnreadNotifications();
+    }
+
+    return () => {
+      stompClientRef.current?.deactivate();
+    };
+  }, [token, username]);
+
+  const connectWebSocket = () => {
+    const client = new Client({
+      webSocketFactory: () => new SockJS(WS_URL),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+      onConnect: () => {
+        const topic = `/topic/notifications/${username.toLowerCase()}`;
+        client.subscribe(topic, (message) => {
+          const notif: Notification = JSON.parse(message.body);
+          setNotifications((prev) => [notif, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+        });
+      },
+      onStompError: (frame) => {
+        console.error('STOMP error:', frame);
+      },
+    });
+
+    client.activate();
+    stompClientRef.current = client;
+  };
+
   const fetchUnreadNotifications = async () => {
-    const token = getToken(); // Get token using the getToken method
-    if (!isAuthenticated || !token) return;
     try {
-      const response = await fetch('/api/notifications/unread', {
+      const res = await fetch(`${API_URL}/api/notifications/unread`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.ok) {
-        const data: Notification[] = await response.json();
-        setNotifications(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch unread notifications:', error);
+      const data: Notification[] = await res.json();
+      setNotifications(data);
+      setUnreadCount(data.length);
+    } catch (err) {
+      console.error('Failed to fetch unread notifications:', err);
     }
   };
 
-  // WebSocket connection logic
-  useEffect(() => {
-    const token = getToken(); // Get token using the getToken method
-    if (!isAuthenticated || !userEmail || !token) return; // Use userEmail for user check
-
-    fetchUnreadNotifications(); // Fetch on login
-
-    const ws = new WebSocket(`ws://localhost:8080/ws/notifications?token=${token}`); // Adjust URL
-
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    ws.onmessage = (event) => {
-      const newNotification: Notification = JSON.parse(event.data);
-      setNotifications((prev) => [newNotification, ...prev]);
-      toast({
-        title: "New Notification",
-        description: newNotification.message,
-        action: newNotification.relatedEntityId ? (
-          <ToastAction
-            altText="View notification"
-            onClick={() => {
-              // Example: Navigate to a mail detail page
-              navigate(`/mail/${newNotification.relatedEntityId}`);
-              markAsRead(newNotification.id); // Mark as read when clicked
-            }}
-          >
-            View
-          </ToastAction>
-        ) : undefined,
-      });
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, [isAuthenticated, userEmail, getToken]); // Added getToken to dependency array
-
-  const markAsRead = async (id: string) => {
-    const token = getToken(); // Get token using the getToken method
-    // API call to mark as read
+  const markAsRead = async (id: number) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, {
+      await fetch(`${API_URL}/api/notifications/${id}/mark-read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications((prev) =>
-        prev.map((notif) => (notif.id === id ? { ...notif, readStatus: true } : notif))
-      );
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      setUnreadCount((count) => count - 1);
+    } catch (err) {
+      console.error('Failed to mark as read:', err);
     }
   };
 
   const markAllAsRead = async () => {
-    const token = getToken(); // Get token using the getToken method
-    // API call to mark all as read
     try {
-      await fetch(`/api/notifications/mark-all-read`, {
+      await fetch(`${API_URL}/api/notifications/mark-all-read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, readStatus: true }))
-      );
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
     }
   };
 
-  const unreadCount = notifications.filter((notif) => !notif.readStatus).length;
-
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead }}>
+    <NotificationContext.Provider
+      value={{ notifications, unreadCount, markAsRead, markAllAsRead }}
+    >
       {children}
     </NotificationContext.Provider>
   );
 };
 
-export const useNotifications = () => {
+export const useNotifications = (): NotificationContextType => {
   const context = useContext(NotificationContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useNotifications must be used within a NotificationProvider');
   }
   return context;

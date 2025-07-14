@@ -5,7 +5,7 @@ export interface JWTClaims {
     role: 'ADMIN' | 'USER';
     divisionId: number;
     directionId?: number;
-    sousDirectionId?: number;
+    sousdirectionId?: number;
 }
 
 export interface TokenResponse {
@@ -14,7 +14,8 @@ export interface TokenResponse {
     role: 'ADMIN' | 'USER';
     divisionId: number;
     directionId?: number;
-    sousDirectionId?: number;
+    sousdirectionId?: number; // Changed from sousDirectionId to sousdirectionId
+    email?: string;
 }
 
 // Helper functions to determine user type
@@ -26,6 +27,6 @@ export const isDirectionAdmin = (claims: TokenResponse): boolean => {
     return claims.role === 'ADMIN' && !!claims.directionId;
 }
 
-export const isRegularUser = (claims: TokenResponse): boolean => {
-    return claims.role === 'USER';
+export const isSousDirectionUser = (claims: TokenResponse): boolean => {
+    return claims.role === 'USER'; 
 }

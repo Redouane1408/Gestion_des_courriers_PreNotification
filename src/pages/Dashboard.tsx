@@ -36,6 +36,7 @@ import { format } from "date-fns"
 import { fetchDashboardSummary, fetchMailOverview, fetchRecentMails } from "@/services/dashboardService";
 import { Mail } from "@/types/mail"; // Keep this import
 import { RecentMails } from "@/components/dashboard/recent-mails"
+import { Avatar } from "@radix-ui/react-avatar"
 // Remove any local Mail interface declaration (it's already commented out)
 // Types for our data
 // The local Mail, Attachment, and Modification interfaces will be removed from here.
@@ -204,7 +205,7 @@ export function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardSummary.totalMails}</div>
-                <p className="text-xs text-muted-foreground">+12% par rapport au mois dernier</p>
+                
               </CardContent>
             </Card>
             <Card>
@@ -214,7 +215,7 @@ export function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardSummary.incomingMails}</div>
-                <p className="text-xs text-muted-foreground">+8% par rapport au mois dernier</p>
+                
               </CardContent>
             </Card>
             <Card>
@@ -224,17 +225,17 @@ export function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardSummary.outgoingMails}</div>
-                <p className="text-xs text-muted-foreground">+18% par rapport au mois dernier</p>
+                
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Utilisateurs actifs</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
+                <Avatar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardSummary.activeUsers}</div>
-                <p className="text-xs text-muted-foreground">+5% par rapport au mois dernier</p>
+                
               </CardContent>
             </Card>
           </div>
@@ -290,7 +291,7 @@ export function Dashboard() {
             
             <CardHeader>
               <CardTitle>Liste des courriers</CardTitle>
-              <CardDescription>Les cinqs derniers courriers</CardDescription>
+              <CardDescription>Les (5) derniers courriers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between py-2">

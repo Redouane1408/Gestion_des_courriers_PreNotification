@@ -1,20 +1,36 @@
+// ✅ authService.ts
 import api from '@/lib/api';
+import axios from 'axios'; // ✅ raw axios to bypass interceptors
 import { JWTClaims, TokenResponse } from '@/types/auth';
 import { jwtDecode } from 'jwt-decode';
 
+// ✅ Utility function to check access token expiration
+function isAccessTokenExpired(token: string): boolean {
+  try {
+    const decoded = jwtDecode<{ exp: number }>(token);
+    if (!decoded?.exp) return true;
 
+    const currentTime = Date.now() / 1000;
+    return decoded.exp < currentTime;
+  } catch {
+    return true;
+  }
+}
 
 interface LoginData {
   email: string;
   password: string;
 }
 
-
-
 class AuthService {
+  getUser(): TokenResponse | null {
+    const userData = localStorage.getItem("user");
+    if (!userData) return null;
+    return JSON.parse(userData);
+  }
   async login({ email, password }: LoginData): Promise<TokenResponse> {
     const response = await api.post('/auth/login', { email, password });
-    
+
     if (!response.data?.accessToken) {
       throw new Error('Authentication failed: No token received');
     }
@@ -24,66 +40,82 @@ class AuthService {
   }
 
   async refreshToken(): Promise<string> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) throw new Error('No refresh token available');
-    
-    const response = await api.post('/auth/refresh', { refreshToken });
-    
-    if (!response.data?.accessToken) {
-      throw new Error('No access token received in refresh response');
-    }
+    const userData = localStorage.getItem("user");
+    if (!userData) throw new Error("No user data found");
 
-    localStorage.setItem('accessToken', response.data.accessToken);
-    return response.data.accessToken;
-  }
+    const user = JSON.parse(userData);
+    const payload = { refreshToken: user.refreshToken };
 
-  async validateToken(): Promise<boolean> {
+    console.log('🔐 Refresh token payload:', payload);
+
     try {
-      const token = this.getCurrentToken();
-      if (!token) return false;
-      
-      await api.get('/auth/validate');
-      return true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      // ✅ Use raw axios to avoid interceptors
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/refresh-token`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.data?.accessToken) {
+        throw new Error("No access token received in refresh response");
+      }
+
+      const updatedUser = {
+        ...user,
+        accessToken: response.data.accessToken,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return response.data.accessToken;
+    } catch (error: any) {
+      console.error("❌ Token refresh failed:", error.response?.data || error.message);
       this.clearAuthData();
-      return false;
+      throw new Error("Token refresh failed");
     }
   }
+
+    // ✅ Checks if accessToken is expired and refreshes it if needed
+    async getValidAccessToken(): Promise<string | null> {
+    const token = this.getCurrentToken();
+    if (!token) return null;
+
+    if (isAccessTokenExpired(token)) {
+        return await this.refreshToken();
+    }
+
+    return token;
+    }
+
+
 
   storeAuthData(data: TokenResponse): void {
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.setItem('userRole', data.role);
-    
-    // Store division and direction IDs from claims
-    const claims = this.getCurrentClaims();
-    if (claims?.divisionId) {
-        localStorage.setItem('divisionId', claims.divisionId.toString());
-    }
-    if (claims?.directionId) {
-        localStorage.setItem('directionId', claims.directionId.toString());
-    }
-    if (claims?.sousDirectionId) {
-        localStorage.setItem('sousDirectionId', claims.sousDirectionId.toString());  // Fixed casing here
-    }
-}
+    const user = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      role: data.role,
+      email: data.email,
+      divisionId: data.divisionId,
+      directionId: data.directionId,
+      sousdirectionId: data.sousdirectionId,
+    };
+
+    localStorage.setItem("user", JSON.stringify(user));
+  }
 
   clearAuthData(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('divisionId');
-    localStorage.removeItem('directionId');
-    localStorage.removeItem('sousDirectionId');  // Fixed casing here
+    localStorage.removeItem("user");
   }
 
   getCurrentToken(): string | null {
-    return localStorage.getItem('accessToken');
-  }
-
-  getCurrentRole(): 'ADMIN' | 'USER' | null {
-    return localStorage.getItem('userRole') as 'ADMIN' | 'USER' | null;
+    const userData = localStorage.getItem("user");
+    if (!userData) return null;
+    const user = JSON.parse(userData);
+    return user.accessToken || null;
   }
 
   getCurrentClaims(): JWTClaims | null {
@@ -92,36 +124,10 @@ class AuthService {
     return jwtDecode<JWTClaims>(token);
   }
 
-  getDivisionId(): string | null {
-    const claims = this.getCurrentClaims();
-    return claims?.divisionId?.toString() || null;
-  }
-
-  getDirectionId(): string | null {
-    const claims = this.getCurrentClaims();
-    return claims?.directionId?.toString() || null;
-  }
-
-  getSousDirectionId(): string | null {  // Add this new method
-    const claims = this.getCurrentClaims();
-    return claims?.sousDirectionId?.toString() || null;
-  }
-
-  isDirectionDirector(): boolean {
-    const claims = this.getCurrentClaims();
-    return claims?.role === 'ADMIN' && !!claims?.directionId;
-  }
-
-  isDivisionDirector(): boolean {
-    const claims = this.getCurrentClaims();
-    return claims?.role === 'ADMIN' && !!claims?.divisionId && !claims?.directionId;
-  }
-
   logout(): Promise<void> {
     this.clearAuthData();
     return api.post('/auth/logout');
   }
 }
 
-// Export a singleton instance
 export const authService = new AuthService();

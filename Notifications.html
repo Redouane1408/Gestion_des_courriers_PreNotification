@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Notifications Hiérarchiques</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px auto; max-width: 600px; }
+        input, button { padding: 10px; width: 100%; margin-top: 10px; }
+        .notif { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-left: 5px solid #3f51b5; opacity: 1; transition: opacity 0.5s ease; }
+        .notif strong { color: #3f51b5; }
+        .notif.new { border-left-color: #ff9800; background: #fff7e6; }
+        .meta { font-size: 0.9em; color: #555; margin-top: 5px; }
+        .files ul { padding-left: 20px; margin: 0; }
+        #badge { background: red; color: white; padding: 2px 8px; border-radius: 12px; margin-left: 5px; font-size: 0.8em; }
+        #markAllButton { background: #3f51b5; color: white; }
+    </style>
+</head>
+<body>
+
+<h2>Connexion utilisateur</h2>
+<input type="text" id="email" placeholder="Nom d'utilisateur (email)">
+<input type="password" id="password" placeholder="Mot de passe">
+<button onclick="login()">Se connecter</button>
+
+<h3>Notifications reçues <span id="badge" style="display:none">0</span></h3>
+<div id="notifications"></div>
+
+<button id="markAllButton" style="display: none;">✅ Marquer toutes comme lues</button>
+
+<script>
+    let stompClient = null;
+    let token = '';
+    let username = '';
+    let unreadCount = 0;
+
+    async function login() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!email || !password) {
+            alert("Veuillez remplir tous les champs");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://10.7.35.44:8081/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(error || "Échec de la connexion");
+            }
+
+            const data = await response.json();
+            token = data.accessToken;
+            const refreshToken = data.refreshToken;
+            const role = data.role;
+            const divisionId = data.divisionId;
+            const directionId = data.directionId;
+            const sousDirectionId = data.sousDirectionId;
+
+            username = email;
+
+            console.log("✅ Connexion réussie !");
+            console.log("AccessToken:", token);
+            console.log("RefreshToken:", refreshToken);
+            console.log("Rôle:", role);
+            console.log("Division ID:", divisionId);
+            console.log("Direction ID:", directionId);
+            console.log("Sous-Direction ID:", sousDirectionId);
+
+            alert("✅ Connexion réussie !");
+            connectWebSocket();
+            loadUnreadNotifications();
+        } catch (e) {
+            alert("❌ Erreur de connexion : " + e.message);
+        }
+    }
+
+    function connectWebSocket() {
+        const socket = new SockJS("http://10.7.35.44:8081/websocket");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({ Authorization: `Bearer ${token}` }, (frame) => {
+            console.log("✅ WebSocket connecté :", frame);
+            const topic = `/topic/notifications/${username.toLowerCase()}`;
+            stompClient.subscribe(topic, (message) => {
+                const notif = JSON.parse(message.body);
+                displayNotification(notif, true);
+            });
+        }, (error) => {
+            console.error("❌ Erreur WebSocket :", error);
+        });
+    }
+
+    async function loadUnreadNotifications() {
+        try {
+            const response = await fetch('http://10.7.35.44:8081/api/notifications/unread', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const notifications = await response.json();
+                const container = document.getElementById("notifications");
+                container.innerHTML = '';
+                notifications.forEach(notif => displayNotification(notif, false));
+                updateBadge(notifications.length);
+            } else {
+                console.error("❌ Erreur lors du chargement des notifications");
+            }
+        } catch (error) {
+            console.error("❌ Exception loadUnreadNotifications :", error);
+        }
+    }
+
+    function displayNotification(notification, isNew = false) {
+        const container = document.getElementById("notifications");
+        const div = document.createElement("div");
+        div.className = "notif" + (isNew ? " new" : "");
+
+        const fileList = notification.filesNames && notification.filesNames.length > 0
+            ? `<div class="files"><b>📎 Fichiers :</b><ul>${notification.filesNames.map(file => `<li>${file}</li>`).join('')}</ul></div>`
+            : '';
+
+        div.innerHTML = `
+            <strong>📝 ${notification.operation}</strong> — ${notification.courrielNumber}<br>
+            <p>${notification.message}</p>
+            ${fileList}
+            <div class="meta">
+                <b>Expéditeur :</b> ${notification.email}<br>
+                <b>Division :</b> ${notification.divisionName || "-"}<br>
+                <b>Direction :</b> ${notification.directionName || "-"}<br>
+                <b>Sous-direction :</b> ${notification.sousDirectionName || "-"}<br>
+                <b>Date :</b> ${new Date(notification.time).toLocaleString()}
+            </div>
+            <button style="margin-top:10px;background:#4caf50;color:white;" onclick="markAsRead(${notification.id}, this)">✅ Marquer comme lue</button>
+        `;
+
+        container.prepend(div);
+        if (isNew) {
+            unreadCount++;
+            updateBadge(unreadCount);
+        }
+    }
+
+    async function markAsRead(id, buttonElement) {
+        try {
+            const response = await fetch(`http://10.7.35.44:8081/api/notifications/mark-read/${id}`, {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                fadeOut(buttonElement.parentElement, () => buttonElement.parentElement.remove());
+                unreadCount--;
+                updateBadge(unreadCount);
+                alert("✅ Notification marquée comme lue !");
+            } else {
+                alert("❌ Impossible de marquer comme lue");
+            }
+        } catch (e) {
+            console.error("❌ Erreur markAsRead :", e);
+        }
+    }
+
+    document.getElementById("markAllButton").addEventListener("click", async () => {
+        if (!confirm("⚠️ Voulez-vous vraiment marquer toutes les notifications comme lues ?")) return;
+
+        try {
+            const response = await fetch('http://10.7.35.44:8081/api/notifications/mark-all-read', {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const container = document.getElementById("notifications");
+                Array.from(container.children).forEach(el => fadeOut(el, () => el.remove()));
+                unreadCount = 0;
+                updateBadge(unreadCount);
+                alert("✅ Toutes les notifications ont été marquées comme lues !");
+            } else {
+                alert("❌ Impossible de marquer toutes comme lues");
+            }
+        } catch (e) {
+            console.error("❌ Erreur markAll :", e);
+        }
+    });
+
+    function updateBadge(count) {
+        const badge = document.getElementById("badge");
+        const markAllBtn = document.getElementById("markAllButton");
+
+        if (count > 0) {
+            badge.style.display = "inline-block";
+            badge.textContent = count;
+            markAllBtn.style.display = "block";
+        } else {
+            badge.style.display = "none";
+            markAllBtn.style.display = "none";
+        }
+    }
+
+    function fadeOut(element, callback) {
+        element.style.opacity = 1;
+        (function fade() {
+            if ((element.style.opacity -= 0.1) < 0) {
+                if (callback) callback();
+            } else {
+                requestAnimationFrame(fade);
+            }
+        })();
+    }
+</script>
+
+</body>
+</html>

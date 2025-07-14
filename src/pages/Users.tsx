@@ -274,12 +274,12 @@ export function UsersPage() {
       if (!isGlobalAdmin()) {
         // For direction admins, get users from their direction and all sous-directions
         if (isGlobalAdmin()) {
-          endpoint = `/auth/getAllUsers/${directionId}`
+          endpoint = `/auth/getAllUsers`
         } 
         // For sous-direction users, get users from their direction
         // Fallback to current behavior
         else {
-          endpoint = `/auth/getAllUsers/${directionId}`
+          endpoint = `/auth/getAllUsers`
         }
       }
       

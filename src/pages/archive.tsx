@@ -160,7 +160,7 @@ export function ArchivePage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
+    //setSearchTerm(value);
     updateFilters({ id: value, page: 0 });
   }
 
@@ -172,6 +172,7 @@ export function ArchivePage() {
   }
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -470,13 +471,12 @@ const mapNatureToBackend = (nature: string): string => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-6">
           <div className="flex items-center space-x-2 w-full md:w-auto">
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
+                  type="search"
+                  placeholder="Rechercher un courrier..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" /> Filtres

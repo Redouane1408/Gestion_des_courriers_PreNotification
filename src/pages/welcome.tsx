@@ -54,7 +54,7 @@ export function Example() {
               Gestion des courriers
             </h1>
             <p className="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">
-            Notre application doivent être traités, archivés et suivis les courriers de manière efficace pour assurer une traçabilité et une organisation hiérarchique optimale du la division.
+            Cette application traite, archive et suit les courriers de manière efficace et simple afin d'assurer une traçabilité complète au niveau de chaque division.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <a
