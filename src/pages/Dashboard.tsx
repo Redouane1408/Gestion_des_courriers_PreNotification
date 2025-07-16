@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { PageTransition } from "@/components/page-transition"
 import {
   Archive,
   ArrowUpDown,
@@ -242,6 +243,7 @@ export function Dashboard() {
   }
 
   return (
+    <PageTransition>
     <div className="flex flex-col gap-4 w-full">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Tableau de bord</h2>
@@ -634,5 +636,6 @@ export function Dashboard() {
         </DialogContent>
       </Dialog>
     </div>
+    </PageTransition>
   )
 }

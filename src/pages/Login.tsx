@@ -7,10 +7,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-//import { motion } from 'framer-motion'; // Import motion
-import { useTheme } from "@/components/theme-provider"
-
-
+import { useTheme } from "@/components/theme-provider";
+import { PageTransition } from "@/components/page-transition";
 
 export default function LoginPage() {
     const { theme } = useTheme();
@@ -55,25 +53,22 @@ export default function LoginPage() {
       };
 
   return (
-    <div className="flex min-h-screen w-screen ">
-        
-      {/* Left side - Dark background with logo */}
-      <div className="hidden w-1/2 bg-gradient-to-tr from-[#1568d4] to-[#015169] opacity-100 flex-col items-center justify-center md:flex ">
-            <div className="max-w-[300px]">
-                <img src="/Logo-MF.svg" alt="Ministry of Finance" width={300} height={100} className="mx-auto" />
-                
-                <h6 className="fixed bottom-0 left-80 w-full text-gray-300 font-thin text-sm read-only:bottom-0"> © Copyright 2024 DGB - Ministère de la Finance </h6>
-            </div>
+    <PageTransition>
+      <div className="flex min-h-screen w-screen ">
+          
+        {/* Left side - Dark background with logo */}
+        <div className="hidden w-1/2 bg-gradient-to-tr from-[#1568d4] to-[#015169] opacity-100 flex-col items-center justify-center md:flex ">
+              <div className="max-w-[300px]">
+                  <img src="/Logo-MF.svg" alt="Ministry of Finance" width={300} height={100} className="mx-auto" />
+                  
+                  <h6 className="fixed bottom-0 left-80 w-full text-gray-300 font-thin text-sm read-only:bottom-0"> © Copyright 2024 DGB - Ministère de la Finance </h6>
+              </div>
+        </div>
 
-      
-        
-        
-      </div>
-
-      {/* Right side - Login form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-20 lg:px-40">
-        <Card className="w-full max-w-md border-0 shadow-none">
-            <div className="max-w-[300px]">
+        {/* Right side - Login form */}
+        <div className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-20 lg:px-40">
+          <Card className="w-full max-w-md border-0 shadow-none">
+              <div className="max-w-[300px]">
                 
                 {theme === 'dark' ? (
                   <img src="logo courriel management-05.svg" alt="Dark Logo" width={100} height={100} className="opacity-100 mx-44 fixed top-52" />
@@ -123,6 +118,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

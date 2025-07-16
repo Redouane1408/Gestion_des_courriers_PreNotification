@@ -35,12 +35,12 @@ export function Sidebar() {
       show: role !== "ADMIN",
 
     },
-    {
+    /* {
       label: "Rapports",
       icon: BarChart3,
       href: "/reports",
       active: pathname === "/reports",
-    },
+    }, */
   ]
 
   return (

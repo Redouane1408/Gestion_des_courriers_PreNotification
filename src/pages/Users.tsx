@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
+import { PageTransition } from "@/components/page-transition";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -514,6 +515,7 @@ const handleCopyPassword = () => {
   };
 
   return (
+    <PageTransition>
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">
@@ -877,5 +879,6 @@ const handleCopyPassword = () => {
         onCopy={handleCopyPassword}
        />
     </div>
+    </PageTransition>
   )
 }

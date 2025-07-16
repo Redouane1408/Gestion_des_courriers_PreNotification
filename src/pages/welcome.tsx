@@ -138,7 +138,7 @@ export function Example() {
         </div>
         {/* Card 2: Suivi des Courriers */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">2. Suivi et Créer des Courriers</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">2. Suivi et Création des Courriers</h3>
             <p className="text-gray-300">Visualisez et gérez le statut de tous les courriers, y compris ceux en attente, traités et archivés.</p>
         </div>
         {/* Card 3: Rapports et Statistiques */}
@@ -149,6 +149,8 @@ export function Example() {
     </div>
 </div>
 
+
+
 {/* Guide for Regular Users */}
 <div className="py-16 px-96">
     <h2 className="text-center text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl mb-8">Guide pour les Utilisateurs</h2>
@@ -158,10 +160,12 @@ export function Example() {
             <h3 className="text-xl font-semibold text-white mb-4">1. Créer des Courriers</h3>
             <p className="text-gray-300">Découvrez comment soumettre de nouveaux courriers et les acheminer vers les services appropriés.</p>
         </div>
+        
         {/* Card 2: Consultation des Courriers */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-4">2. Consultation des Courriers</h3>
             <p className="text-gray-300">Consultez le statut de vos courriers envoyés et recevez des notifications sur leur progression.</p>
+                
         </div>
         {/* Card 3: Archivage et Recherche */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
