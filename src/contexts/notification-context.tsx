@@ -12,7 +12,7 @@ import { Client } from '@stomp/stompjs';
 // Types
 interface Notification {
   id: number;
-  userId: string;
+  email: string;
   message: string;
   type: string;
   readStatus: boolean;
@@ -96,7 +96,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`${API_URL}/api/notifications/${id}/mark-read`, {
+      await fetch(`${API_URL}/api/notifications/${id}/mark-read`, { //read/${id}
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -109,7 +109,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`${API_URL}/api/notifications/mark-all-read`, {
+      await fetch(`${API_URL}/api/notifications/mark-all-read`, { //read-all
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -36,7 +36,7 @@ export function RecentMails({ recentMails, getStatusColor }: RecentMailsProps) {
                   >
                     {mail.status}
                   </div>
-                  <div className="text-xs text-muted-foreground">{mail.registrationDate}</div>
+                  <div className="text-xs text-muted-foreground">{mail.historyList[0].timestamp}</div>
                 </div>
               </div>
             ))

@@ -57,7 +57,7 @@ export function Header() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-white bg-green-500 hover "
+                  className="text-xs text-cyan-700 bg-white hover:bg-cyan-700 hover:text-white"
                 >
                    Marquer toutes comme lues
                 </button>
@@ -72,12 +72,13 @@ export function Header() {
                     key={notif.id} 
                     className="mb-2 transition-all hover:shadow-md"
                   >
-                    <CardHeader className="p-3 pb-0">
+                    <CardHeader className="p-4 pb-0">
                       <div className="flex justify-between items-center">
                         <CardTitle className="text-sm font-medium">
                           {notif.operation} — {notif.courrielNumber}
                         </CardTitle>
-                        <Badge variant="outline" className="border-blue-400 text-blue-400">
+                        
+                        <Badge variant="outline" className="border-cyan-700 text-cyan-700">
                           New
                         </Badge>
                       </div>
@@ -87,13 +88,16 @@ export function Header() {
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(notif.time).toLocaleString()}
                       </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {notif.email}
+                      </p>
                     </CardContent>
                     <CardFooter className="p-3 pt-0 flex justify-end">
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => markAsRead(notif.id)}
-                        className="text-xs text-white  h-6 px-2 bg-green-500 "
+                        className="text-xs text-white  h-6 px-2 bg-cyan-700 "
                       >
                         Marquer comme lue
                       </Button>

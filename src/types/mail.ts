@@ -12,13 +12,13 @@ export interface Modification {
 export interface Mail {
   id: string;
   courielNumber: string;
-  type: "Entrant" | "Sortant";
+  type: "Départ" | "Sortant";
   nature: "Externe" | "Interne";
   subject: string;
   sender: string;
   recipient: string;
-  date: string;
-  registrationDate: string;
+  //date: string;
+  //registrationDate: string;
   returnDate: string | null;
   status: "Archivé" | "En cours";
   priority: "Normal" | "Urgent";
@@ -38,7 +38,7 @@ export interface Mail {
   toExternal?: string | null;
   arrivedDate?: string | null;
   sentDate?: string | null;
-  savedDate?: string | null;
+  //savedDate?: string | null;
   historyList: Array<{
     id: number;
     courrierId: number;
@@ -46,7 +46,7 @@ export interface Mail {
     updatedById: string | null;
     actionType: string;
     timestamp: string;
-}>;
+  }>;
   courielFiles?: Array<{
     id: number;
     fileName: string;
@@ -125,6 +125,7 @@ export interface MailPagination {
 }
 
 export interface MailFilters {
+  courielNumber: string;
   page?: number;
   limit?: number;
   size?:number;

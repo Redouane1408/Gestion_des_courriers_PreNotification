@@ -5,14 +5,13 @@ import {
   Archive,
   ArrowUpDown,
   FileText,
-  Filter,
   MoreHorizontal,
   Plus,
-  Download,
   Eye,
   Pencil,
   History,
-
+  Trash2,
+  Download
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,14 +31,15 @@ import { Overview } from "@/components/dashboard/overview"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-import { format } from "date-fns"
 import { fetchDashboardSummary, fetchMailOverview, fetchRecentMails } from "@/services/dashboardService";
 import { Mail } from "@/types/mail"; // Keep this import
 import { RecentMails } from "@/components/dashboard/recent-mails"
 import { Avatar } from "@radix-ui/react-avatar"
-// Remove any local Mail interface declaration (it's already commented out)
-// Types for our data
-// The local Mail, Attachment, and Modification interfaces will be removed from here.
+import { useMails } from "@/hooks/use-mails"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { EditMailDialog } from "@/components/edit-mail-dialog"
+import { mailService } from "@/services/mail-service"
+import { Label } from "@/components/ui/label"
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -48,8 +48,20 @@ export function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedMails, setSelectedMails] = useState<string[]>([])
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
-  // State for real data
-  const [recentMails, setRecentMails] = useState<Mail[]>([]); // Using imported Mail type
+  
+  // State for recent mails - separate from useMails hook
+  const [recentMailsData, setRecentMailsData] = useState<Mail[]>([])
+  // Use the useMails hook for other mail operations
+  const { mails, filters, refresh } = useMails()
+  
+  // Add these state variables for dialogs
+  const [isAnyDialogOpen, setIsAnyDialogOpen] = useState(false)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
+  const [selectedMail, setSelectedMail] = useState<Mail | null>(null)
+  
+  // Dashboard state
   const [dashboardSummary, setDashboardSummary] = useState({
     totalMails: 0,
     incomingMails: 0,
@@ -58,6 +70,7 @@ export function Dashboard() {
   });
   const [mailOverviewData, setMailOverviewData] = useState<{ name: string; total: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true)
+  
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -71,7 +84,7 @@ export function Dashboard() {
 
         const recent = await fetchRecentMails();
         console.log("Fetched recent mails:", recent); // Add this line
-        setRecentMails(Array.isArray(recent) ? recent : []); // Ensure recent is always an array
+        setRecentMailsData(Array.isArray(recent) ? recent : []); // Use the local state setter
 
       } catch (error) {
         console.error("Error loading dashboard data:", error);
@@ -80,7 +93,7 @@ export function Dashboard() {
           description: "Erreur lors de la récupération des données du tableau de bord.",
           variant: "destructive",
         });
-        setRecentMails([]); // Also ensure it's an empty array on error
+        setRecentMailsData([]); // Use the local state setter
       } finally {
         setIsLoading(false);
       }
@@ -89,14 +102,13 @@ export function Dashboard() {
     loadDashboardData();
   }, [toast]);
 
-  // Update filteredMails to use recentMails if you want to filter only the displayed recent mails
-  // If you want to filter all mails, you'll need a separate API call for the 'mails' tab
-  const filteredMails = recentMails.filter(
+  // Update filteredMails to use recentMailsData
+  const filteredMails = recentMailsData.filter(
     (mail) =>
       mail.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mail.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mail.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (mail.courielNumber && mail.courielNumber.toLowerCase().includes(searchTerm.toLowerCase())), // Use courielNumber
+      (mail.courielNumber && mail.courielNumber.toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   const getStatusColor = (status: string) => {
@@ -144,7 +156,7 @@ export function Dashboard() {
       Type: mail.type,
       Nature: mail.nature,
       Objet: mail.subject,
-      "Date d'enregistrement": mail.registrationDate,
+      "Date d'enregistrement": mail.historyList[0].timestamp,
       Statut: mail.status,
       Priorité: mail.priority,
       Expéditeur: mail.sender,
@@ -169,9 +181,59 @@ export function Dashboard() {
     }, 10)
   }
 
-  const handleViewDetails = (mail: Mail) => {
-    // Navigate to mail details page
-    navigate(`/courriers/${mail.courielNumber || mail.id}`) // Use courielNumber or fallback to id
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
+  // Replace the existing handleViewDetails function with this one
+  const closeAllDropdowns = () => {
+    // Force close any open Radix UI dropdown menus
+    document.body.click();
+    
+    // Small delay to ensure DOM updates before opening dialogs
+    return new Promise(resolve => setTimeout(resolve, 50));
+  };
+
+  // Update these handler functions to use the async approach
+  const handleViewDetails = async (mail: Mail) => {
+    await closeAllDropdowns();
+    setSelectedMail(mail);
+    setIsViewDialogOpen(true);
+  };
+
+  const openEditDialog = async (mail: Mail) => {
+    await closeAllDropdowns();
+    setSelectedMail(mail);
+    setIsEditDialogOpen(true);
+  };
+
+  const openHistoryDialog = async (mail: Mail) => {
+    await closeAllDropdowns();
+    setSelectedMail(mail);
+    setIsHistoryDialogOpen(true);
+  };
+
+  const handleDeleteMail = async (mail: Mail) => {
+    await closeAllDropdowns();
+    setSelectedMail(mail);
+    
+    try {
+      await mailService.deleteMail(mail.courielNumber);
+      toast({
+        title: "Succès",
+        description: "Le courrier a été supprimé avec succès.",
+      });
+      // Refresh the dashboard data to update the UI
+      const recent = await fetchRecentMails();
+      setRecentMailsData(Array.isArray(recent) ? recent : []);
+    } catch (error) {
+      console.error('Error deleting mail:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du courrier.",
+      });
+    }
   }
 
   const handleNewMail = () => {
@@ -256,7 +318,7 @@ export function Dashboard() {
               </CardHeader>
               <CardContent className="pl-2 flex-grow">
                 {/* Remplacer le tableau des courriers récents */}
-                <RecentMails recentMails={recentMails} getStatusColor={getStatusColor} />
+                <RecentMails recentMails={recentMailsData} getStatusColor={getStatusColor} />
               </CardContent>
               <div className="flex items-center justify-end p-4">
                 <Button onClick={() => navigate("/archive")} size="sm">
@@ -299,29 +361,10 @@ export function Dashboard() {
                   type="search"
                   placeholder="Rechercher un courrier..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                 />
                 <div className="flex items-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="ml-2">
-                        <Filter className="mr-2 h-4 w-4" />
-                        Filtrer
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Filtrer par</DropdownMenuLabel>
-                      <DropdownMenuItem>Type</DropdownMenuItem>
-                      <DropdownMenuItem>Nature</DropdownMenuItem>
-                      <DropdownMenuItem>Priorité</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>Statut</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button variant="outline" className="ml-2" onClick={handleExport}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Exporter
-                  </Button>
+
                 </div>
               </div>
               <div className="overflow-auto">
@@ -348,18 +391,18 @@ export function Dashboard() {
                   </TableHeader>
                   <TableBody>
                     {filteredMails.map((mail) => (
-                      <TableRow key={mail.courielNumber || mail.id}> {/* Use courielNumber or fallback to id */}
+                      <TableRow key={mail.courielNumber || mail.id}>
                         <TableCell className="w-[50px]">
                           <Checkbox
-                            checked={selectedMails.includes(mail.courielNumber || mail.id)} // Use courielNumber or fallback to id
-                            onCheckedChange={() => handleSelectMail(mail.courielNumber || mail.id)} // Use courielNumber or fallback to id
+                            checked={selectedMails.includes(mail.courielNumber || mail.id)}
+                            onCheckedChange={() => handleSelectMail(mail.courielNumber || mail.id)}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{mail.courielNumber || mail.id}</TableCell> {/* Use courielNumber or fallback to id */}
+                        <TableCell className="font-medium">{mail.courielNumber || mail.id}</TableCell>
                         <TableCell>{mail.subject}</TableCell>
                         <TableCell>{mail.type}</TableCell>
                         <TableCell>{mail.nature}</TableCell>
-                        <TableCell>{mail.registrationDate}</TableCell>
+                        <TableCell>{mail.historyList[0].timestamp}</TableCell>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(mail.status)}`}
@@ -390,16 +433,16 @@ export function Dashboard() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 Voir les détails
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openEditDialog(mail)}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Modifier
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Archive className="mr-2 h-4 w-4" />
-                                Archiver
+                              <DropdownMenuItem onClick={() => handleDeleteMail(mail)}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Supprimer
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openHistoryDialog(mail)}>
                                 <History className="mr-2 h-4 w-4" />
                                 Historique
                               </DropdownMenuItem>
@@ -415,6 +458,181 @@ export function Dashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Mail Dialog */}
+      <Dialog 
+        open={isViewDialogOpen} 
+        onOpenChange={(open) => {
+          // When closing, ensure we don't have focus issues
+          if (!open) {
+            setTimeout(() => setIsViewDialogOpen(false), 0);
+          } else {
+            setIsViewDialogOpen(open);
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Détails du courrier</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500">
+              Informations détaillées du courrier sélectionné
+            </DialogDescription>
+          </DialogHeader>
+          {selectedMail && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div>
+                <Label className="font-medium">N° de courrier</Label>
+                <div>{selectedMail.courielNumber || selectedMail.id}</div>
+              </div>
+              <div>
+                <Label className="font-medium">Type</Label>
+                <div>{selectedMail.type}</div>
+              </div>
+              <div>
+                <Label className="font-medium">Nature</Label>
+                <div>{selectedMail.nature}</div>
+              </div>
+              <div>
+                <Label className="font-medium">Objet</Label>
+                <div>{selectedMail.subject}</div>
+              </div>
+              <div>
+                <Label className="font-medium">Date d'enregistrement</Label>
+                <div>
+                  {selectedMail.historyList[0].timestamp}
+                </div>
+              </div>
+              <div>
+                <Label className="font-medium">Statut</Label>
+                <div>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                      selectedMail.status
+                    )}`}
+                  >
+                    {selectedMail.status}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Label className="font-medium">Priorité</Label>
+                <div>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                      selectedMail.priority
+                    )}`}
+                  >
+                    {selectedMail.priority}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Label className="font-medium">Expéditeur</Label>
+                <div>{selectedMail.sender}</div>
+              </div>
+              <div>
+                <Label className="font-medium">Destinataire</Label>
+                <div>{selectedMail.recipient}</div>
+              </div>
+              <div className="md:col-span-2">
+                <Label className="font-medium">Description</Label>
+                <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded-md">
+                  {selectedMail.description || "Aucune description"}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Mail Dialog */}
+      <EditMailDialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          // When closing, ensure we don't have focus issues
+          if (!open) {
+            setTimeout(() => setIsEditDialogOpen(false), 0);
+          } else {
+            setIsEditDialogOpen(open);
+          }
+        }}
+        mail={selectedMail}
+        onSuccess={() => {
+          setIsEditDialogOpen(false);
+          // Refresh the mail list
+          fetchRecentMails().then(recent => {
+            setRecentMailsData(Array.isArray(recent) ? recent : []);
+          });
+        }}
+      />
+
+      {/* History Dialog */}
+      <Dialog 
+        open={isHistoryDialogOpen} 
+        onOpenChange={(open) => {
+          // When closing, ensure we don't have focus issues
+          if (!open) {
+            setTimeout(() => setIsHistoryDialogOpen(false), 0);
+          } else {
+            setIsHistoryDialogOpen(open);
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl overflow-hidden bg-white">
+          <DialogHeader className="border-b pb-4">
+            <DialogTitle className="text-xl font-semibold text-gray-900">Historique du Courrier</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500">
+              Historique des modifications du courrier
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-6 max-h-[60vh] overflow-y-auto pr-4">
+            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:w-0.5 before:-translate-x-1/2 before:bg-gray-200">
+              {selectedMail?.historyList?.map((history) => {
+                return (
+                  <div key={history.id} className="relative pl-8 pb-8">
+                    {/* Timeline dot */}
+                    <div className="absolute left-0 top-2 h-4 w-4 rounded-full border-2 border-blue-600 bg-white" />
+                    
+                    <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                          ${history.actionType === 'CREATE' ? 'bg-green-100 text-green-800' : 
+                            history.actionType === 'UPDATE' ? 'bg-blue-100 text-blue-800' : 
+                            'bg-gray-100 text-gray-800'}`}>
+                          {history.actionType}
+                        </span>
+                        <time className="text-sm text-gray-500">
+                          {history.timestamp}
+                        </time>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-500">Créé par:</span>
+                          <span className="text-sm text-gray-900"> {history.createdById}</span>
+                        </div>
+                        
+                        {history.updatedById && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-500">Modifié par:</span>
+                            <span className="text-sm text-gray-900"> {history.updatedById}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -54,7 +54,7 @@ interface Mail {
   arrivedDate: string| null;
   sentDate: string| null;
   returnDate: string;
-  savedDate: string | null;
+  //savedDate: string | null;
   fromDivisionId: number;
   fromDirectionId: number | null;
   fromSousDirectionId: number | null;
@@ -63,6 +63,7 @@ interface Mail {
   toDirectionId: number | null;
   toSousDirectionId: number | null;
   toExternal: string | null;
+  
   historyList: Array<{
     id: number;
     courrierId: number;
@@ -470,13 +471,7 @@ const mapNatureToBackend = (nature: string): string => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-6">
           <div className="flex items-center space-x-2 w-full md:w-auto">
-            <div className="relative w-full md:w-64">
-              <Input
-                  type="search"
-                  placeholder="Rechercher un courrier..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <div className="relative w-full ">
             </div>
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" /> Filtres
@@ -1120,7 +1115,7 @@ const mapNatureToBackend = (nature: string): string => {
                 <div>
                   <Label className="font-medium">Date d'enregistrement</Label>
                   <div>
-                    {new Date(selectedMail.registrationDate).toLocaleDateString()}
+                    {new Date(selectedMail.sentDate || '').toLocaleDateString()}
                   </div>
                 </div>
                 <div>
@@ -1272,12 +1267,10 @@ const mapNatureToBackend = (nature: string): string => {
                         </span>
                         <time className="text-sm text-gray-500">
                           
-                          {new Date(history.timestamp).toLocaleString('fr-FR', {
+                          {new Date(history.timestamp).toLocaleDateString ('fr-FR', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
                           })}
                         </time>
                       </div>
