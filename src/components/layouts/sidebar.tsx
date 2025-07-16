@@ -53,7 +53,7 @@ export function Sidebar() {
                 <Button
                   key={route.href}
                   variant={route.active ? "secondary" : "ghost"}
-                  className={cn("w-full justify-start", route.active && "bg-primary/10")}
+                  className={cn("w-full text-cyan-600 rounded-md p-2 justify-start", route.active && "bg-primary/10")}
                   asChild
                 >
                   <Link to={route.href}>

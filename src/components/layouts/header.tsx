@@ -1,6 +1,6 @@
 import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
-//import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { UserNav } from "./user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "@/components/theme-provider"
@@ -34,6 +34,20 @@ export function Header() {
     return date.toLocaleDateString();
   };
 
+  // Helper function to get operation badge styling
+  const getOperationBadgeStyle = (operation: string) => {
+    switch(operation) {
+      case 'CREATE':
+        return 'bg-green-100 text-green-800';
+      case 'UPDATE':
+        return 'bg-blue-100 text-blue-800';
+      case 'DELETE':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 w-full">
       <div className="hidden md:block">
@@ -61,7 +75,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] text-white">
+                <span className="absolute -top-2 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-800 text-[10px] text-white">
                   {unreadCount}
                 </span>
               )}
@@ -95,8 +109,7 @@ export function Header() {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
-                            
-                          <p className="text-sm font-medium truncate">
+                          <p className="text-sm font-bold text-cyan-700 truncate">
                             {notif.email.split('@')[0]}
                           </p>
                           <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
@@ -107,9 +120,14 @@ export function Header() {
                         <p className="text-sm mb-1">{notif.message}</p>
                         
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-muted-foreground">
-                            {notif.courrielNumber}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOperationBadgeStyle(notif.operation)}`}>
+                              {notif.operation}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {notif.courrielNumber}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex justify-end">
                         <Button 

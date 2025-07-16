@@ -973,7 +973,13 @@ const mapNatureToBackend = (nature: string): string => {
                           onCheckedChange={() => handleSelectMail(mail.id)}
                         />
                       </TableCell>
-                      <TableCell>{mail.id}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-bold`}
+                        >
+                          {mail.id}
+                        </span>  
+                      </TableCell>
                       <TableCell>{mail.type}</TableCell>
                       <TableCell>{mail.nature}</TableCell>
                       <TableCell className="max-w-xs truncate">
@@ -987,7 +993,7 @@ const mapNatureToBackend = (nature: string): string => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(
                             mail.status
                           )}`}
                         >
