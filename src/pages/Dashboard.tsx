@@ -355,7 +355,7 @@ export function Dashboard() {
             
             <CardHeader>
               <CardTitle>Liste des courriers</CardTitle>
-              <CardDescription>Les (5) derniers courriers</CardDescription>
+              <CardDescription>Les cinq (5) derniers courriers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between py-2">
