@@ -641,7 +641,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{mailType === 'Entrant' ? 'Date d\'arrivée' : 'Date d\'envoi'}</label>
+              <label className="text-sm font-medium">{mailType === 'Entrant'  ? 'Date d\'arrivée' : 'Date d\'envoi'}</label>
               <Input
                 type="date"
                 name={mailType === 'Entrant' ? 'arrivedDate' : 'sentDate'}
