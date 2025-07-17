@@ -91,6 +91,7 @@ export function ProfilePage() {
                   <Label htmlFor="phone">Téléphone</Label>
                   <Input id="phone" type="tel" defaultValue={profile?.telephone} readOnly />
                 </div>
+                
               </CardContent>
               {isAdmin}
             </Card>
@@ -101,17 +102,26 @@ export function ProfilePage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="division">Division</Label>
-                  <Input id="divion" defaultValue={profile.divisionId} readOnly />
+                  <Label htmlFor="profession">Profession</Label>
+                  <Input id="profession" defaultValue={profile?.profession} readOnly />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profession">Profession</Label>
-                  <Input id="profession" defaultValue={profile.role} readOnly />
+                  <Label htmlFor="role">Role</Label>
+                  <Input id="role" defaultValue={profile.role} readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Code à 4 chiffres</Label>
-                  <Input id="4chiffres" defaultValue={profile.quatreChiffres} readOnly />
+                  <Input id="4chiffres" defaultValue={profile?.quatreChiffres} readOnly />
                 </div>
+              {profile.divisionId && (
+              <div className="space-y-2">
+                <Label htmlFor="division">Division</Label>
+                <Input id="division" defaultValue={profile.divisionId} readOnly />
+              </div>
+              
+            
+            )}  
+
               {profile.directionId && (
               <div className="space-y-2">
                 <Label htmlFor="direction">Direction</Label>
