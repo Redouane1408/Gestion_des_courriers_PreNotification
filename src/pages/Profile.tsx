@@ -117,7 +117,16 @@ export function ProfilePage() {
                 <Label htmlFor="direction">Direction</Label>
                 <Input id="direction" defaultValue={profile.directionId} readOnly />
               </div>
-
+              
+            
+            )}
+                {profile.sousDirectionId && (
+              <div className="space-y-2">
+                <Label htmlFor="sousDirection">Sous-direction</Label>
+                <Input id="sousDirection" defaultValue={profile.sousDirectionId} readOnly />
+              </div>
+              
+            
             )}
                 
               </CardContent>
