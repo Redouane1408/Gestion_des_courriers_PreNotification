@@ -1121,7 +1121,7 @@ const mapNatureToBackend = (nature: string): string => {
                 <div>
                   <Label className="font-medium">Date d'enregistrement</Label>
                   <div>
-                    {new Date(selectedMail.sentDate || '').toLocaleDateString()}
+                    {new Date(selectedMail.registrationDate || '').toLocaleDateString()}
                   </div>
                 </div>
                 <div>
