@@ -101,19 +101,7 @@ export function ProfilePage() {
                 <CardDescription>Vos informations professionnelles.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="profession">Profession</Label>
-                  <Input id="profession" defaultValue={profile?.profession} readOnly />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Input id="role" defaultValue={profile.role} readOnly />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Code à 4 chiffres</Label>
-                  <Input id="4chiffres" defaultValue={profile?.quatreChiffres} readOnly />
-                </div>
-              {profile.divisionId && (
+                              {profile.divisionId && (
               <div className="space-y-2">
                 <Label htmlFor="division">Division</Label>
                 <Input id="division" defaultValue={profile.divisionId} readOnly />
@@ -130,14 +118,27 @@ export function ProfilePage() {
               
             
             )}
-                {profile.sousDirectionId && (
+                {profile.souDirectionId && (
               <div className="space-y-2">
                 <Label htmlFor="sousDirection">Sous-direction</Label>
-                <Input id="sousDirection" defaultValue={profile.sousDirectionId} readOnly />
+                <Input id="sousDirection" defaultValue={profile.souDirectionId} readOnly />
               </div>
               
             
             )}
+                <div className="space-y-2">
+                  <Label htmlFor="profession">Profession</Label>
+                  <Input id="profession" defaultValue={profile?.profession} readOnly />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Input id="role" defaultValue={profile.role} readOnly />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Code à 4 chiffres</Label>
+                  <Input id="4chiffres" defaultValue={profile?.quatreChiffres} readOnly />
+                </div>
+
                 
               </CardContent>
               {isAdmin}

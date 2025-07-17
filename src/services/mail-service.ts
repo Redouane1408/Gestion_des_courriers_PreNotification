@@ -150,7 +150,7 @@ export const mailService = {
       throw error;
     }
 },
-    async exportMails(filters: MailFilters = {}): Promise<Blob> {
+    async exportMails(filters: Partial<MailFilters> = {}): Promise<Blob> {
       try {
         const userData = localStorage.getItem('user');
         const token = userData ? JSON.parse(userData).accessToken : null;
@@ -159,19 +159,27 @@ export const mailService = {
           throw new Error('Authentication token not found');
         }
   
-        const backendFilters = mapFiltersToBackend(filters);
+        const backendFilters = mapFiltersToBackend(filters as MailFilters);
+        
+         const pageValue = backendFilters.page || 0;
+         const sizeValue = backendFilters.size || 10;
+        // Supprimer les paramètres de pagination pour l'exportation
+        // ou définir une taille très grande pour inclure tous les éléments
+   
+        
         const cleanedParams = Object.fromEntries(
           Object.entries(backendFilters).filter(([_, v]) => v !== null && v !== '')
         );
   
         const response = await api.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/export`,
-          cleanedParams,
-          {
-            ...createRequestConfig(token),
-            responseType: 'blob'
-          }
-        );
+      `${import.meta.env.VITE_API_BASE_URL}/api/export?page=${pageValue}&size=${sizeValue}`,
+      cleanedParams,
+       {
+        ...createRequestConfig(token),
+        responseType: 'blob',
+        params: cleanedParams // Les autres paramètres sont envoyés comme query params
+      } 
+    );
         
         return response.data;
       } catch (error) {

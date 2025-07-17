@@ -83,7 +83,7 @@ export interface JWTClaims {
     quatreChiffres: number
     directionId: string |null
     divisionId: string | null
-    sousDirectionId: string | null
+    souDirectionId: string | null
     role: UserRole
   }
   
