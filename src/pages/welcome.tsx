@@ -139,8 +139,7 @@ export function Example() {
         {/* Card 2: Suivi des Courriers */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-4">2. Suivi et Archivage des Courriers</h3>
-            <p className="text-gray-300">2.1 Visualisez et gérez les courriers (en cours de traitement) ou (archivé), avec des informations sur le créarteur du courrier et la date de création.</p>
-            <p className="text-gray-300">2.2 Une Notification est générée a chaque fois qu'un courrier est ( Archivé , Modifié ou Supprimé) , assurant une meilleure tracaibilité.</p>
+            <p className="text-gray-300">Visualisez et gérez les courriers en cours de traitement ou archivé, avec des informations sur le créarteur du courrier et la date de création. Une Notification est générée a chaque fois qu'un courrier est ( Archivé , Modifié ou Supprimé) , assurant une meilleure traçabilité.</p>
 
 
 
@@ -149,7 +148,7 @@ export function Example() {
         {/* Card 3: Rapports et Statistiques */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-4">3. Statistiques Mensuelles</h3>
-            <p className="text-gray-300">Visualisez les totaux mensuels des courriers 'Entrant','Sortant' pour suivre l'évaluation de l'activité.</p>
+            <p className="text-gray-300">Visualisez les totaux mensuels des courriers ( Entrants , Sortants )  pour suivre l'évaluation de l'activité.</p>
         </div>
     </div>
 </div>
@@ -162,7 +161,7 @@ export function Example() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Card 1: Envoi de Courriers */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">1. Archiver des Courriers</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">1. Archivage des Courriers</h3>
             <p className="text-gray-300">Découvrez comment soumettre de nouveaux courriers et les acheminer vers les services appropriés.</p>
         </div>
         
@@ -175,7 +174,7 @@ export function Example() {
         {/* Card 3: Archivage et Recherche */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-4">3. Recherche des Courriers</h3>
-            <p className="text-gray-300">Accédez facilement à l'historique de vos courriers et utilisez la fonction de recherche pour retrouver des documents spécifiques.</p>
+            <p className="text-gray-300">Accédez facilement à l'historique de vos courriers et utilisez un filtre pour retrouver des documents spécifiques.</p>
         </div>
     </div>
 </div>

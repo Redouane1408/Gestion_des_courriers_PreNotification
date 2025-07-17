@@ -296,13 +296,47 @@ export function ArchivePage() {
     setOpenDropdownId(null)
   }
 
-  const handleDownloadAttachments = (mail: Mail) => {
+  const handleDownloadAttachments = async (mail: Mail) => {
     // Assurez-vous que le menu est fermé
-    setOpenDropdownId(null)
-    toast({
-      title: "Téléchargement des pièces jointes",
-      description: `${mail.attachments.length} fichier(s) en cours de téléchargement.`,
-    })
+    setOpenDropdownId(null);
+    
+    try {
+      // Check if mail has files
+      if (!mail.courielFiles || mail.courielFiles.length === 0) {
+        toast({
+          title: "Information",
+          description: "Aucun fichier à télécharger pour ce courrier.",
+        });
+        return;
+      }
+      
+      toast({
+        title: "Téléchargement des pièces jointes",
+        description: `${mail.courielFiles.length} fichier(s) en cours de téléchargement.`,
+      });
+      
+      const blob = await mailService.downloadAllFiles(mail.courielNumber);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${mail.courielNumber}_files.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Succès",
+        description: `Les fichiers ont été téléchargés avec succès.`,
+      });
+    } catch (error) {
+      console.error('Error downloading files:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du téléchargement des fichiers.",
+        variant: "destructive"
+      });
+    }
   }
 
   const handleDeleteMail = async (courielNumber: string) => {
@@ -474,7 +508,7 @@ const mapNatureToBackend = (nature: string): string => {
             <div className="relative w-full ">
             </div>
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
-              <Filter className="mr-2 h-4 w-4" /> Filtres
+              <Filter className="mr-2 h-4 w-4" /> Filtre
             </Button>
           </div>
           <div className="flex items-center space-x-2">
@@ -499,7 +533,7 @@ const mapNatureToBackend = (nature: string): string => {
         {isFilterOpen && (
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Filtres</h3>
+              <h3 className="text-lg font-medium">Filtrer par :</h3>
               <Button
                 variant="ghost"
                 size="sm"
@@ -585,7 +619,7 @@ const mapNatureToBackend = (nature: string): string => {
                 </div>
               </div>
               <div>
-                <Label>Date de réception</Label>
+                <Label>Date d'arrivée</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <Input
                     type="date"
@@ -942,20 +976,14 @@ const mapNatureToBackend = (nature: string): string => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox className="x-auto"
-                        checked={
-                          selectedMails.length === filteredMails.length &&
-                          filteredMails.length > 0
-                        }
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </TableHead>
+                    <TableHead className="w-12"></TableHead>
                     <TableHead>N° de courrier</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Nature</TableHead>
                     <TableHead>Objet</TableHead>
-                    <TableHead>Date d'enregistrement</TableHead>
+                    {/* <TableHead>Date d'enregistrement</TableHead> */}
+                    <TableHead>Date d'arrivée</TableHead>
+                    <TableHead>Date d'envoi</TableHead>
                     <TableHead>Date de retour</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Priorité</TableHead>
@@ -966,12 +994,9 @@ const mapNatureToBackend = (nature: string): string => {
                 </TableHeader>
                 <TableBody>
                   {filteredMails.map((mail) => (
-                    <TableRow key={mail.id}>
+                    <TableRow key={mail.id} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
                       <TableCell>
-                        <Checkbox
-                          checked={selectedMails.includes(mail.id)}
-                          onCheckedChange={() => handleSelectMail(mail.id)}
-                        />
+
                       </TableCell>
                       <TableCell>
                         <span
@@ -985,11 +1010,17 @@ const mapNatureToBackend = (nature: string): string => {
                       <TableCell className="max-w-xs truncate">
                         {mail.subject}
                       </TableCell>
+                      {/* <TableCell>
+                        {mail.historyList[0]?.timestamp ? new Date(mail.historyList[0].timestamp).toLocaleDateString() : 'N/A'}
+                      </TableCell> */}
                       <TableCell>
-                        {new Date(mail.registrationDate).toLocaleDateString()}
+                        {mail.arrivedDate ? new Date(mail.arrivedDate).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell>
-                        {mail.returnDate ? new Date(mail.returnDate).toLocaleDateString() : 'N/A'}
+                        {mail.sentDate ? new Date(mail.sentDate).toLocaleDateString() : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {mail.returnDate ? new Date(mail.returnDate).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell>
                         <span
@@ -1009,7 +1040,7 @@ const mapNatureToBackend = (nature: string): string => {
                           {mail.priority}
                         </span>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
+                      <TableCell className="max-w-xs truncate ">
                         {mail.sender}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">
@@ -1051,6 +1082,10 @@ const mapNatureToBackend = (nature: string): string => {
                               Supprimer
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleDownloadAttachments(mail)}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Télécharger fichiers
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openHistoryDialog(mail)}>
                               <History className="mr-2 h-4 w-4" />
                               Historique
@@ -1169,6 +1204,14 @@ const mapNatureToBackend = (nature: string): string => {
                     <Label className="font-medium">Date d'envoi</Label>
                     <div>
                       {new Date(selectedMail.sentDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+                {selectedMail.arrivedDate && (
+                  <div>
+                    <Label className="font-medium">Date d'arrivée</Label>
+                    <div>
+                      {new Date(selectedMail.arrivedDate).toLocaleDateString()}
                     </div>
                   </div>
                 )}

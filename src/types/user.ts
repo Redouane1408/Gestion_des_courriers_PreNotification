@@ -79,12 +79,11 @@ export interface JWTClaims {
     nomComplet: string
     email: string
     telephone?: string
+    profession?: string
     quatreChiffres: number
     directionId: string |null
     divisionId: string | null
     sousDirectionId: string | null
     role: UserRole
   }
-  
-  
   

@@ -81,24 +81,18 @@ export function ProfilePage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nom complet</Label>
-                  <Input id="name" defaultValue={profile.nomComplet} readOnly={!isAdmin} />
+                  <Input id="name" defaultValue={profile.nomComplet} readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue={profile.email} readOnly={!isAdmin} />
+                  <Input id="email" type="email" defaultValue={profile.email} readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" type="tel" defaultValue={profile?.telephone} readOnly={!isAdmin} />
+                  <Input id="phone" type="tel" defaultValue={profile?.telephone} readOnly />
                 </div>
               </CardContent>
-              {isAdmin && (
-                <CardFooter>
-                  <Button onClick={handleSave} disabled={isLoading}>
-                    {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
-                  </Button>
-                </CardFooter>
-              )}
+              {isAdmin}
             </Card>
             <Card>
               <CardHeader>
@@ -110,24 +104,24 @@ export function ProfilePage() {
                   <Label htmlFor="division">Division</Label>
                   <Input id="divion" defaultValue={profile.divisionId} readOnly />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profession">Profession</Label>
+                  <Input id="profession" defaultValue={profile.role} readOnly />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Code à 4 chiffres</Label>
+                  <Input id="4chiffres" defaultValue={profile.quatreChiffres} readOnly />
+                </div>
               {profile.directionId && (
               <div className="space-y-2">
                 <Label htmlFor="direction">Direction</Label>
                 <Input id="direction" defaultValue={profile.directionId} readOnly />
               </div>
+
             )}
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Code à 4 chiffres</Label>
-                  <Input id="4chiffres" defaultValue={profile.quatreChiffres} readOnly />
-                </div>
+                
               </CardContent>
-              {isAdmin && (
-                <CardFooter>
-                  <Button onClick={handleSave} disabled={isLoading}>
-                    {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
-                  </Button>
-                </CardFooter>
-              )}
+              {isAdmin}
             </Card>
           </div>
         </TabsContent>

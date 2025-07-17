@@ -322,5 +322,31 @@ export const mailService = {
       console.error('Error downloading file:', error);
       throw error;
     }
+  },
+
+  async downloadAllFiles(courielNumber: string): Promise<Blob> {
+    try {
+      const userData = localStorage.getItem('user');
+      const token = userData ? JSON.parse(userData).accessToken : null;
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const encodedCourielNumber = encodeURIComponent(courielNumber);
+      const downloadUrl = `${import.meta.env.VITE_API_BASE_URL}/api/downloadAll?courielNumber=${encodedCourielNumber}`;
+      console.log('Attempting to download all files from URL:', downloadUrl);
+      const response = await api.get(
+        downloadUrl,
+        {
+          ...createRequestConfig(token),
+          responseType: 'blob' // Important for downloading files
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error downloading all files:', error);
+      throw error;
+    }
   }
 };
