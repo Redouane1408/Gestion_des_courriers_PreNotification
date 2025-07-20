@@ -421,7 +421,8 @@ const handleCopyPassword = () => {
           const updateParams = new URLSearchParams();
           updateParams.append('nomComplet', data.nomComplet);
           updateParams.append('telephone', data.telephone);
-          
+          updateParams.append('quatreChiffres', data.quatreChiffres);
+          updateParams.append('profession', data.profession);
           
           // Always include the direction ID from the selected user
           if (selectedUser.direction && !isNaN(Number(selectedUser.direction))) {
@@ -444,7 +445,7 @@ const handleCopyPassword = () => {
         } else {
           // For regular user updates, keep the existing code
           await axios.put(
-            `${import.meta.env.VITE_API_BASE_URL}/auth/update/${selectedUser.id}?nomComplet=${data.nomComplet}&telephone=${data.telephone}`,
+            `${import.meta.env.VITE_API_BASE_URL}/auth/update/${selectedUser.id}?nomComplet=${data.nomComplet}&telephone=${data.telephone}&quatreChiffres=${data.quatreChiffres}&profession=${data.profession}`,
             {},
             {
               headers: {
@@ -652,7 +653,7 @@ const handleCopyPassword = () => {
                     <FormItem>
                       <FormLabel>Profession</FormLabel>
                       <FormControl>
-                        <Input {...field} disabled={!!selectedUser} />
+                        <Input {...field} /* disabled={!!selectedUser} */ />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -666,7 +667,7 @@ const handleCopyPassword = () => {
                       <FormItem>
                         <FormLabel>Code à 4 chiffres</FormLabel>
                         <FormControl>
-                          <Input maxLength={4} {...field} disabled={!!selectedUser} />
+                          <Input maxLength={4} {...field} /* disabled={!!selectedUser}  *//>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -766,7 +767,7 @@ const handleCopyPassword = () => {
                     <FormItem>
                       <FormLabel>Profession</FormLabel>
                       <FormControl>
-                        <Input {...field} disabled={!!selectedUser} />
+                        <Input {...field} /* disabled={!!selectedUser}  *//>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -779,7 +780,7 @@ const handleCopyPassword = () => {
                     <FormItem>
                       <FormLabel>Code à 4 chiffres</FormLabel>
                       <FormControl>
-                        <Input maxLength={4} {...field} disabled={!!selectedUser} />
+                        <Input maxLength={4} {...field}/*  disabled={!!selectedUser} */ />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

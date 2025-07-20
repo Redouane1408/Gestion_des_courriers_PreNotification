@@ -139,7 +139,7 @@ export function Example() {
         {/* Card 2: Suivi des Courriers */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-4">2. Suivi et Archivage des Courriers</h3>
-            <p className="text-gray-300">Visualisez et gérez les courriers en cours de traitement ou archivé, avec des informations sur le créarteur du courrier et la date de création. Une Notification est générée a chaque fois qu'un courrier est ( Archivé , Modifié ou Supprimé) , assurant une meilleure traçabilité.</p>
+            <p className="text-gray-300">Visualisez et gérez les courriers en cours de traitement ou archivé, avec des informations sur le créateur du courrier et la date de création. Une Notification est générée a chaque fois qu'un courrier est ( Archivé , Modifié ou Supprimé) , assurant une meilleure traçabilité.</p>
 
 
 

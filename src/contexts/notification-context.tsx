@@ -6,8 +6,8 @@ import {
   useState,
   ReactNode,
 } from 'react';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+
+import { EventSourcePolyfill } from 'event-source-polyfill';
 
 // Types
 interface Notification {
@@ -38,47 +38,73 @@ interface NotificationProviderProps {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-// 💡 Adjust according to your env
-const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8081/websocket';
+
+
+// Par celle-ci (utilise le proxy Vite)
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+// Pour le SSE, utilisez le chemin relatif pour passer par le proxy
+const SSE_URL = '/api/notifications/sse'; // Endpoint for SSE stream via proxy
 
 export const NotificationProvider = ({ token, username, children }: NotificationProviderProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const stompClientRef = useRef<Client | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (token && username) {
-      connectWebSocket();
+      connectSSE();
       fetchUnreadNotifications();
     }
 
     return () => {
-      stompClientRef.current?.deactivate();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
     };
   }, [token, username]);
 
-  const connectWebSocket = () => {
-    const client = new Client({
-      webSocketFactory: () => new SockJS(WS_URL),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
+  const connectSSE = () => {
+    // Close existing connection if any
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    
+    // Créer la connexion SSE avec des en-têtes personnalisés
+    const eventSource = new EventSourcePolyfill(`${SSE_URL}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
       },
-      onConnect: () => {
-        const topic = `/topic/notifications/${username.toLowerCase()}`;
-        client.subscribe(topic, (message) => {
-          const notif: Notification = JSON.parse(message.body);
-          setNotifications((prev) => [notif, ...prev]);
-          setUnreadCount((prev) => prev + 1);
-        });
-      },
-      onStompError: (frame) => {
-        console.error('STOMP error:', frame);
-      },
+      heartbeatTimeout: 300000 // Increase timeout to 5 minutes (300000 ms)
     });
+    
+    // Add event listeners
+    eventSource.onopen = () => {
+      console.log('SSE connection established');
+    };
 
-    client.activate();
-    stompClientRef.current = client;
+    eventSource.onmessage = (event) => {
+      try {
+        const notif: Notification = JSON.parse(event.data);
+        setNotifications((prev) => [notif, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+      } catch (error) {
+        console.error('Error parsing SSE message:', error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error);
+      // Attempt to reconnect after a delay
+      setTimeout(() => {
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          connectSSE(); // Reconnect
+        }
+      }, 5000); // 5 second delay before reconnecting
+    };
+
+    eventSourceRef.current = eventSource;
   };
 
   const fetchUnreadNotifications = async () => {
@@ -96,7 +122,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`${API_URL}/api/notifications/${id}/mark-read`, { //read/${id}
+      await fetch(`${API_URL}/api/notifications/${id}/mark-read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -109,7 +135,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`${API_URL}/api/notifications/mark-all-read`, { //read-all
+      await fetch(`${API_URL}/api/notifications/mark-all-read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
