@@ -2,8 +2,8 @@
 
 import { useState,useEffect } from "react"
 //import { Camera } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+//import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,13 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 //import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
-import { profileService } from "@/services/ProfileService"
+import { profileService } from "@/services/profileService"
 import { Profile } from "@/types/user"
 
 export function ProfilePage() {
   const { toast } = useToast()
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  //const [setIsLoading] = useState(false)
   const { getToken } = useAuth()
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function ProfilePage() {
 
   const isAdmin = profile?.role === "ADMIN"
 
-  const handleSave = () => {
+ /*  const handleSave = () => {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
@@ -48,17 +48,17 @@ export function ProfilePage() {
         description: "Vos informations ont été mises à jour avec succès.",
       })
     }, 1000)
-  }
+  } */
 
   if (!profile) return null
 
-  const getInitials = (name: string) => {
+/*   const getInitials = (name: string) => {
     return name
       .split(" ")
       .map((part) => part[0])
       .join("")
       .toUpperCase()
-  }
+  } */
 
   return (
     <div className="flex flex-col gap-4">

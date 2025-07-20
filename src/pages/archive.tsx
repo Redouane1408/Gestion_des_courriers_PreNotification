@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import {useMails} from "@/hooks/use-mails"
-import { Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 //import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,6 @@ import {
   DropdownMenuItem, 
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { CreateMailDialog }from "@/components/create-mail-dialog"
 import { EditMailDialog } from "@/components/edit-mail-dialog"
@@ -33,10 +32,9 @@ import {
 //import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 //import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useAuth } from "@/contexts/auth-context"
-//import { format } from "date-fns"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useNavigate } from "react-router-dom"
+//import { useAuth } from "@/contexts/auth-context"
+//import { format } from "date-fns"//
+//import { useNavigate } from "react-router-dom"
 //import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { mailService } from "@/services/mail-service"
 //import { authService } from "@/services/authService"
@@ -143,8 +141,8 @@ interface FilterState {
 }
 
 export function ArchivePage() {
-  const navigate = useNavigate()
-  const { getToken, directionId } = useAuth();
+  /* const navigate = useNavigate()
+  const { getToken, directionId } = useAuth(); */
   const { toast } = useToast()
 
   const { mails, pagination, filters, isLoading, error, updateFilters, refresh } = useMails();
@@ -157,13 +155,13 @@ export function ArchivePage() {
   const handleSizeChange = (newSize: number) => {
     updateFilters({ limit: newSize, page: 0 });
   };
-  const [searchTerm, setSearchTerm] = useState("")
+  /* const [searchTerm, setSearchTerm] = useState("")
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     //setSearchTerm(value);
     updateFilters({ id: value, page: 0 });
-  }
+  } */
 
   const handleDateChange = (field: keyof FilterState, value: string) => {
     setTempFilters(prev => ({
@@ -176,10 +174,10 @@ export function ArchivePage() {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(undefined)
-  const [returnDate, setReturnDate] = useState<Date | undefined>(undefined)
+  /* const [date, setDate] = useState<Date | undefined>(undefined)
+  const [returnDate, setReturnDate] = useState<Date | undefined>(undefined) */
   const [selectedMail, setSelectedMail] = useState<Mail | null>(null)
-  const [selectedMails, setSelectedMails] = useState<string[]>([])
+  //const [selectedMails, setSelectedMails] = useState<string[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [tempFilters, setTempFilters] = useState<FilterState>(filters);
 
@@ -242,7 +240,7 @@ export function ArchivePage() {
     }
   }
 
-  const handleAddMail = async (e: React.FormEvent) => {
+  /* const handleAddMail = async (e: React.FormEvent) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
     
@@ -271,7 +269,7 @@ export function ArchivePage() {
   // Function to safely close dialogs
   const safeCloseDialog = (setDialogState: React.Dispatch<React.SetStateAction<boolean>>) => {
     setDialogState(false)
-  }
+  } */
 
   // Modifiez également les fonctions de gestion des actions pour s'assurer qu'elles nettoient correctement après leur exécution
   const handleViewDetails = (mail: Mail) => {
@@ -357,7 +355,7 @@ export function ArchivePage() {
       });
     }
   }
-
+/* 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedMails(filteredMails.map((mail) => mail.id))
@@ -372,7 +370,7 @@ export function ArchivePage() {
     } else {
       setSelectedMails([...selectedMails, id])
     }
-  }
+  } */
 
   const handleExport = async () => {
     try {
@@ -453,7 +451,7 @@ export function ArchivePage() {
     setIsFilterOpen(false);
   }
 
-  // Helper functions for status and nature mapping
+/*   // Helper functions for status and nature mapping
   const mapStatusToBackend = (status: string): string => {
   switch (status) {
     case "En cours": return "EN_COURS";
@@ -484,7 +482,7 @@ const mapNatureToBackend = (nature: string): string => {
       case "Extern": return "Externe";
       default: return nature;
     }
-  }
+  } */
 
   // ... existing code for rendering UI ...
 

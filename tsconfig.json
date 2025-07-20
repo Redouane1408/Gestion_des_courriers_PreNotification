@@ -9,10 +9,14 @@
       }
     ],
     "compilerOptions": {
+
       "baseUrl": ".",
       "paths": {
         "@/*": ["./src/*"]
-      }
+      },
+      "strict": true,
+      "sideEffects": false
+      
     }
   }
   

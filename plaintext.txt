@@ -1,0 +1,26 @@
+├── public/               # Static assets
+├── src/                  # Source code
+│   ├── assets/           # Application assets
+│   ├── components/       # Reusable UI components
+│   │   ├── dashboard/    # Dashboard-specific components
+│   │   ├── layouts/      # Layout components
+│   │   ├── navbar/       # Navigation components
+│   │   └── ui/           # Base UI components
+│   ├── contexts/         # React context providers
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility libraries
+│   ├── pages/            # Application pages/routes
+│   ├── services/         # API service modules
+│   ├── types/            # TypeScript type definitions
+│   ├── utils/            # Utility functions
+│   ├── App.tsx           # Main application component
+│   └── main.tsx          # Application entry point
+├── .env                  # Environment variables
+├── .gitignore            # Git ignore file
+├── components.json       # Shadcn UI components config
+├── eslint.config.js      # ESLint configuration
+├── package.json          # Project dependencies and scripts
+├── postcss.config.js     # PostCSS configuration
+├── tailwind.config.js    # Tailwind CSS configuration
+├── tsconfig.json         # TypeScript configuration
+└── vite.config.ts        # Vite configuration

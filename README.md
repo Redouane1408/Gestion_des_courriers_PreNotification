@@ -1,57 +1,42 @@
-<<<<<<< HEAD
-# Test01
-Gestion-Des-Courrier-DGB
-=======
-# React + TypeScript + Vite
+# Gestion des Courriers - Mail Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive mail management system for tracking, processing, and archiving official correspondence. This application provides a user-friendly interface for managing mail workflows, with notifications for important events and comprehensive tracking capabilities.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **User Authentication**: Secure login system with role-based access control
+- **Dashboard**: Visual overview of mail statistics and recent activities
+- **Mail Management**: Create, view, edit, and archive mail items
+- **Real-time Notifications**: Server-Sent Events (SSE) based notification system
+- **User Management**: Admin interface for managing system users
+- **Responsive Design**: Works on desktop and mobile devices
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Frontend**: React 19, TypeScript, Vite
+- **UI Components**: Shadcn UI, Radix UI, Tailwind CSS
+- **State Management**: React Context API
+- **Routing**: React Router v6
+- **API Communication**: Axios
+- **Real-time Updates**: EventSource/SSE
+- **Form Handling**: React Hook Form, Zod validation
+- **Styling**: Tailwind CSS with animations
 
-- Configure the top-level `parserOptions` property like this:
+## Prerequisites
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- Node.js (v18 or higher)
+- npm or yarn
+- Backend API server running (default: http://10.7.35.44:8081)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Installation
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
->>>>>>> 139a69d (Initial commit: Project setup)
-
+1. Clone the repository
+   ```bash
+   git clone <repository-url>
+   cd Gestion_des_courriers-P01UserManagement
+   npm install
+   npm run dev
+   npm run build
+   npm run lint
+   npm run preview
 

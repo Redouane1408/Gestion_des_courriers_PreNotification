@@ -12,7 +12,6 @@ import {
   Pencil,
   History,
   Trash2,
-  Download
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useAuth } from "@/contexts/auth-context"
+//import { useAuth } from "@/contexts/auth-context"
 import { Overview } from "@/components/dashboard/overview"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
@@ -36,27 +35,27 @@ import { fetchDashboardSummary, fetchMailOverview, fetchRecentMails } from "@/se
 import { Mail } from "@/types/mail"; // Keep this import
 import { RecentMails } from "@/components/dashboard/recent-mails"
 import { Avatar } from "@radix-ui/react-avatar"
-import { useMails } from "@/hooks/use-mails"
+//import { useMails } from "@/hooks/use-mails"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { EditMailDialog } from "@/components/edit-mail-dialog"
 import { mailService } from "@/services/mail-service"
 import { Label } from "@/components/ui/label"
 
 export function Dashboard() {
-  const { user } = useAuth()
+  //const { user } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedMails, setSelectedMails] = useState<string[]>([])
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  //const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   
   // State for recent mails - separate from useMails hook
   const [recentMailsData, setRecentMailsData] = useState<Mail[]>([])
   // Use the useMails hook for other mail operations
-  const { mails, filters, refresh } = useMails()
+  //const { mails, filters, refresh } = useMails()
   
   // Add these state variables for dialogs
-  const [isAnyDialogOpen, setIsAnyDialogOpen] = useState(false)
+  //const [isAnyDialogOpen, setIsAnyDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
@@ -150,7 +149,7 @@ export function Dashboard() {
     }
   }
 
-  const handleExport = () => {
+  /* const handleExport = () => {
     // In a real application, this would generate a CSV or Excel file
     const exportData = filteredMails.map((mail) => ({
       "N° de courrier": mail.courielNumber || mail.id, // Use courielNumber or fallback to id
@@ -169,10 +168,10 @@ export function Dashboard() {
       title: "Export réussi",
       description: `${exportData.length} courriers exportés.`,
     })
-  }
+  } */
 
   // Ajoutez une fonction pour gérer le focus dans les menus déroulants
-  const handleDropdownAction = (action: () => void) => {
+  /* const handleDropdownAction = (action: () => void) => {
     // Déplacer le focus vers le body avant d'exécuter l'action
     document.body.focus()
 
@@ -180,7 +179,7 @@ export function Dashboard() {
     setTimeout(() => {
       action()
     }, 10)
-  }
+  } */
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)

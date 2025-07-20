@@ -5,9 +5,6 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { mailService } from '@/services/mail-service';
-import { divisionService } from '@/services/divisionService';
-import { directionService } from '@/services/directionService';
-import { sousDirectionService } from '@/services/sousDirectionService';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import type { Division } from '@/types/division';
@@ -102,10 +99,10 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
     return userData ? JSON.parse(userData).accessToken : null;
   };
 
-  const getUserDivisionId = () => {
+/*   const getUserDivisionId = () => {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData).divisionId : null;
-  };
+  }; */
 
   const fetchDivisions = async () => {
     try {
