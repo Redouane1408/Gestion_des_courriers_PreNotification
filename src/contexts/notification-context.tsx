@@ -74,8 +74,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
     const eventSource = new EventSourcePolyfill(`${SSE_URL}`, {
       headers: {
         'Authorization': `Bearer ${token}`
-      },
-      heartbeatTimeout: 300000 // Increase timeout to 5 minutes (300000 ms)
+      }
     });
     
     // Add event listeners

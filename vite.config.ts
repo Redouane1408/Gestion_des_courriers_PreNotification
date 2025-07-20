@@ -25,10 +25,10 @@ export default defineConfig({
         changeOrigin: true
       }, */
       // Ajout du proxy spécifique pour les notifications SSE
-      '/api/notifications/sse': {
+     /*  '/sse': {
         target: 'http://10.7.35.44:8081',
         changeOrigin: true,
-      }
+      } */
     }
   },
   define: {
