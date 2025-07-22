@@ -1,7 +1,7 @@
 // Types for mail data
 export interface Attachment {
   name: string;
-  size: string;
+  size: number;
 }
 
 export interface Modification {
@@ -28,27 +28,28 @@ export interface Mail {
   createdAt: string;
   modifiedBy: Modification[];
   // Backend specific fields
-  fromDivisionId?: number | null;
-  fromDirectionId?: number | null;
-  fromSousDirectionId?: number | null;
+  fromDivisionId?: string | null;
+  fromDirectionId?: string | null;
+  fromSousDirectionId?: string | null;
   fromExternal?: string | null;
-  toDivisionId?: number | null;
-  toDirectionId?: number | null;
-  toSousDirectionId?: number | null;
+  toDivisionId?: string | null;
+  toDirectionId?: string | null;
+  toSousDirectionId?: string | null;
   toExternal?: string | null;
+  
   arrivedDate?: string | null;
   sentDate?: string | null;
   //savedDate?: string | null;
   historyList: Array<{
-    id: number;
-    courrierId: number;
+    id: string;
+    courrierId: string;
     createdById: string | null;
     updatedById: string | null;
     actionType: string;
     timestamp: string;
   }>;
   courielFiles?: Array<{
-    id: number;
+    id: string;
     fileName: string;
     fileType: string;
     filePath: string;
@@ -108,12 +109,16 @@ export interface FilterState {
   senderDirection: string;
   senderSousDirection: string;
   recipientDivision: string;
+  fromExternal?: string | null;
+  toExternal?: string | null;
+  limit?: string | number;
   recipientDirection: string;
   recipientSousDirection: string;
   showSenderDirection: boolean;
   showSenderSousDirection: boolean;
   showRecipientDirection: boolean;
   showRecipientSousDirection: boolean;
+  page?: string | number;
 }
 
 export interface MailPagination {
@@ -126,9 +131,9 @@ export interface MailPagination {
 
 export interface MailFilters {
   courielNumber: string;
-  page?: number;
-  limit?: number;
-  size?:number;
+  page?: string | number;
+  limit?: string | number;
+  size?: string | number;
   id?: string;
   type?: string;
   nature?: string;
@@ -148,11 +153,12 @@ export interface MailFilters {
   recipientDivision?: string;
   recipientDirection?: string;
   recipientSousDirection?: string;
-  fromExternal?: string;
-  toExternal?: string;
+  fromExternal?: string | null;
+  toExternal?: string | null;
+  
 }
 
 export interface MailOverviewData {
     name: string;
-    total: number;
+    total: string;
   }

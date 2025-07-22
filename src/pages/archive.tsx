@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+//import type React from "react"
 
 import { useState, useEffect } from "react"
 import {useMails} from "@/hooks/use-mails"
@@ -38,48 +38,9 @@ import { useToast } from "@/hooks/use-toast"
 //import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { mailService } from "@/services/mail-service"
 //import { authService } from "@/services/authService"
-//import type { MailFilters } from "@/types/mail"
-//import type { Mail } from "@/types/mail"
 
-interface Mail {
-  id?: string;
-  courielNumber: string;
-  type: string;
-  nature: string;
-  subject: string;
-  priority: string;
-  status: string;
-  arrivedDate: string| null;
-  sentDate: string| null;
-  returnDate: string;
-  //savedDate: string | null;
-  fromDivisionId: number;
-  fromDirectionId: number | null;
-  fromSousDirectionId: number | null;
-  fromExternal: string | null;
-  toDivisionId: number;
-  toDirectionId: number | null;
-  toSousDirectionId: number | null;
-  toExternal: string | null;
-  
-  historyList: Array<{
-    id: number;
-    courrierId: number;
-    createdById: string | null;
-    updatedById: string | null;
-    actionType: string;
-    timestamp: string;
-  }>;
-  courielFiles?: Array<{
-    id: number;
-    fileName: string;
-    fileType: string;
-    filePath: string;
-    fileSize: number;
-  }>;
-  description: string;
-}
-
+// Import necessary types
+import type { Mail, MailFilters, FilterState } from "@/types/mail"
 
 interface Division {
   id: string
@@ -98,54 +59,17 @@ interface SousDirection {
   name: string
 }
 
-interface FilterState {
-  id: string
-  type: string
-  nature: string
-  subject: string
-  dateFrom: string
-  dateTo: string
-  dateReceptionFrom: string
-  dateReceptionTo: string
-  dateRetourFrom: string
-  dateRetourTo: string
-  status: string
-  priority: string
-  sender: {
-    type?: "Interne" | "Externe" | "Particulier"
-    department?: string
-    service?: string
-    name?: string
-  }
-  recipient: {
-    type?: "Interne" | "Externe" | "Particulier"
-    department?: string
-    service?: string
-    name?: string
-  }
-  senderDivision: string
-  senderDirection: string
-  senderSousDirection: string
-  recipientDivision: string
-  recipientDirection: string
-  recipientSousDirection: string
-  showSenderDirection: boolean
-  showSenderSousDirection: boolean
-  showRecipientDirection: boolean
-  showRecipientSousDirection: boolean
-  // Additional fields for backend compatibility
-  fromExternal?: string | null
-  toExternal?: string | null
-  page?: number
-  limit?: number
-}
-
 export function ArchivePage() {
   /* const navigate = useNavigate()
   const { getToken, directionId } = useAuth(); */
   const { toast } = useToast()
 
-  const { mails, pagination, filters, isLoading, error, updateFilters, refresh } = useMails();
+  const { mails, pagination, filters, isLoading, error, updateFilters, refresh } = useMails({
+    courielNumber: "",
+    page: 0,
+    limit: 10,
+    description: ""
+  });
 
   const handlePageChange = (newPage: number) => {
     console.log('handlePageChange called with newPage:', newPage);
@@ -179,10 +103,90 @@ export function ArchivePage() {
   const [selectedMail, setSelectedMail] = useState<Mail | null>(null)
   //const [selectedMails, setSelectedMails] = useState<string[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [tempFilters, setTempFilters] = useState<FilterState>(filters);
+  const [tempFilters, setTempFilters] = useState<FilterState>({
+    id: filters.courielNumber || "",
+    type: filters.type || "all",
+    nature: filters.nature || "all",
+    subject: filters.subject || "",
+    description: filters.description || "",
+    dateFrom: filters.dateFrom || "",
+    dateTo: filters.dateTo || "",
+    dateReceptionFrom: filters.dateReceptionFrom || "",
+    dateReceptionTo: filters.dateReceptionTo || "",
+    dateRetourFrom: filters.dateRetourFrom || "",
+    dateRetourTo: filters.dateRetourTo || "",
+    status: filters.status || "all",
+    priority: filters.priority || "all",
+    sender: {
+      type: undefined,
+      department: undefined,
+      service: undefined,
+      name: undefined
+    },
+    recipient: {
+      type: undefined,
+      department: undefined,
+      service: undefined,
+      name: undefined
+    },
+    senderDivision: filters.senderDivision || "",
+    senderDirection: filters.senderDirection || "",
+    senderSousDirection: filters.senderSousDirection || "",
+    recipientDivision: filters.recipientDivision || "",
+    recipientDirection: filters.recipientDirection || "",
+    recipientSousDirection: filters.recipientSousDirection || "",
+    showSenderDirection: false,
+    showSenderSousDirection: false,
+    showRecipientDirection: false,
+    showRecipientSousDirection: false,
+    fromExternal: filters.fromExternal,
+    toExternal: filters.toExternal,
+    page: filters.page,
+    limit: filters.limit
+  });
 
   useEffect(() => {
-    setTempFilters(filters);
+    setTempFilters({
+      id: filters.courielNumber || "",
+      type: filters.type || "all",
+      nature: filters.nature || "all",
+      subject: filters.subject || "",
+      description: filters.description || "",
+      dateFrom: filters.dateFrom || "",
+      dateTo: filters.dateTo || "",
+      dateReceptionFrom: filters.dateReceptionFrom || "",
+      dateReceptionTo: filters.dateReceptionTo || "",
+      dateRetourFrom: filters.dateRetourFrom || "",
+      dateRetourTo: filters.dateRetourTo || "",
+      status: filters.status || "all",
+      priority: filters.priority || "all",
+      sender: {
+        type: undefined,
+        department: undefined,
+        service: undefined,
+        name: undefined
+      },
+      recipient: {
+        type: undefined,
+        department: undefined,
+        service: undefined,
+        name: undefined
+      },
+      senderDivision: filters.senderDivision || "",
+      senderDirection: filters.senderDirection || "",
+      senderSousDirection: filters.senderSousDirection || "",
+      recipientDivision: filters.recipientDivision || "",
+      recipientDirection: filters.recipientDirection || "",
+      recipientSousDirection: filters.recipientSousDirection || "",
+      showSenderDirection: false,
+      showSenderSousDirection: false,
+      showRecipientDirection: false,
+      showRecipientSousDirection: false,
+      fromExternal: filters.fromExternal,
+      toExternal: filters.toExternal,
+      page: filters.page,
+      limit: filters.limit
+    });
   }, [filters]);
 
   // Add proper focus management
@@ -400,7 +404,35 @@ export function ArchivePage() {
 
   // Function to apply filters
   const handleFilterApply = () => {
-    updateFilters({ ...tempFilters, page: 0 });
+    // Convert FilterState to MailFilters
+    const mailFilters: Partial<MailFilters> = {
+      courielNumber: tempFilters.id,
+      page: 0,
+      limit: tempFilters.limit,
+      id: tempFilters.id,
+      type: tempFilters.type,
+      nature: tempFilters.nature,
+      subject: tempFilters.subject,
+      description: tempFilters.description || "", // Required field in MailFilters
+      dateFrom: tempFilters.dateFrom,
+      dateTo: tempFilters.dateTo,
+      dateReceptionFrom: tempFilters.dateReceptionFrom,
+      dateReceptionTo: tempFilters.dateReceptionTo,
+      dateRetourFrom: tempFilters.dateRetourFrom,
+      dateRetourTo: tempFilters.dateRetourTo,
+      status: tempFilters.status,
+      priority: tempFilters.priority,
+      senderDivision: tempFilters.senderDivision,
+      senderDirection: tempFilters.senderDirection,
+      senderSousDirection: tempFilters.senderSousDirection,
+      recipientDivision: tempFilters.recipientDivision,
+      recipientDirection: tempFilters.recipientDirection,
+      recipientSousDirection: tempFilters.recipientSousDirection,
+      fromExternal: tempFilters.fromExternal,
+      toExternal: tempFilters.toExternal
+    };
+    
+    updateFilters(mailFilters);
     setIsFilterOpen(false);
   }
 
@@ -419,6 +451,7 @@ export function ArchivePage() {
       dateRetourTo: "",
       status: "all",
       priority: "all",
+      description: "", // Add this line
       sender: {
         type: undefined,
         department: undefined,
@@ -992,7 +1025,7 @@ const mapNatureToBackend = (nature: string): string => {
                 </TableHeader>
                 <TableBody>
                   {filteredMails.map((mail) => (
-                    <TableRow key={mail.id} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
+                    <TableRow key={mail.courielNumber} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
                       <TableCell>
 
                       </TableCell>
@@ -1045,9 +1078,9 @@ const mapNatureToBackend = (nature: string): string => {
                         {mail.recipient}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu open={openDropdownId === mail.id} onOpenChange={(open) => {
+                        <DropdownMenu open={openDropdownId === mail.courielNumber} onOpenChange={(open) => {
                             if (open) {
-                              setOpenDropdownId(mail.id)
+                              setOpenDropdownId(mail.courielNumber)
                             } else {
                               setOpenDropdownId(null)
                             }
@@ -1057,7 +1090,7 @@ const mapNatureToBackend = (nature: string): string => {
                               variant="ghost"
                               className="h-8 w-8 p-0"
                               aria-label="Actions"
-                              data-state={openDropdownId === mail.id ? "open" : "closed"}
+                              data-state={openDropdownId === mail.courielNumber ? "open" : "closed"}
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
@@ -1065,7 +1098,6 @@ const mapNatureToBackend = (nature: string): string => {
                           <DropdownMenuContent 
                             align="end" 
                             className="w-[160px]"
-                            inert={openDropdownId !== mail.id ? "" : undefined}
                           >
                             <DropdownMenuItem onClick={() => handleViewDetails(mail)}>
                               <Eye className="mr-2 h-4 w-4" />
@@ -1154,7 +1186,9 @@ const mapNatureToBackend = (nature: string): string => {
                 <div>
                   <Label className="font-medium">Date d'enregistrement</Label>
                   <div>
-                    {new Date(selectedMail.historyList[0].timestamp || '').toLocaleDateString()}
+                    {selectedMail.historyList && selectedMail.historyList.length > 0 && selectedMail.historyList[0].timestamp 
+                      ? new Date(selectedMail.historyList[0].timestamp).toLocaleDateString() 
+                      : 'N/A'}
                   </div>
                 </div>
                 <div>
@@ -1268,7 +1302,7 @@ const mapNatureToBackend = (nature: string): string => {
       <EditMailDialog 
         open={isEditDialogOpen} 
         onOpenChange={setIsEditDialogOpen}
-        mail={selectedMail}
+        mail={ selectedMail }
         onSuccess={() => {
           // Ajouter un petit délai pour s'assurer que le backend a eu le temps de traiter la mise à jour
           setTimeout(() => {

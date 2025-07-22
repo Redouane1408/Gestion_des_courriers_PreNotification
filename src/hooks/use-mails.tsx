@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react"
 import type { Mail, MailFilters, MailPagination } from "@/types/mail"
 import { useToast } from "@/hooks/use-toast"
 
-export function useMails(initialFilters: MailFilters = {}) {
+export function useMails(initialFilters: MailFilters) {
   const [mails, setMails] = useState<Mail[]>([])
   const [pagination, setPagination] = useState<Omit<MailPagination, "items">>({
     total: 0,

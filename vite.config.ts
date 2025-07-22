@@ -1,32 +1,40 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import imagemin from 'vite-plugin-imagemin';
+// DO NOT IMPORT imagemin
+// import imagemin from 'vite-plugin-imagemin';
 
+const isDocker = process.env.DOCKER === 'true';
+const isWindows = process.platform === 'win32';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    visualizer({
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
-    imagemin({
-      gifsicle: { optimizationLevel: 7, interlaced: false },
-      optipng: { optimizationLevel: 7 },
-      mozjpeg: { quality: 80 },
-      pngquant: { quality: [0.8, 0.9], speed: 4 },
-      svgo: {
-        plugins: [
-          { name: 'removeViewBox' },
-          { name: 'removeEmptyAttrs', active: false },
-        ],
-      },
-    }),
-  ],
+    !isDocker &&
+      visualizer({
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+    // ⚠️ REMOVE vite-plugin-imagemin from Docker builds
+    ...(isWindows && !isDocker
+      ? [
+          // imagemin({
+          //   gifsicle: { optimizationLevel: 7, interlaced: false },
+          //   optipng: { optimizationLevel: 7 },
+          //   mozjpeg: { quality: 80 },
+          //   pngquant: { quality: [0.8, 0.9], speed: 4 },
+          //   svgo: {
+          //     plugins: [
+          //       { name: 'removeViewBox' },
+          //       { name: 'removeEmptyAttrs', active: false },
+          //     ],
+          //   },
+          // }),
+        ]
+      : []),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -34,24 +42,17 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://10.7.35.44:8081',
-        changeOrigin: true,
-      },
-      '/auth': {
-        target: 'http://10.7.35.44:8081',
-        changeOrigin: true,
-      },
+      '/api': { target: 'http://10.7.35.44:8081', changeOrigin: true },
+      '/auth': { target: 'http://10.7.35.44:8081', changeOrigin: true },
       '/api/notifications/sse': {
         target: 'http://10.7.35.44:8081',
         changeOrigin: true,
-      }
-    }
+      },
+    },
   },
   define: {
-    global: 'window'
+    global: 'window',
   },
-  // Add Vitest configuration
   test: {
     globals: true,
     environment: 'jsdom',
@@ -60,6 +61,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      thresholds: {
+        statements: 70,
+        branches: 70,
+        functions: 70,
+        lines: 70
+      }
     },
-  }
-})
+  },
+});

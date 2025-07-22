@@ -1,4 +1,4 @@
-"use client"
+/* "use client"
 
 import { useState, useEffect, useCallback } from "react"
 import { userService } from "@/services/user-service"
@@ -223,3 +223,4 @@ export function useUsers(initialFilters: UserFilters = {}) {
     resetPassword,
   }
 }
+ */

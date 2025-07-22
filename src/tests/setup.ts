@@ -35,4 +35,6 @@ class LocalStorageMock {
   }
 }
 
-global.localStorage = new LocalStorageMock()
+Object.defineProperty(window, 'localStorage', {
+  value: new LocalStorageMock() as unknown as Storage
+})

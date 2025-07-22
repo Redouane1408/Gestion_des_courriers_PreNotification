@@ -106,7 +106,7 @@ const createRequestConfig = (token: string) => ({
 });
 
 export const mailService = {
-  async getMails(filters: MailFilters = {}): Promise<MailPagination> {
+  async getMails(filters: Partial<MailFilters> = {}): Promise<MailPagination> {
     try {
       const userData = localStorage.getItem('user');
       const token = userData ? JSON.parse(userData).accessToken : null;
@@ -115,7 +115,7 @@ export const mailService = {
         throw new Error('Authentication token not found');
       }
 
-      const backendFilters = mapFiltersToBackend(filters);
+      const backendFilters = mapFiltersToBackend(filters as MailFilters);
       const cleanedParams = Object.fromEntries(
         Object.entries(backendFilters).filter(([_, v]) => v !== null && v !== '')
       );
@@ -143,7 +143,7 @@ export const mailService = {
         total: response.data.total,
         totalPages: response.data.totalPages,
         page: response.data.page,
-        limit: filters.limit || 10  // This should be the selected limit value
+        limit: Number(filters.limit) || 10  // This should be the selected limit value
       };
     } catch (error) {
       console.error('Error fetching mails:', error);

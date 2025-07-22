@@ -1,4 +1,4 @@
-
+/* 
 
 import type { Sender, Recipient, Attachment, Comment, HistoryEntry } from './index'
 
@@ -47,4 +47,4 @@ export interface Courrier {
       department?: string
       service?: string
     }
-  }
+  } */

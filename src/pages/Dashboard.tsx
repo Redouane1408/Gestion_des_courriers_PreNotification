@@ -375,7 +375,7 @@ export function Dashboard() {
                       <TableHead className="w-[50px]">
                         <Checkbox
                           checked={selectedMails.length === filteredMails.length && filteredMails.length > 0}
-                          onCheckedChange={(checked) => handleSelectAll(checked || false)}
+                          onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
                         />
                       </TableHead>
                       <TableHead>N° de courrier</TableHead>

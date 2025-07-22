@@ -13,6 +13,7 @@ import { authService } from '@/services/authService';
 type UserRole = 'ADMIN' | 'USER';
 
 interface AuthContextType {
+  user: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   role: UserRole | null;
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        user: authState.userEmail || null,
         ...authState,
         divisionId: authState.divisionId?.toString() || null,
         directionId: authState.directionId?.toString() || null,

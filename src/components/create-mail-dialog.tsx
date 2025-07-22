@@ -488,7 +488,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
                     </SelectTrigger>
                     <SelectContent>
                       {sousDirections.map(sousDirection => (
-                        <SelectItem key={sousDirection.id} value={sousDirection.id}>
+                        <SelectItem key={sousDirection.id} value={String(sousDirection.id)}>
                           {sousDirection.name}
                         </SelectItem>
                       ))}
@@ -593,7 +593,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
                     </SelectTrigger>
                     <SelectContent>
                       {toSousDirections.map(sousDirection => (
-                        <SelectItem key={sousDirection.id} value={sousDirection.id}>
+                        <SelectItem key={sousDirection.id} value={String(sousDirection.id)}>
                           {sousDirection.name}
                         </SelectItem>
                       ))}

@@ -1,6 +1,51 @@
-# Gestion des Courriers - Mail Management System
+# Gestion des Courriers - Frontend
 
 A comprehensive mail management system for tracking, processing, and archiving official correspondence. This application provides a user-friendly interface for managing mail workflows, with notifications for important events and comprehensive tracking capabilities.
+
+## Docker Image
+
+The frontend Docker image is available on Docker Hub:
+
+```bash
+docker pull red1408/frontend-app:latest
+```
+
+## For Backend Developers
+
+To use this frontend with your backend:
+
+1. Pull the Docker image from Docker Hub
+2. In your deployment repository, create a docker-compose.yml file that includes both frontend and backend services:
+
+```yaml
+version: '3.8'
+
+services:
+  frontend:
+    image: red1408/frontend-app:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    image: faycal99/backend-app:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - backend-data:/app/data
+
+volumes:
+  backend-data:
+```
+
+## Environment Variables
+
+The frontend requires the following environment variables:
+
+- `VITE_API_BASE_URL`: URL of the backend API (default: http://localhost:8081)
 
 ## Features
 
