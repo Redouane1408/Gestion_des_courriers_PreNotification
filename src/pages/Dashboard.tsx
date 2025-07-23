@@ -373,10 +373,10 @@ export function Dashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[50px]">
-                        <Checkbox
+                        {/* <Checkbox
                           checked={selectedMails.length === filteredMails.length && filteredMails.length > 0}
                           onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
-                        />
+                        /> */}
                       </TableHead>
                       <TableHead>N° de courrier</TableHead>
                       <TableHead>Objet</TableHead>
@@ -394,10 +394,10 @@ export function Dashboard() {
                     {filteredMails.map((mail) => (
                       <TableRow key={mail.courielNumber || mail.id}>
                         <TableCell className="w-[50px]">
-                          <Checkbox
+                          {/* <Checkbox
                             checked={selectedMails.includes(mail.courielNumber || mail.id)}
                             onCheckedChange={() => handleSelectMail(mail.courielNumber || mail.id)}
-                          />
+                          /> */}
                         </TableCell>
                         <TableCell className="font-medium">{mail.courielNumber || mail.id}</TableCell>
                         <TableCell>{mail.subject}</TableCell>

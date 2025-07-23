@@ -154,7 +154,7 @@ export function Header() {
             {unreadCount > 0 && (
               <div className="p-2 border-t text-center">
                 <Button onClick={() => markAllAsRead()} variant="ghost" size="sm" className="text-xs w-full text-cyan-700 hover:text-cyan-800">
-                  Voir toutes les notifications
+                  Marquer toutes comme lues
                 </Button>
               </div>
             )}

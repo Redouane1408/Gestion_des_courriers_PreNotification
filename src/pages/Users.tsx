@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/hooks/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Copy, Loader2, AlertCircle } from "lucide-react"
+import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -100,6 +100,8 @@ export function UsersPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [directions, setDirections] = useState<Direction[]>([]);
   const [sousDirections, setSousDirections] = useState<Direction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +112,19 @@ export function UsersPage() {
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter(user => 
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [users, searchTerm]);
+
   // Helper functions
   const hasDirectionId = () => {
     const userData = localStorage.getItem('user');
@@ -500,10 +514,30 @@ const handleCopyPassword = () => {
         });
       }
       
+      // Close dialog and reset everything
+      
       setIsDialogOpen(false);
       setSelectedUser(null);
-      adminForm.reset();
-      userForm.reset();
+      
+      // Reset both forms with default values
+      adminForm.reset({
+        nomComplet: "",
+        email: "",
+        telephone: "",
+        quatreChiffres: "",
+        direction: undefined,
+        profession: "",
+      });
+      
+      userForm.reset({
+        nomComplet: "",
+        email: "",
+        telephone: "",
+        quatreChiffres: "",
+        sousdirection: "",
+        profession: "",
+      });
+      
       fetchUsers();
     } catch (error: any) {
       console.error("Form submission error:", error);
@@ -525,11 +559,40 @@ const handleCopyPassword = () => {
         <Button onClick={() => {
           setSelectedUser(null);
           setIsDialogOpen(true);
-          adminForm.reset();
-          userForm.reset();
+          // Reset both forms with default values
+          adminForm.reset({
+            nomComplet: "",
+            email: "",
+            telephone: "",
+            quatreChiffres: "",
+            direction: undefined,
+            profession: "",
+          });
+          userForm.reset({
+            nomComplet: "",
+            email: "",
+            telephone: "",
+            quatreChiffres: "",
+            sousdirection: "",
+            profession: "",
+          });
         }}>
           {shouldShowAdminForm() ? "Nouvel admin de direction" : "Nouvel utilisateur"}
         </Button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Rechercher par nom complet..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
       {isLoading ? (
@@ -551,14 +614,14 @@ const handleCopyPassword = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length === 0 ? (
+              {filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Aucun utilisateur trouvé
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    {searchTerm.trim() !== "" ? "Aucun utilisateur trouvé pour cette recherche" : "Aucun utilisateur trouvé"}
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
+                filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>

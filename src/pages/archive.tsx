@@ -1011,7 +1011,7 @@ const mapNatureToBackend = (nature: string): string => {
                     <TableHead>N° de courrier</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Nature</TableHead>
-                    <TableHead>Objet</TableHead>
+                    {/* <TableHead>Objet</TableHead> */}
                     {/* <TableHead>Date d'enregistrement</TableHead> */}
                     <TableHead>Date d'arrivée</TableHead>
                     <TableHead>Date d'envoi</TableHead>
@@ -1038,9 +1038,9 @@ const mapNatureToBackend = (nature: string): string => {
                       </TableCell>
                       <TableCell>{mail.type}</TableCell>
                       <TableCell>{mail.nature}</TableCell>
-                      <TableCell className="max-w-xs truncate">
+                      {/* <TableCell className="max-w-xs truncate">
                         {mail.subject}
-                      </TableCell>
+                      </TableCell> */}
                       {/* <TableCell>
                         {mail.historyList[0]?.timestamp ? new Date(mail.historyList[0].timestamp).toLocaleDateString() : 'N/A'}
                       </TableCell> */}
