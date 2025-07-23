@@ -28,7 +28,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 //import { useAuth } from "@/contexts/auth-context"
 import { Overview } from "@/components/dashboard/overview"
-import { Checkbox } from "@/components/ui/checkbox"
+//import { Checkbox } from "@/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { fetchDashboardSummary, fetchMailOverview, fetchRecentMails } from "@/services/dashboardService";
@@ -46,7 +46,7 @@ export function Dashboard() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedMails, setSelectedMails] = useState<string[]>([])
+  //const [selectedMails, setSelectedMails] = useState<string[]>([])
   //const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   
   // State for recent mails - separate from useMails hook
@@ -133,7 +133,7 @@ export function Dashboard() {
     }
   }
 
-  const handleSelectAll = (checked: boolean) => {
+/*   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedMails(filteredMails.map((mail) => mail.courielNumber || mail.id)) // Use courielNumber or fallback to id
     } else {
@@ -147,7 +147,7 @@ export function Dashboard() {
     } else {
       setSelectedMails([...selectedMails, identifier])
     }
-  }
+  } */
 
   /* const handleExport = () => {
     // In a real application, this would generate a CSV or Excel file
