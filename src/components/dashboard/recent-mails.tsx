@@ -13,7 +13,7 @@ export function RecentMails({ recentMails, getStatusColor }: RecentMailsProps) {
     <Card className="col-span-3">
       <CardHeader>
         <CardTitle>Courriers récents</CardTitle>
-        <CardDescription>Vous avez cinq (5) courriers récents.</CardDescription>
+        <CardDescription>Les cinq (5) derniers courriers.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-8">

@@ -42,10 +42,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': { target: 'http://10.7.35.44:8081', changeOrigin: true },
-      '/auth': { target: 'http://10.7.35.44:8081', changeOrigin: true },
+      '/api': { target: 'http://localhost:8081', changeOrigin: true },
+      '/auth': { target: 'http://localhost:8081', changeOrigin: true },
       '/api/notifications/sse': {
-        target: 'http://10.7.35.44:8081',
+        target: 'http://localhost:8081',
         changeOrigin: true,
       },
     },
