@@ -29,9 +29,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
           
-        name: Trigger Deployment
+      - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v2
         with:
             token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-            repository: faycal99/deployment-repo
+            repository: faycal99/deployment-app
             event-type: deploy-frontend

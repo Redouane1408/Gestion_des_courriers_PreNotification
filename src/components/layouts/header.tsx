@@ -36,12 +36,18 @@ export function Header() {
   // Helper function to get operation badge styling
   const getOperationBadgeStyle = (operation: string) => {
     switch(operation) {
-      case 'CREATE':
-        return 'bg-green-100 text-green-800';
-      case 'UPDATE':
-        return 'bg-blue-100 text-blue-800';
       case 'DELETE':
+      case 'Supprimer':
         return 'bg-red-100 text-red-800';
+
+      case 'ARCHIVE':
+      case 'Archiver':
+        return 'bg-blue-100 text-blue-800';
+
+      case 'MODIFY':
+      case 'Modifier':
+        return 'bg-orange-100 text-orange-800';
+
       default:
         return 'bg-gray-100 text-gray-800';
     }

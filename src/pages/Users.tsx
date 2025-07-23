@@ -71,7 +71,7 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
   if (!password) return null;
   
   return (
-    <Dialog open={isOpen} modal={true}>
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Mot de passe généré</DialogTitle>
