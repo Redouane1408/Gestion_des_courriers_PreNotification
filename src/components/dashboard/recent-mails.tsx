@@ -8,6 +8,7 @@ interface RecentMailsProps {
   getStatusColor: (status: string) => string; // Add this line
 }
 
+
 export function RecentMails({ recentMails, getStatusColor }: RecentMailsProps) {
   return (
     <Card className="col-span-3">
@@ -26,14 +27,12 @@ export function RecentMails({ recentMails, getStatusColor }: RecentMailsProps) {
                     <FileText className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="ml-4 space-y-1">
+                <div className="ml-4 space-y-1 max-w-sm truncate">
                   <p className="text-sm font-medium leading-none">{mail.courielNumber}</p>
-                  <p className="text-sm text-muted-foreground">De: {mail.sender}</p>
+                  <p className="text-sm text-muted-foreground ">De: {mail.sender}</p>
                 </div>
                 <div className="ml-auto text-right">
-                  <div
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(mail.status)}`} // Use getStatusColor
-                  >
+                  <div className={getStatusColor(mail.status)}>
                     {mail.status}
                   </div>
                   <div className="text-xs text-muted-foreground">{mail.historyList[0].timestamp}</div>

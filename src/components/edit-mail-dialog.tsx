@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
-import { FileText, Download } from "lucide-react";
+import { FileText, Download, Upload, X } from "lucide-react"; // Add Upload and X icons
 import { mailService } from '@/services/mail-service';
 import { useToast } from '@/hooks/use-toast';
 import type { Mail } from '@/types/mail';
@@ -290,22 +290,55 @@ export function EditMailDialog({ open, onOpenChange, onSuccess, mail }: EditMail
 
             <div className="space-y-2">
               <Label htmlFor="files">Ajouter de nouveaux fichiers</Label>
-              <Input
-                id="files"
-                type="file"
-                multiple
-                onChange={handleFileChange}
-              />
-              {files.length > 0 && (
-                <ul className="space-y-1 mt-2">
-                  {files.map((file, index) => (
-                    <li key={index} className="flex items-center space-x-2 text-sm text-gray-700">
-                      <FileText className="h-4 w-4 text-gray-500" />
-                      <span>{file.name} ({Math.round(file.size / 1024)} KB)</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="space-y-3">
+                {/* Custom File Upload Button */}
+                <div className="relative">
+                  <input
+                    id="files"
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="files"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer group"
+                  >
+                    <Upload className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                    <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors">
+                      {files.length > 0 ? `${files.length} nouveau(x) fichier(s) sélectionné(s)` : 'Cliquez pour ajouter des fichiers'}
+                    </span>
+                  </label>
+                </div>
+                
+                {/* Display newly selected files */}
+                {files.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-green-600">Nouveaux fichiers à ajouter:</Label>
+                    {files.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-md border border-green-200">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-green-500" />
+                          <span className="text-sm font-medium text-gray-700">{file.name}</span>
+                          <span className="text-xs text-gray-500">({Math.round(file.size / 1024)} KB)</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const newFiles = files.filter((_, i) => i !== index);
+                            setFiles(newFiles);
+                          }}
+                          className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -114,11 +114,11 @@ export function Dashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Archivé":
-        return "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
       case "En cours":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
     }
   }
 
@@ -418,8 +418,8 @@ export function Dashboard() {
                             {mail.priority}
                           </span>
                         </TableCell>
-                        <TableCell>{mail.sender}</TableCell>
-                        <TableCell>{mail.recipient}</TableCell>
+                        <TableCell className="max-w-60 truncate">{mail.sender}</TableCell>
+                        <TableCell className="max-w-60 truncate">{mail.recipient}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -528,11 +528,11 @@ export function Dashboard() {
                 </div>
               </div>
               <div>
-                <Label className="font-medium">Expéditeur</Label>
+                <Label className="font-medium truncate">Expéditeur</Label>
                 <div>{selectedMail.sender}</div>
               </div>
               <div>
-                <Label className="font-medium">Destinataire</Label>
+                <Label className="font-medium truncate">Destinataire</Label>
                 <div>{selectedMail.recipient}</div>
               </div>
               <div className="md:col-span-2">

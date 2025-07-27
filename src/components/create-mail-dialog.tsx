@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { Upload, FileText, X } from 'lucide-react'; // Add Upload and X icons
 import { mailService } from '@/services/mail-service';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
@@ -355,7 +356,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
       <DialogContent className="w-full max-w-fit overflow-auto">
         <DialogHeader>
           <DialogTitle>Ajouter un nouveau courrier</DialogTitle>
-          <p className="text-sm text-muted-foreground">Remplissez les informations du courrier à archiver.</p>
+          <p className="text-sm text-muted-foreground">Remplir les informations du courrier à archiver.</p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -698,16 +699,60 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
             </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Pièce jointe (scan)</label>
-            <Input
-              type="file"
-              onChange={handleFileChange}
-              accept=".pdf,.doc,.docx"
-              multiple
-              required
-            />
+            <label className="text-sm font-medium">Pièce jointe</label>
+            <div className="space-y-3">
+              {/* Custom File Upload Button */}
+              <div className="relative">
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
+                  multiple
+                  required
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer group"
+                >
+                  <Upload className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors">
+                    {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : 'Cliquez pour sélectionner des fichiers'}
+                  </span>
+                </label>
+              </div>
+              
+              {/* Display selected files */}
+              {files.length > 0 && (
+                <div className="space-y-2">
+                  {files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md border">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm font-medium text-gray-700">{file.name}</span>
+                        <span className="text-xs text-gray-500">({Math.round(file.size / 1024)} KB)</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const newFiles = files.filter((_, i) => i !== index);
+                          setFiles(newFiles);
+                          setFormState(prev => ({ ...prev, files: newFiles }));
+                        }}
+                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
-              Formats acceptés: PDF, DOC, DOCX. Taille maximale: 100MB.
+              Formats acceptés: PDF | Taille maximale: 100MB.
             </p>
           </div>
 

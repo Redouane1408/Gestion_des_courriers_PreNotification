@@ -225,11 +225,11 @@ export function ArchivePage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Archivé":
-        return "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
       case "En cours":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+        return "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
     }
   }
 
@@ -1007,11 +1007,11 @@ const mapNatureToBackend = (nature: string): string => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12"></TableHead>
+                    {/* <TableHead className="w-12"></TableHead> */}
                     <TableHead>N° de courrier</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Nature</TableHead>
-                    {/* <TableHead>Objet</TableHead> */}
+                    <TableHead>Objet</TableHead>
                     {/* <TableHead>Date d'enregistrement</TableHead> */}
                     <TableHead>Date d'arrivée</TableHead>
                     <TableHead>Date d'envoi</TableHead>
@@ -1026,9 +1026,9 @@ const mapNatureToBackend = (nature: string): string => {
                 <TableBody>
                   {filteredMails.map((mail) => (
                     <TableRow key={mail.courielNumber} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
-                      <TableCell>
+                   {/*    <TableCell>
 
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-bold`}
@@ -1038,9 +1038,9 @@ const mapNatureToBackend = (nature: string): string => {
                       </TableCell>
                       <TableCell>{mail.type}</TableCell>
                       <TableCell>{mail.nature}</TableCell>
-                      {/* <TableCell className="max-w-xs truncate">
+                       <TableCell className="max-w-xs truncate">
                         {mail.subject}
-                      </TableCell> */}
+                      </TableCell> 
                       {/* <TableCell>
                         {mail.historyList[0]?.timestamp ? new Date(mail.historyList[0].timestamp).toLocaleDateString() : 'N/A'}
                       </TableCell> */}
@@ -1054,11 +1054,7 @@ const mapNatureToBackend = (nature: string): string => {
                         {mail.returnDate ? new Date(mail.returnDate).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(
-                            mail.status
-                          )}`}
-                        >
+                        <span className={getStatusColor(mail.status)}>
                           {mail.status}
                         </span>
                       </TableCell>
@@ -1071,10 +1067,10 @@ const mapNatureToBackend = (nature: string): string => {
                           {mail.priority}
                         </span>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate ">
+                      <TableCell className="max-w-60 truncate ">
                         {mail.sender}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
+                      <TableCell className="max-w-60 truncate">
                         {mail.recipient}
                       </TableCell>
                       <TableCell>
@@ -1194,11 +1190,7 @@ const mapNatureToBackend = (nature: string): string => {
                 <div>
                   <Label className="font-medium">Statut</Label>
                   <div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        selectedMail.status
-                      )}`}
-                    >
+                    <span className={getStatusColor(selectedMail.status)}>
                       {selectedMail.status}
                     </span>
                   </div>
@@ -1207,7 +1199,7 @@ const mapNatureToBackend = (nature: string): string => {
                   <Label className="font-medium">Priorité</Label>
                   <div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                      className={`px-1 py-1 rounded-full text-xs font-medium ${getPriorityColor(
                         selectedMail.priority
                       )}`}
                     >
