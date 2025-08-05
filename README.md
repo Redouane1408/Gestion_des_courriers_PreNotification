@@ -85,3 +85,11 @@ The frontend requires the following environment variables:
    npm run lint
    npm run preview
 
+
+
+
+
+
+
+
+

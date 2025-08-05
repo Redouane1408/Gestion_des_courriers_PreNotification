@@ -9,6 +9,18 @@ export interface Modification {
   date: string;
 }
 
+// New destination interface for multiple destinations
+export interface Destination {
+  id?: string;
+  type?: 'internal' | 'external';
+  directionGeneralId?: string;
+  divisionId?: string;
+  directionId?: string;
+  sousDirectionId?: string;
+  ministryName?: string;
+  displayName?: string;
+}
+
 export interface Mail {
   id: string;
   courielNumber: string;
@@ -17,8 +29,6 @@ export interface Mail {
   subject: string;
   sender: string;
   recipient: string;
-  //date: string;
-  //registrationDate: string;
   returnDate: string | null;
   status: "Archivé" | "En cours";
   priority: "Normal" | "Urgent";
@@ -27,7 +37,11 @@ export interface Mail {
   createdBy: string;
   createdAt: string;
   modifiedBy: Modification[];
-  // Backend specific fields
+  
+  // Updated for multiple destinations support
+  destinations: Destination[];
+  
+  // Keep legacy fields for backward compatibility during transition
   fromDivisionId?: string | null;
   fromDirectionId?: string | null;
   fromSousDirectionId?: string | null;
@@ -39,7 +53,6 @@ export interface Mail {
   
   arrivedDate?: string | null;
   sentDate?: string | null;
-  //savedDate?: string | null;
   historyList: Array<{
     id: string;
     courrierId: string;
@@ -92,6 +105,8 @@ export interface FilterState {
   dateRetourTo: string;
   status: string;
   priority: string;
+  destinations: Destination[];
+  ministryName: string;
   sender: {
     type?: "Interne" | "Externe" | "Particulier";
     department?: string;
@@ -153,7 +168,8 @@ export interface MailFilters {
   recipientDivision?: string;
   recipientDirection?: string;
   recipientSousDirection?: string;
-  fromExternal?: string | null;
+  destinations?: Destination[];
+  ministryName?: string;
   toExternal?: string | null;
   
 }

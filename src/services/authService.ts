@@ -99,6 +99,7 @@ class AuthService {
       refreshToken: data.refreshToken,
       role: data.role,
       email: data.email,
+      directionGeneralId: data.directionGeneralId,
       divisionId: data.divisionId,
       directionId: data.directionId,
       sousdirectionId: data.sousdirectionId,

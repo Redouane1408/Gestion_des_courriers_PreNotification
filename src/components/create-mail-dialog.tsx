@@ -1,21 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Textarea } from "./ui/textarea";
-import { Upload, FileText, X } from 'lucide-react'; // Add Upload and X icons
-import { mailService } from '@/services/mail-service';
+import { ChevronLeft, ChevronRight, Check, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import axios from 'axios';
-import type { Division } from '@/types/division';
-import type { Direction } from '@/types/direction';
-import type { SousDirection } from '@/types/sousDirection';
-
-interface Ministry {
-  id: string;
-  name: string;
-}
+import { mailService } from '@/services/mail-service';
+import { BasicInfoStep } from './mail-form/BasicInfoStep';
+import { RoutingStep } from './mail-form/RoutingStep';
+import { DatesStep } from './mail-form/DatesStep';
+import { AttachmentsStep } from './mail-form/AttachmentsStep';
+import { StepNavigation } from './mail-form/StepNavigation';
+import { useMailForm } from './mail-form/useMailForm';
+//import type { Destination } from '@/types/mail';
 
 interface CreateMailDialogProps {
   open: boolean;
@@ -23,761 +18,315 @@ interface CreateMailDialogProps {
   onSuccess?: () => void;
 }
 
-interface MailFormState {
-  courielNumber: string;
-  type: 'Entrant' | 'Sortant';
-  nature: 'Interne' | 'Externe';
-  status: 'ARCHIVER' | 'EN_COURS';
-  subject: string;
-  priority: 'Urgent' | 'Normal';
-  description: string;
-  // Dates
-  arrivedDate: string | null;
-  sentDate: string | null;
-  returnDate: string | null;
-  // Hierarchical IDs
-  fromDivisionId: number | null;
-  fromDirectionId: number | null;
-  fromSousDirectionId: number | null;
-  fromExternal: string | null;
-  toDivisionId: number | null;
-  toDirectionId: number | null;
-  toSousDirectionId: number | null;
-  toExternal: string | null;
-  // Files
-  files: File[];
-}
-
 export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDialogProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
-  const [mailType, setMailType] = useState('Sortant');
-  const [mailNature, setMailNature] = useState('Interne');
-  const [formState, setFormState] = useState<MailFormState>({
-    courielNumber: '',
-    type: 'Sortant' as 'Entrant' | 'Sortant',
-    nature: 'Interne' as 'Interne' | 'Externe',
-    status: 'EN_COURS' as 'ARCHIVER' | 'EN_COURS',
-    subject: '',
-    priority: 'Normal'as 'Urgent' | 'Normal',
-    description: '',
-    arrivedDate: null,
-    sentDate: null,
-    returnDate: null,
-    fromDivisionId: null,
-    fromDirectionId: null,
-    fromSousDirectionId: null,
-    fromExternal: null,
-    toDivisionId: null,
-    toDirectionId: null,
-    toSousDirectionId: null,
-    toExternal: null,
-    files: []
-  });
-  
-  // States for hierarchical data
-  const [divisions, setDivisions] = useState<Division[]>([]);
-  const [directions, setDirections] = useState<Direction[]>([]);
-  const [sousDirections, setSousDirections] = useState<SousDirection[]>([]);
-  const [toDivisions, setToDivisions] = useState<Division[]>([]);
-  const [toDirections, setToDirections] = useState<Direction[]>([]);
-  const [toSousDirections, setToSousDirections] = useState<SousDirection[]>([]);
-  const [ministries, setMinistries] = useState<Ministry[]>([]);
-  
-  // Selected values states
-  const [selectedDivision, setSelectedDivision] = useState('');
-  const [selectedDirection, setSelectedDirection] = useState('');
-  const [selectedSousDirection, setSelectedSousDirection] = useState('');
-  const [selectedToDivision, setSelectedToDivision] = useState('');
-  const [selectedToDirection, setSelectedToDirection] = useState('');
-  const [selectedToSousDirection, setSelectedToSousDirection] = useState('');
-  const [selectedMinistry, setSelectedMinistry] = useState('');
-  const [selectedToMinistry, setSelectedToMinistry] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const {
+    formState,
+    currentStep,
+    completedSteps,
+    files,
+    validateStep,
+    handleNextStep,
+    handlePreviousStep,
+    handleStepClick,
+    handleInputChange,
+    handleFileChange,
+    resetForm,
+    setFiles
+  } = useMailForm();
 
-  const getToken = async () => {
-    const userData = localStorage.getItem('user');
-    return userData ? JSON.parse(userData).accessToken : null;
-  };
-
-/*   const getUserDivisionId = () => {
-    const userData = localStorage.getItem('user');
-    return userData ? JSON.parse(userData).divisionId : null;
-  }; */
-
-  const fetchDivisions = async () => {
-    try {
-      const token = await getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/v1/Divisions`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      const formattedDivisions = response.data.map((div: any) => ({
-        id: div.id.toString(),
-        name: div.divisionName || div.name
-      }));
-      setDivisions(formattedDivisions);
-      setToDivisions(formattedDivisions);
-    } catch (error) {
-      console.error("Error fetching divisions:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les divisions"
-      });
-    }
-  };
-
-  const fetchDirections = async (divisionId: string, setStateFunction: React.Dispatch<React.SetStateAction<Direction[]>>) => {
-    try {
-      const token = await getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/Directions/getByDivisionId?divisionId=${divisionId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      const formattedDirections = response.data.map((dir: any) => ({
-        id: dir.id,
-        name: dir.directionName
-      }));
-      setStateFunction(formattedDirections);
-    } catch (error) {
-      console.error("Error fetching directions:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les directions"
-      });
-    }
-  };
-
-  const fetchSousDirections = async (
-    directionId: string,
-    divisionId: string,
-    setStateFunction: React.Dispatch<React.SetStateAction<SousDirection[]>>
-  ) => {
-    try {
-      const token = await getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/sousDirections/getByDirectionIdAndDivisionId`,
-        {
-          params: {
-            directionId,
-            divisionId
-          },
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      const formattedSousDirections = response.data.map((sdir: any) => ({
-        id: sdir.id.toString(),
-        name: sdir.sousDirectionName || sdir.name || "Sous-direction sans nom"
-      }));
-      setStateFunction(formattedSousDirections);
-    } catch (error) {
-      console.error("Error fetching sous-directions:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les sous-directions"
-      });
-    }
-  };
-
-  // Function to fetch ministries from the API
-  const fetchMinistries = async () => {
-    try {
-      const token = await getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ministries`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      // Log the response to see the actual structure
-      console.log('Ministries API response:', response.data);
-      
-      // Utiliser directement les noms des ministères
-      const ministryNames = Array.isArray(response.data) ? response.data : [];
-      
-      // Convertir en format compatible avec le composant Select
-      const formattedMinistries = ministryNames.map((name, index) => {
-        // Convert the name to match the enum format if needed
-        // For example, if the backend expects uppercase with underscores
-        // const enumName = name.toUpperCase().replace(/ /g, '_');
-        return {
-          id: `ministry-${index}`,
-          name: name,
-          // Add the enum value if it's different from the display name
-          // enumValue: enumName
-        };
-      });
-      
-      console.log('Formatted ministries:', formattedMinistries);
-      setMinistries(formattedMinistries);
-    } catch (error) {
-      console.error("Error fetching ministries:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les ministères"
-      });
-    }
-  };
-
+  // Reset form when dialog closes
   useEffect(() => {
-    fetchDivisions();
-    fetchMinistries();
-  }, []);
-
-  useEffect(() => {
-    if (selectedDivision) fetchDirections(selectedDivision, setDirections);
-    if (selectedToDivision) fetchDirections(selectedToDivision, setToDirections);
-  }, [selectedDivision, selectedToDivision]);
-
-  useEffect(() => {
-    if (selectedDivision && selectedDirection) {
-      fetchSousDirections(selectedDirection, selectedDivision, setSousDirections);
+    if (!open) {
+      resetForm();
+      setShowConfirmation(false);
     }
-    if (selectedToDivision && selectedToDirection) {
-      fetchSousDirections(selectedToDirection, selectedToDivision, setToSousDirections);
-    }
-  }, [selectedDivision, selectedDirection, selectedToDivision, selectedToDirection]);
+  }, [open, resetForm]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    const totalSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
-    const maxSize = 100 * 1024 * 1024; // 100MB limit
-    
-    if (totalSize > maxSize) {
+  const steps = [
+    { id: 'basic', label: 'Informations de base' },
+    { id: 'routing', label: 'Expéditeur / Destinataire' },
+    { id: 'dates', label: 'Dates et Priorité' },
+    { id: 'attachments', label: 'Pièces jointes' }
+  ];
+
+  const handleCreateClick = () => {
+    const finalValidation = validateStep(3);
+    if (!finalValidation.isValid) {
       toast({
-        title: "Erreur",
-        description: "La taille totale des fichiers ne doit pas dépasser 100Mo",
-        variant: "destructive"
+        variant: "destructive",
+        title: "Validation échouée",
+        description: finalValidation.errors.join(', ')
       });
       return;
     }
-    
-    setFiles(selectedFiles);
-    setFormState(prev => ({ ...prev, files: selectedFiles }));
+    setShowConfirmation(true);
   };
 
-  const handleInputChange = (name: string, value: string) => {
-    setFormState(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleConfirmCreate = async () => {
+    setShowConfirmation(false);
     setIsLoading(true);
-  
+    
     try {
       const formData = new FormData();
       
-      // Generate courrielPath based on type and date
-      const currentDate = new Date();
-      const courrielPath = `courriers/${currentDate.getFullYear()}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`;
-      formData.append('courrielPath', courrielPath);
-  
-      // Add basic information
+      // Add basic form data with proper field mapping
       Object.entries(formState).forEach(([key, value]) => {
-        // Explicitly handle fromExternal and toExternal based on mailType and mailNature
-        if (key === 'fromExternal') {
-          if (mailType === 'Entrant' && mailNature === 'Externe' && value !== null) {
-            formData.append(key, value.toString());
-          } else {
-            formData.append(key, ''); // Ensure it's not sent or sent as empty string if not applicable
+        if (key === 'destinations') {
+          if (Array.isArray(value) && value.length > 0) {
+            value.forEach((destination, index) => {
+              formData.append(`destinations[${index}].directionGeneralId`, destination.directionGeneralId || '');
+              formData.append(`destinations[${index}].divisionId`, destination.divisionId || '');
+              formData.append(`destinations[${index}].directionId`, destination.directionId || '');
+              formData.append(`destinations[${index}].sousDirectionId`, destination.sousDirectionId || '');
+              formData.append(`destinations[${index}].ministryName`, destination.ministryName || '');
+              formData.append(`destinations[${index}].type`, destination.type || '');
+            });
           }
-        } else if (key === 'toExternal') {
-          if (mailType === 'Sortant' && mailNature === 'Externe' && value !== null) {
-            formData.append(key, value.toString());
-          } else {
-            formData.append(key, ''); // Ensure it's not sent or sent as empty string if not applicable
-          }
-        } else if (value !== null && value !== undefined && key !== 'files') {
-          if (key === 'nature') {
-            formData.append(key, value === 'Interne' ? 'Intern' : 'Extern');
-          } else {
-            formData.append(key, value.toString());
-          }
+        } else if (key === 'files') {
+          // Skip files here, handle separately
+        } else if (key === 'nature') {
+          // Map nature to backend format
+          const backendNature = value === 'Interne' ? 'Intern' : value === 'Externe' ? 'Extern' : value;
+          formData.append(key, backendNature);
+        } else if (value !== null && value !== undefined) {
+          formData.append(key, value.toString());
         }
       });
-  
-      // Handle files with metadata
-      const courielFiles = files.map((file, index) => ({
-        id: `temp_${index}`,
-        fileName: file.name,
-        fileType: file.type,
-        filePath: `${courrielPath}/${file.name}`,
-        fileSize: file.size
-      }));
-  
-      formData.append('courielFiles', JSON.stringify(courielFiles));
-      files.forEach(file => formData.append('files', file));
-  
+      
+      // For 'Entrant' 'Interne' mails, add destination fields based on sender selection
+      if (formState.type === 'Entrant' && formState.nature === 'Interne') {
+        // Map the sender fields to destination fields for routing
+        if (formState.fromDirectionGeneralId) {
+          formData.append('toDirectionGeneralId', formState.fromDirectionGeneralId.toString());
+        }
+        if (formState.fromDivisionId) {
+          formData.append('toDivisionId', formState.fromDivisionId.toString());
+        }
+        if (formState.fromDirectionId) {
+          formData.append('toDirectionId', formState.fromDirectionId.toString());
+        }
+        if (formState.fromSousDirectionId) {
+          formData.append('toSousDirectionId', formState.fromSousDirectionId.toString());
+        }
+      }
+      
+      // For 'Entrant' 'Externe' mails, add external destination
+      if (formState.type === 'Entrant' && formState.nature === 'Externe') {
+        if (formState.fromExternal) {
+          formData.append('toExternal', formState.fromExternal);
+        }
+      }
+      
+      // Add files
+      files.forEach((file, index) => {
+        formData.append('files', file);
+        formData.append(`fileMetadata[${index}]`, JSON.stringify({
+          originalName: file.name,
+          size: file.size,
+          type: file.type
+        }));
+      });
+      
+      // Debug: Log FormData contents
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      
       await mailService.createMail(formData);
-      onSuccess?.();
-      onOpenChange(false);
+      
       toast({
         title: "Succès",
-        description: "Le courrier a été créé avec succès."
+        description: "Le courrier a été créé avec succès"
       });
+      
+      onOpenChange(false);
+      onSuccess?.();
     } catch (error) {
       console.error('Error creating mail:', error);
       toast({
+        variant: "destructive",
         title: "Erreur",
-        description: "Une erreur est survenue lors de la création du courrier.",
-        variant: "destructive"
+        description: "Erreur lors de la création du courrier"
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-fit overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Ajouter un nouveau courrier</DialogTitle>
-          <p className="text-sm text-muted-foreground">Remplir les informations du courrier à archiver.</p>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>Créer un nouveau courrier</DialogTitle>
+            <DialogDescription>
+              Remplissez les informations pour créer un nouveau courrier
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Numéro de courrier</label>
-              <Input
-                name="courielNumber"
-                placeholder="COR-XXX"
-                className="col-span-1"
-                required
-                onChange={(e) => handleInputChange('courielNumber', e.target.value)}
-              />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <StepNavigation 
+              steps={steps}
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={handleStepClick}
+              progressPercentage={progressPercentage}
+            />
+
+            <div className="flex-1 overflow-y-auto">
+              <form className="space-y-6">
+                {currentStep === 0 && (
+                  <BasicInfoStep 
+                    formState={formState}
+                    onInputChange={handleInputChange}
+                    completedSteps={completedSteps}
+                  />
+                )}
+                
+                {currentStep === 1 && (
+                  <RoutingStep 
+                    formState={formState}
+                    onInputChange={handleInputChange}
+                    completedSteps={completedSteps}
+                  />
+                )}
+                
+                {currentStep === 2 && (
+                  <DatesStep 
+                    formState={formState}
+                    onInputChange={handleInputChange}
+                    completedSteps={completedSteps}
+                  />
+                )}
+                
+                {currentStep === 3 && (
+                  <AttachmentsStep 
+                    files={files}
+                    onFileChange={handleFileChange}
+                    onRemoveFile={(index) => {
+                      const newFiles = files.filter((_, i) => i !== index);
+                      setFiles(newFiles);
+                    }}
+                    completedSteps={completedSteps}
+                  />
+                )}
+              </form>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Type</label>
-              <Select
-                name="type"
-                value={mailType}
-                onValueChange={(value) => {
-                  setMailType(value);
-                  handleInputChange('type', value);
-                }}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Sortant">Départ</SelectItem>
-                  <SelectItem value="Entrant">Arrivé</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Footer Navigation */}
+          <div className="flex-shrink-0 pt-4 border-t">
+            <div className="flex justify-between items-center">
+              <div className="flex space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  className="text-sm"
+                >
+                  Annuler
+                </Button>
+                
+                {currentStep > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePreviousStep}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Précédent
+                  </Button>
+                )}
+              </div>
+              
+              <div className="flex space-x-2">
+                {currentStep < steps.length - 1 ? (
+                  <Button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    Suivant
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button 
+                    type="button" 
+                    disabled={isLoading || !completedSteps.slice(0, -1).every(Boolean)}
+                    className="flex items-center gap-2 text-sm"
+                    onClick={handleCreateClick}
+                  >
+                    {isLoading ? 'Création...' : 'Créer le courrier'}
+                    <Check className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nature</label>
-              <Select
-                name="nature"
-                value={mailNature}
-                onValueChange={(value) => {
-                  setMailNature(value);
-                  handleInputChange('nature', value);
-                }}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Nature" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Interne">Interne</SelectItem>
-                  <SelectItem value="Externe">Externe</SelectItem>
-                </SelectContent>
-              </Select>
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <AlertTriangle className="w-5 h-5" />
+              Confirmation de création
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-3">
+              Veuillez noter les limitations suivantes après la création du courrier :
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-gray-700">
+                  <strong>Destinataires :</strong> Vous ne pourrez plus modifier les destinataires après la création
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-gray-700">
+                  <strong>Informations de routage :</strong> Les informations d'expéditeur et de destinataire seront verrouillées
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-gray-700">
+                  <strong>Modifications autorisées :</strong> Vous pourrez uniquement modifier la priorité, le statut, l'objet, la description, la date de retour et les pièces jointes
+                </p>
+              </div>
             </div>
           </div>
           
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Objet</label>
-            <Input
-              name="subject"
-              placeholder="Objet du courrier"
-              required
-              onChange={(e) => handleInputChange('subject', e.target.value)}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-4">
-              
-              {mailType === 'Entrant' && mailNature === 'Interne' ? (
-                <>
-                <h4 className="font-medium">Expéditeur</h4>
-                  <Select
-                    name="fromDivisionId"
-                    value={selectedDivision}
-                    onValueChange={(value) => {
-                      setSelectedDivision(value);
-                      handleInputChange('fromDivisionId', value);
-                      setSelectedDirection('');
-                      setSelectedSousDirection('');
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Division" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {divisions.map(division => (
-                        <SelectItem key={division.id} value={division.id.toString()}>
-                          {division.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    name="fromDirectionId"
-                    value={selectedDirection}
-                    onValueChange={(value) => {
-                      setSelectedDirection(value);
-                      handleInputChange('fromDirectionId', value);
-                      setSelectedSousDirection('');
-                    }}
-                    disabled={!selectedDivision}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Direction" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {directions.map(direction => (
-                        <SelectItem key={direction.id} value={direction.id.toString()}>
-                          {direction.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    name="fromSousDirectionId"
-                    value={selectedSousDirection}
-                    onValueChange={(value) => {
-                      setSelectedSousDirection(value);
-                      handleInputChange('fromSousDirectionId', value);
-                    }}
-                    disabled={!selectedDirection}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sous-Direction" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sousDirections.map(sousDirection => (
-                        <SelectItem key={sousDirection.id} value={String(sousDirection.id)}>
-                          {sousDirection.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              ) : mailType === 'Entrant' && mailNature === 'Externe' ? (
-                <>
-                <h4 className="font-medium">Expéditeur</h4>
-                  <Select
-                    name="fromMinistry"
-                    value={selectedMinistry}
-                    onValueChange={(value) => {
-                      setSelectedMinistry(value);
-                      handleInputChange('fromExternal', value); // Utiliser le nom du ministère
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ministère" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ministries.length > 0 ? (
-                        ministries.map(ministry => (
-                          <SelectItem 
-                            key={ministry.id || `ministry-item-${Math.random()}`} 
-                            value={ministry.name} // Utiliser le nom comme valeur
-                          >
-                            {ministry.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-ministry" disabled>
-                          Aucun ministère disponible
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </>
-              ) : null /* Removed the external input for 'Sortant' mails */}
-            </div>
-
-            <div className="space-y-4">
-              
-              {mailType === 'Sortant' && mailNature === 'Interne' ? (
-                <>
-                <h4 className="font-medium">Destinataire</h4>
-                  <Select
-                    name="toDivisionId"
-                    value={selectedToDivision}
-                    onValueChange={(value) => {
-                      setSelectedToDivision(value);
-                      handleInputChange('toDivisionId', value);
-                      setSelectedToDirection('');
-                      setSelectedToSousDirection('');
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Division" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {toDivisions.map(division => (
-                        <SelectItem key={division.id} value={division.id.toString()}>
-                          {division.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    name="toDirectionId"
-                    value={selectedToDirection}
-                    onValueChange={(value) => {
-                      setSelectedToDirection(value);
-                      handleInputChange('toDirectionId', value);
-                      setSelectedToSousDirection('');
-                    }}
-                    disabled={!selectedToDivision}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Direction" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {toDirections.map(direction => (
-                        <SelectItem key={direction.id} value={direction.id.toString()}>
-                          {direction.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    name="toSousDirectionId"
-                    value={selectedToSousDirection}
-                    onValueChange={(value) => {
-                      setSelectedToSousDirection(value);
-                      handleInputChange('toSousDirectionId', value);
-                    }}
-                    disabled={!selectedToDirection}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sous-Direction" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {toSousDirections.map(sousDirection => (
-                        <SelectItem key={sousDirection.id} value={String(sousDirection.id)}>
-                          {sousDirection.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              ) : mailType === 'Sortant' && mailNature === 'Externe' ? (
-                <>
-                <h4 className="font-medium">Destinataire</h4>
-                  <Select
-                    name="toMinistry"
-                    value={selectedToMinistry}
-                    onValueChange={(value) => {
-                      setSelectedToMinistry(value);
-                      handleInputChange('toExternal', value);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ministère" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ministries.length > 0 ? (
-                        ministries.map(ministry => (
-                          <SelectItem 
-                            key={ministry.id || `ministry-item-${Math.random()}`} 
-                            value={ministry.name} // Use name as value instead of ID
-                          >
-                            {ministry.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-ministry" disabled>
-                          Aucun ministère disponible
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </>
-              ) : null /* Removed the external input for 'Entrant' mails */}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{mailType === 'Entrant'  ? 'Date d\'arrivée' : 'Date d\'envoi'}</label>
-              <Input
-                type="date"
-                name={mailType === 'Entrant' ? 'arrivedDate' : 'sentDate'}
-                onChange={(e) => handleInputChange(
-                  mailType === 'Entrant' ? 'arrivedDate' : 'sentDate',
-                  e.target.value
-                )}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Date de retour</label>
-              <Input
-                type="date"
-                name="returnDate"
-                placeholder="Date de retour"
-                onChange={(e) => handleInputChange('returnDate', e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Priorité</label>
-              <Select
-                name="priority"
-                value={formState.priority}
-                onValueChange={(value) => handleInputChange('priority', value)}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une priorité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Urgent">Urgent</SelectItem>
-                  <SelectItem value="Normal">Normal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Statut</label>
-            <Select
-                name="status"
-                value={formState.status}
-                onValueChange={(value) => handleInputChange('status', value)}
-                required
-            >
-                <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                <SelectItem value="EN_COURS">En cours</SelectItem>
-                <SelectItem value="ARCHIVER">Archivé</SelectItem>
-                </SelectContent>
-            </Select>
-            </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Pièce jointe</label>
-            <div className="space-y-3">
-              {/* Custom File Upload Button */}
-              <div className="relative">
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  multiple
-                  required
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer group"
-                >
-                  <Upload className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors">
-                    {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : 'Cliquez pour sélectionner des fichiers'}
-                  </span>
-                </label>
-              </div>
-              
-              {/* Display selected files */}
-              {files.length > 0 && (
-                <div className="space-y-2">
-                  {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md border">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm font-medium text-gray-700">{file.name}</span>
-                        <span className="text-xs text-gray-500">({Math.round(file.size / 1024)} KB)</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          const newFiles = files.filter((_, i) => i !== index);
-                          setFiles(newFiles);
-                          setFormState(prev => ({ ...prev, files: newFiles }));
-                        }}
-                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Formats acceptés: PDF | Taille maximale: 100MB.
-            </p>
-          </div>
-
-          <Textarea
-            name="description"
-            placeholder="Description du courrier"
-            className="min-h-[100px]"
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            
-          />
-
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
-              type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => setShowConfirmation(false)}
+              className="text-sm"
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Création...' : 'Ajouter le courrier'}
+            <Button
+              onClick={handleConfirmCreate}
+              disabled={isLoading}
+              className="text-sm bg-orange-600 hover:bg-orange-700"
+            >
+              {isLoading ? 'Création...' : 'Confirmer et créer'}
             </Button>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

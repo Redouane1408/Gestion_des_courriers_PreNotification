@@ -1,6 +1,7 @@
 export interface Direction {
     id: string;
-    name: string;
+    directionName: string;
+    directionGeneralId: string;
     divisionId: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -8,6 +9,7 @@ export interface Direction {
   
   export interface DirectionFilters {
     search?: string;
+    directionGeneralId: string;
     divisionId?: string;
     page?: number;
     limit?: number;

@@ -1,5 +1,6 @@
 import api from "@/lib/api";
-import type { Mail, MailFilters, MailPagination } from "@/types/mail";
+import type { Mail, MailFilters, MailPagination, Destination } from "@/types/mail";
+import { authService } from '@/services/authService';
 
 // Helper function to format dates for API
 const formatDateForApi = (dateStr: string) => {
@@ -38,7 +39,7 @@ const mapFiltersToBackend = (filters: MailFilters) => {
     fromDivisionId: filters.senderDivision ? parseInt(filters.senderDivision) : null,
     fromDirectionId: filters.senderDirection ? parseInt(filters.senderDirection) : null,
     fromSousDirectionId: filters.senderSousDirection ? parseInt(filters.senderSousDirection) : null,
-    fromExternal: filters.fromExternal || null,
+    ministryName: filters.ministryName || null,
     toDivisionId: filters.recipientDivision ? parseInt(filters.recipientDivision) : null,
     toDirectionId: filters.recipientDirection ? parseInt(filters.recipientDirection) : null,
     toSousDirectionId: filters.recipientSousDirection ? parseInt(filters.recipientSousDirection) : null,
@@ -54,46 +55,93 @@ const mapFiltersToBackend = (filters: MailFilters) => {
 
 // Helper to map backend response to frontend Mail objects
 export const mapResponseToMails = (data: any[]): Mail[] => {
-  return data.map((mail: any) => ({
-    id: mail.courielNumber?.toString() || "",
-    courielNumber: mail.courielNumber?.toString() || "",
-    type: mail.type || "",
-    nature: mail.nature || "",
-    subject: mail.subject || "",
-    sender: mail.fromExternal || 
-           (mail.fromDivisionId ? `${mail.fromDivisionId}${mail.fromDirectionId ? ` - ${mail.fromDirectionId}` : ''}` : ""),
-    recipient: mail.toExternal || 
-              (mail.toDivisionId ? ` ${mail.toDivisionId}${mail.toDirectionId ? ` -  ${mail.toDirectionId}` : ''}` : ""),
-    date: mail.arrivedDate || mail.sentDate || new Date().toISOString(),
-    registrationDate: mail.savedDate || mail.arrivedDate || new Date().toISOString(),
-    returnDate: mail.returnDate || null,
-    status: mail.status === "EN_COURS" ? "En cours" : mail.status === "ARCHIVER" ? "Archivé" : "En cours",
-    priority: mail.priority || "Normal",
-    attachments: mail.attachments?.map((att: any) => ({
-      name: att.name || att.fileName || "Document",
-      size: att.size || "Unknown"
-    })) || [],
-    description: mail.description || "",
-    createdBy: mail.historyList?.[0]?.createdById?.toString() || "Unknown",
-    createdAt: mail.historyList?.[0]?.timestamp || mail.arrivedDate || new Date().toISOString(),
-    modifiedBy: mail.historyList?.slice(1).map((history: any) => ({
-      user: history.updatedById?.toString() || "Unknown",
-      date: history.timestamp || new Date().toISOString()
-    })) || [],
-    fromDivisionId: mail.fromDivisionId,
-    fromDirectionId: mail.fromDirectionId,
-    fromSousDirectionId: mail.fromSousDirectionId,
-    fromExternal: mail.fromExternal,
-    toDivisionId: mail.toDivisionId,
-    toDirectionId: mail.toDirectionId,
-    toSousDirectionId: mail.toSousDirectionId,
-    toExternal: mail.toExternal,
-    arrivedDate: mail.arrivedDate,
-    sentDate: mail.sentDate,
-    savedDate: mail.savedDate,
-    historyList: mail.historyList,
-    courielFiles: mail.courielFiles || []
-  }));
+  return data.map((mail: any) => {
+    // Map destinations from the new backend structure
+    const destinations: Destination[] = mail.destinations?.map((dest: any) => ({
+      id: dest.id?.toString() || "",
+      type: dest.type || 'internal',
+      directionGeneralId: dest.directionGeneralId?.toString(),
+      divisionId: dest.divisionId?.toString(),
+      directionId: dest.directionId?.toString(),
+      sousDirectionId: dest.sousDirectionId?.toString(),
+      ministryName: dest.ministryName,
+      displayName: dest.displayName || generateDestinationDisplayName(dest)
+    })) || [];
+
+    return {
+      id: mail.courielNumber?.toString() || "",
+      courielNumber: mail.courielNumber?.toString() || "",
+      type: mail.type || "",
+      nature: mail.nature || "",
+      subject: mail.subject || "",
+      sender: mail.fromExternal || 
+             (mail.fromDivisionId ? `${mail.fromDivisionId}${mail.fromDirectionId ? ` - ${mail.fromDirectionId}` : ''}` : ""),
+      recipient: destinations.length > 0 
+        ? [...new Set(destinations.map(d => d.displayName))].join(', ') // Remove duplicates
+        : (mail.toExternal || 
+          (mail.toDivisionId ? ` ${mail.toDivisionId}${mail.toDirectionId ? ` -  ${mail.toDirectionId}` : ''}` : "")),
+      date: mail.arrivedDate || mail.sentDate || new Date().toISOString(),
+      registrationDate: mail.savedDate || mail.arrivedDate || new Date().toISOString(),
+      returnDate: mail.returnDate || null,
+      status: mail.status === "EN_COURS" ? "En cours" : mail.status === "ARCHIVER" ? "Archivé" : "En cours",
+      priority: mail.priority || "Normal",
+      attachments: mail.attachments?.map((att: any) => ({
+        name: att.name || att.fileName || "Document",
+        size: att.size || "Unknown"
+      })) || [],
+      description: mail.description || "",
+      createdBy: mail.historyList?.[0]?.createdById?.toString() || "Unknown",
+      createdAt: mail.historyList?.[0]?.timestamp || mail.arrivedDate || new Date().toISOString(),
+      modifiedBy: mail.historyList?.slice(1).map((history: any) => ({
+        user: history.updatedById?.toString() || "Unknown",
+        date: history.timestamp || new Date().toISOString()
+      })) || [],
+      
+      // New destinations field
+      destinations,
+      
+      // Keep legacy fields for backward compatibility
+      fromDivisionId: mail.fromDivisionId,
+      fromDirectionId: mail.fromDirectionId,
+      fromSousDirectionId: mail.fromSousDirectionId,
+      fromExternal: mail.fromExternal,
+      toDivisionId: mail.toDivisionId,
+      toDirectionId: mail.toDirectionId,
+      toSousDirectionId: mail.toSousDirectionId,
+      toExternal: mail.toExternal,
+      arrivedDate: mail.arrivedDate,
+      sentDate: mail.sentDate,
+      savedDate: mail.savedDate,
+      historyList: mail.historyList,
+      courielFiles: mail.courielFiles || []
+    };
+  });
+};
+
+// Helper function to generate display name for destinations
+const generateDestinationDisplayName = (dest: any): string => {
+  if (dest.type === 'external') {
+    return dest.ministryName || 'Ministère Externe';
+  }
+  
+  const parts = [];
+  if (dest.directionGeneralId) parts.push(`${dest.directionGeneralId}`);
+  if (dest.divisionId) parts.push(`${dest.divisionId}`);
+  if (dest.directionId) parts.push(`${dest.directionId}`);
+  if (dest.sousDirectionId) parts.push(`${dest.sousDirectionId}`);
+  if (dest.ministryName) parts.push(`${dest.ministryName}`);
+  
+  // If we have parts, join them
+  if (parts.length > 0) {
+    return parts.join(' | ');
+  }
+  
+  // Better fallback - try to use destination ID or name if available
+  if (dest.id) {
+    return `${dest.id}`;
+  }
+  
+  return 'Destination Interne';
 };
 
 // Create request config with authorization headers
@@ -189,100 +237,58 @@ export const mailService = {
     },
   
   async createMail(mailData: FormData): Promise<Mail> {
+    const token = await authService.getValidAccessToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     try {
-      const userData = localStorage.getItem('user');
-      const token = userData ? JSON.parse(userData).accessToken : null;
-      
-      if (!token) {
-        throw new Error('Authentication token not found');
-      }
-
-      const response = await api.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/mails`,
-        mailData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            // Don't set Content-Type, let browser set it with boundary for FormData
-          }
+      const response = await api.post('/api/mails', mailData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
-      );
-
+      });
+      
+      // The response now includes destinations array
       return mapResponseToMails([response.data])[0];
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating mail:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Failed to create mail');
     }
   },
 
   async updateMail(data: FormData | any): Promise<Mail> {
+    const token = await authService.getValidAccessToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     try {
-      const userData = localStorage.getItem('user');
-      const token = userData ? JSON.parse(userData).accessToken : null;
+      let courielNumber: string;
       
-      if (!token) {
-        throw new Error('Authentication token not found');
-      }
-
-      let formData = new FormData();
-      
-      if (!(data instanceof FormData)) {
-        // If data is not FormData, create FormData with the required fields
-        formData.append('courielNumber', data.courielNumber);
-        formData.append('priority', data.updatedCouriel?.priority || '');
-        formData.append('status', data.updatedCouriel?.status || '');
-        formData.append('subject', data.updatedCouriel?.subject || '');
-        formData.append('description', data.updatedCouriel?.description || '');
-        formData.append('returnDate', data.updatedCouriel?.returnDate || '');
-
-        // Append existing files
-        if (data.existingFiles && Array.isArray(data.existingFiles)) {
-          data.existingFiles.forEach((file: any) => {
-            formData.append('courielFiles', file.id);
-          });
-        }
-
-        // Append new files
-        if (data.newFiles && Array.isArray(data.newFiles)) {
-          data.newFiles.forEach((file: File) => {
-            formData.append('files', file);
-          });
-        }
-        formData.append('uploadedFiles', JSON.stringify(data.uploadedFiles || []));
-        formData.append('removedFiles', JSON.stringify(data.removedFiles || []));
-        formData.append('skippedFiles', JSON.stringify(data.skippedFiles || []));
-        
-        // Handle file arrays
-        if (data.removedFiles) {
-          data.removedFiles.forEach((file: any, index: number) => {
-            formData.append(`removedFiles[${index}]`, file);
-          });
-        }
-        
-        if (data.newFiles) {
-          data.newFiles.forEach((file: File, index: number) => {
-            formData.append(`newFiles[${index}]`, file);
-          });
-        }
+      if (data instanceof FormData) {
+        courielNumber = data.get('courielNumber') as string;
       } else {
-        formData = data;
+        courielNumber = data.courielNumber;
       }
 
-      const response = await api.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/mails`,
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            // Let the browser set the Content-Type header with boundary for FormData
-          }
+      if (!courielNumber) {
+        throw new Error('Couriel number is required for update');
+      }
+
+      const response = await api.put(`${import.meta.env.VITE_API_BASE_URL}/api/mails`, data, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': data instanceof FormData ? 'multipart/form-data' : 'application/json'
         }
-      );
+      });
       
+      // The response now includes destinations array
       return mapResponseToMails([response.data])[0];
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating mail:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Failed to update mail');
     }
   },
 

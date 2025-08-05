@@ -12,6 +12,7 @@ export interface TokenResponse {
     accessToken: string;
     refreshToken: string;
     role: 'ADMIN' | 'USER';
+    directionGeneralId?: number;
     divisionId: number;
     directionId?: number;
     sousdirectionId?: number; // Changed from sousDirectionId to sousdirectionId

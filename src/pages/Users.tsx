@@ -31,6 +31,7 @@ interface User {
   email: string;
   phone?: string;
   role: string;
+  
   direction?: string;
   subDirection?: string;
   profession?: string;
@@ -93,7 +94,7 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
 };
 
 export function UsersPage() {
-  const { isGlobalAdmin, getToken, directionId } = useAuth();
+  const { isGlobalAdmin, getToken, directionId, directionGeneralId } = useAuth(); // Add directionGeneralId
   const { toast } = useToast();
   
   // State management
@@ -137,6 +138,18 @@ export function UsersPage() {
   
   const shouldShowAdminForm = () => {
     return isGlobalAdmin() && !hasDirectionId();
+  };
+
+  const getUserDirectionGeneralId = (): number => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      if (user.directionGeneralId) {
+        return Number(user.directionGeneralId);
+      }
+    }
+    // Fallback to auth context
+    return directionGeneralId ? Number(directionGeneralId) : 1;
   };
   
   const getUserDivisionId = (): number => {
@@ -317,6 +330,7 @@ export function UsersPage() {
         quatreChiffres: user.quatreChiffres || '-',
         role: user.role || '-',
         direction: user.directionId || '-',
+        
         subDirection: user.souDirectionId || '-',
         profession: user.profession || '-'
       })) : [];
@@ -486,6 +500,7 @@ const handleCopyPassword = () => {
           telephone: data.telephone,
           divisionId: divisionId,
           directionId: shouldShowAdminForm() ? parseInt(data.direction) : parseInt(getUserDirectionId() || '0'),
+          directionGeneralId: getUserDirectionGeneralId(), // Add this line
           souDirectionId: !shouldShowAdminForm() ? parseInt(data.sousdirection) : 0,
           quatreChiffres: data.quatreChiffres || undefined,
           profession: data.profession || ''

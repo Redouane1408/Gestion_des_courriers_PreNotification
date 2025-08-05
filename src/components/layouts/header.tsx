@@ -11,10 +11,14 @@ import {
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react"
 
 export function Header() {
   const { theme } = useTheme();
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // Helper function to get initials from email
   const getInitials = (email: string) => {
@@ -38,132 +42,289 @@ export function Header() {
     switch(operation) {
       case 'DELETE':
       case 'Supprimer':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500/20 text-red-300 border-red-500/30';
 
       case 'ARCHIVE':
       case 'Archiver':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
 
       case 'MODIFY':
       case 'Modifier':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
 
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 w-full">
-      <div className="hidden md:block">
-        <h1 className="text-lg font-semibold"></h1>
+    <motion.header 
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="w-full max-w-screen-2xl mx-auto mt-4 border border-white/10 bg-gradient-to-b from-blue-600 to-cyan-600 backdrop-blur-xl shadow-xl rounded-full"
+    >
+      {/* Animated background overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-cyan-600/40 backdrop-blur-sm rounded-full pointer-events-none" />
+      
+      {/* Floating particles effect */}
+      <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-white/20 rounded-full pointer-events-none"
+            animate={{
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+              opacity: [0.3, 0.8, 0.3]
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5
+            }}
+            style={{
+              left: `${10 + i * 15}%`,
+              top: `${20 + (i % 3) * 20}%`
+            }}
+          />
+        ))}
       </div>
-      <div className="flex-1 md:grow-0">
-        <form>
-          <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className="flex items-center gap-2 font-semibold">
-              <h1 className="flex h-full max-h-screen flex-row gap-2"> 
-                {theme === 'dark' ? (
-                  <img src="logo courriel management-05.svg" alt="Dark Logo" className="h-14 mx-8" />
-                ) : (
-                  <img src="logo courriel management-06.svg" alt="Light Logo" className="h-14 mx-8" />
-                )}
-                <span className="text-lg font-bold"></span>
-              </h1>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div className="ml-auto flex items-center gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-800 text-[10px] text-white">
-                  {unreadCount}
-                </span>
-              )}
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-0 border rounded-lg shadow-lg" align="end" alignOffset={-20}>
-            <div className="flex items-center justify-between p-4 border-b">
-              <h4 className="text-base font-semibold">Notifications</h4>
-            </div>
-            
-            <ScrollArea className="h-80">
-              {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-6">
-                  <Bell className="h-10 w-10 text-muted-foreground mb-2 opacity-20" />
-                  <p className="text-sm text-muted-foreground">Aucune notification</p>
-                </div>
-              ) : (
-                <div className="py-1">
-                  {notifications.map((notif) => (
-                    <div 
-                      key={notif.id} 
-                      className="flex items-start p-3 hover:bg-muted/50 border-b border-border/50 last:border-0 transition-colors"
-                    >
-                      <Avatar className="h-9 w-9 mr-3 mt-1">
-                        <AvatarImage src="/placeholder.svg" alt={notif.email} />
-                        <AvatarFallback className="bg-cyan-100 text-cyan-800">
-                          {getInitials(notif.email)}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <p className="text-sm font-bold text-cyan-700 truncate">
-                            {notif.email.split('@')[0]}
-                          </p>
-                          <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
-                            {formatTime(notif.time)}
-                          </span>
-                        </div>
-                        
-                        <p className="text-sm mb-1">{notif.message}</p>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOperationBadgeStyle(notif.operation)}`}>
-                              {notif.operation}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {notif.courrielNumber}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex justify-end">
-                        <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => markAsRead(notif.id)}
-                            className="text-xs text-cyan-700 hover:text-white hover:bg-cyan-700 h-6 my-3 "
-                          >
-                            Marquer comme lue
-                          </Button>
-                          </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-            
-            {unreadCount > 0 && (
-              <div className="p-2 border-t text-center">
-                <Button onClick={() => markAllAsRead()} variant="ghost" size="sm" className="text-xs w-full text-cyan-700 hover:text-cyan-800">
-                  Marquer toutes comme lues
-                </Button>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
+      
 
-        <ThemeToggle />
-        <UserNav />
+      <div className="relative container flex h-16 items-center justify-between px-24">
+        {/* Logo Section with Animation */}
+        <motion.div 
+          className="flex items-center space-x-4"
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.div 
+            className=" flex items-center"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            {theme === 'dark' ? (
+              <img 
+                src="logo courriel management-05.svg" 
+                alt="Gestion des Courriers" 
+                className="h-8 w-auto drop-shadow-lg ml-96 pl-52 " 
+              />
+            ) : (
+              <img 
+                src="logo courriel management-05.svg" 
+                alt="Gestion des Courriers" 
+                className="h-8 w-auto drop-shadow-lg ml-96 pl-52" 
+              />
+            )}
+            <motion.div 
+              className="hidden md:block"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Right Section - Actions with Staggered Animation */}
+        <motion.div 
+          className="flex items-center space-x-3"
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          {/* Search Button */}
+          
+
+          {/* Notifications with Advanced Animation */}
+          <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+            <PopoverTrigger asChild>
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative h-10 w-10 text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10"
+                >
+                  <motion.div
+                    animate={unreadCount > 0 ? { rotate: [0, 15, -15, 0] } : {}}
+                    transition={{ duration: 0.5, repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 3 }}
+                  >
+                    <Bell className="h-4 w-4" />
+                  </motion.div>
+                  <AnimatePresence>
+                    {unreadCount > 0 && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute -top-1 -right-1"
+                      >
+                        <Badge className="h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-gradient-to-r from-red-500 to-pink-500 border-0 shadow-lg">
+                          <motion.span
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                          </motion.span>
+                        </Badge>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <span className="sr-only">Notifications</span>
+                </Button>
+              </motion.div>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-96 p-0 bg-gradient-to-b from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-white/10 shadow-2xl" 
+              align="end" 
+              sideOffset={8}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                  <h4 className="font-semibold text-white">Notifications</h4>
+                  {unreadCount > 0 && (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button 
+                        onClick={markAllAsRead} 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-auto p-2 text-cyan-400 hover:text-white hover:bg-cyan-600/20"
+                      >
+                        Tout marquer
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
+                
+                <ScrollArea className="h-80">
+                  {notifications.length === 0 ? (
+                    <motion.div 
+                      className="flex flex-col items-center justify-center p-8 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Bell className="h-8 w-8 text-white/30 mb-2" />
+                      </motion.div>
+                      <p className="text-sm text-white/60">Aucune notification</p>
+                    </motion.div>
+                  ) : (
+                    <div className="divide-y divide-white/10">
+                      {notifications.map((notif, index) => (
+                        <motion.div 
+                          key={notif.id} 
+                          className="p-4 hover:bg-white/5 transition-all duration-300 pointer-events-none"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ x: 5 }}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-cyan-500/30">
+                                <AvatarImage src="/placeholder.svg" alt={notif.email} />
+                                <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-semibold">
+                                  {getInitials(notif.email)}
+                                </AvatarFallback>
+                              </Avatar>
+                            </motion.div>
+                            
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium truncate text-white">
+                                  {notif.email.split('@')[0]}
+                                </p>
+                                <span className="text-xs text-white/60">
+                                  {formatTime(notif.time)}
+                                </span>
+                              </div>
+                              
+                              <p className="text-sm text-white/80 line-clamp-2">
+                                {notif.message}
+                              </p>
+                              
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs border ${getOperationBadgeStyle(notif.operation)}`}
+                                  >
+                                    {notif.operation}
+                                  </Badge>
+                                  <span className="text-xs text-white/60">
+                                    {notif.courrielNumber}
+                                  </span>
+                                </div>
+                                
+                                <motion.div
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                >
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => markAsRead(notif.id)}
+                                    className="text-xs h-auto p-1 text-cyan-400 hover:text-white hover:bg-cyan-600/20 transition-all duration-200"
+                                  >
+                                    Marquer
+                                  </Button>
+                                </motion.div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </motion.div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Theme Toggle with Animation */}
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 180 }}
+            whileTap={{ scale: 0.95 }}
+            
+          >
+            <div className="[&>button]:h-10 [&>button]:w-10 [&>button]:text-white/80 [&>button]:hover:text-white [&>button]:hover:bg-white/20 [&>button]:transition-all [&>button]:duration-300 [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/10 ">
+              <ThemeToggle />
+            </div>
+          </motion.div>
+
+          {/* User Navigation with Animation */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            
+          >
+            <div className="[&>div>button]:ring-2 [&>div>button]:ring-white/20 [&>div>button]:hover:ring-white/40 [&>div>button]:transition-all [&>div>button]:duration-300">
+              <UserNav />
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </header>
+      
+ 
+    </motion.header>
   );
 }

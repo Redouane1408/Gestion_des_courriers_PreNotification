@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react"
 import {useMails} from "@/hooks/use-mails"
-import { Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X } from "lucide-react"
+import { AlertCircle, AlertTriangle, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 //import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -41,6 +41,7 @@ import { mailService } from "@/services/mail-service"
 
 // Import necessary types
 import type { Mail, MailFilters, FilterState } from "@/types/mail"
+import { Avatar } from "@radix-ui/react-avatar"
 
 interface Division {
   id: string
@@ -98,6 +99,7 @@ export function ArchivePage() {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   /* const [date, setDate] = useState<Date | undefined>(undefined)
   const [returnDate, setReturnDate] = useState<Date | undefined>(undefined) */
   const [selectedMail, setSelectedMail] = useState<Mail | null>(null)
@@ -139,7 +141,8 @@ export function ArchivePage() {
     showSenderSousDirection: false,
     showRecipientDirection: false,
     showRecipientSousDirection: false,
-    fromExternal: filters.fromExternal,
+    destinations: filters.destinations || [],
+    ministryName: filters.ministryName || "",
     toExternal: filters.toExternal,
     page: filters.page,
     limit: filters.limit
@@ -182,7 +185,8 @@ export function ArchivePage() {
       showSenderSousDirection: false,
       showRecipientDirection: false,
       showRecipientSousDirection: false,
-      fromExternal: filters.fromExternal,
+      destinations: filters.destinations || [],
+      ministryName: filters.ministryName || "",
       toExternal: filters.toExternal,
       page: filters.page,
       limit: filters.limit
@@ -359,6 +363,12 @@ export function ArchivePage() {
       });
     }
   }
+  
+  const confirmDeleteMail = (mail: Mail) => {
+    setSelectedMail(mail);
+    setIsDeleteDialogOpen(true);
+    setOpenDropdownId(null);
+  }
 /* 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -428,7 +438,8 @@ export function ArchivePage() {
       recipientDivision: tempFilters.recipientDivision,
       recipientDirection: tempFilters.recipientDirection,
       recipientSousDirection: tempFilters.recipientSousDirection,
-      fromExternal: tempFilters.fromExternal,
+      destinations: tempFilters.destinations,
+      ministryName: tempFilters.ministryName,
       toExternal: tempFilters.toExternal
     };
     
@@ -474,7 +485,8 @@ export function ArchivePage() {
       showSenderSousDirection: false,
       showRecipientDirection: false,
       showRecipientSousDirection: false,
-      fromExternal: null,
+      destinations: [],
+      ministryName: "",
       toExternal: null,
       page: 0,
       limit: 10
@@ -1103,7 +1115,7 @@ const mapNatureToBackend = (nature: string): string => {
                               <Pencil className="mr-2 h-4 w-4" />
                               Modifier
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteMail(mail.courielNumber)}>
+                            <DropdownMenuItem onClick={() => confirmDeleteMail(mail)}>
                               <Trash2 className="mr-2 h-4 w-4" />
                               Supprimer
                             </DropdownMenuItem>
@@ -1153,125 +1165,256 @@ const mapNatureToBackend = (nature: string): string => {
 
       {/* View Mail Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="view-dialog-description">
-          {selectedMail && (
-            <>
-              <DialogHeader>
-                <DialogTitle>Détails du Courrier</DialogTitle>
-                <DialogDescription id="view-dialog-description">
-                  Détails complets du courrier sélectionné
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div>
-                  <Label className="font-medium">N° de courrier</Label>
-                  <div>{selectedMail.courielNumber}</div>
-                </div>
-                <div>
-                  <Label className="font-medium">Type</Label>
-                  <div>{selectedMail.type}</div>
-                </div>
-                <div>
-                  <Label className="font-medium">Nature</Label>
-                  <div>{selectedMail.nature}</div>
-                </div>
-                <div>
-                  <Label className="font-medium">Objet</Label>
-                  <div>{selectedMail.subject}</div>
-                </div>
-                <div>
-                  <Label className="font-medium">Date d'enregistrement</Label>
-                  <div>
-                    {selectedMail.historyList && selectedMail.historyList.length > 0 && selectedMail.historyList[0].timestamp 
-                      ? new Date(selectedMail.historyList[0].timestamp).toLocaleDateString() 
-                      : 'N/A'}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-white" />
+              </div>
+              Détails du courrier
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Consultez toutes les informations détaillées de ce courrier
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto py-6">
+            {selectedMail && (
+              <div className="space-y-8">
+                {/* Header Information Card */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                        Numéro du courrier
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                        <span className="text-lg font-bold text-gray-900">{selectedMail.courielNumber}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                        Type
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                        <span className="text-gray-900 font-medium">{selectedMail.type}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                        Nature
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                        <span className="text-gray-900 font-medium">{selectedMail.nature}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <Label className="font-medium">Statut</Label>
-                  <div>
-                    <span className={getStatusColor(selectedMail.status)}>
-                      {selectedMail.status}
-                    </span>
+
+                {/* Main Information */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        Informations générales
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 block mb-1">
+                            Objet
+                          </label>
+                          <p className="text-gray-900 font-medium bg-gray-50 rounded-lg p-3">
+                            {selectedMail.subject}
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Date d'enregistrement
+                            </label>
+                            <div className="flex items-center gap-2 text-gray-900">
+                              <Timer className="w-4 h-4 text-blue-600" />
+                              <span>
+                                {selectedMail.historyList && selectedMail.historyList.length > 0 && selectedMail.historyList[0].timestamp 
+                                  ? new Date(selectedMail.historyList[0].timestamp).toLocaleDateString('fr-FR') 
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Date de retour
+                            </label>
+                            <div className="flex items-center gap-2 text-gray-900">
+                              <Timer className="w-4 h-4 text-blue-600" />
+                              <span>
+                                {selectedMail.returnDate 
+                                  ? new Date(selectedMail.returnDate).toLocaleDateString('fr-FR')
+                                  : 'Non définie'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Date d'envoi
+                            </label>
+                            <div className="flex items-center gap-2 text-gray-900">
+                              <Timer className="w-4 h-4 text-blue-600" />
+                              <span>
+                                {selectedMail.sentDate 
+                                  ? new Date(selectedMail.sentDate).toLocaleDateString('fr-FR')
+                                  : '-'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Date d'arrivée
+                            </label>
+                            <div className="flex items-center gap-2 text-gray-900">
+                              <Timer className="w-4 h-4 text-blue-600" />
+                              <span>
+                                {selectedMail.arrivedDate 
+                                  ? new Date(selectedMail.arrivedDate).toLocaleDateString('fr-FR')
+                                  : '-'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Statut
+                            </label>
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedMail.status)}`}>
+                              <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+                              {selectedMail.status}
+                            </span>
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 block mb-1">
+                              Priorité
+                            </label>
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(selectedMail.priority)}`}>
+                              <FileText className="w-3 h-3 mr-1" />
+                              {selectedMail.priority}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <SendToBackIcon className="w-5 h-5 text-blue-600" />
+                        Expéditeur et Destinataire
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 block mb-2">
+                            Expéditeur
+                          </label>
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="flex items-center gap-2 text-green-800">
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">
+                                {selectedMail.sender}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 block mb-2">
+                            Destinataire
+                          </label>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-center gap-2 text-blue-800">
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">
+                                {selectedMail.recipient}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <Label className="font-medium">Priorité</Label>
-                  <div>
-                    <span
-                      className={`px-1 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                        selectedMail.priority
-                      )}`}
-                    >
-                      {selectedMail.priority}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Label className="font-medium">Expéditeur</Label>
-                  <div>{selectedMail.sender}</div>
-                </div>
-                <div>
-                  <Label className="font-medium">Destinataire</Label>
-                  <div>{selectedMail.recipient}</div>
-                </div>
-                {selectedMail.returnDate && (
-                  <div>
-                    <Label className="font-medium">Date de retour</Label>
-                    <div>
-                      {new Date(selectedMail.returnDate).toLocaleDateString()}
+
+                {/* Description */}
+                {selectedMail.description && (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      Description
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {selectedMail.description}
+                      </p>
                     </div>
                   </div>
                 )}
-                {selectedMail.sentDate && (
-                  <div>
-                    <Label className="font-medium">Date d'envoi</Label>
-                    <div>
-                      {new Date(selectedMail.sentDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-                {selectedMail.arrivedDate && (
-                  <div>
-                    <Label className="font-medium">Date d'arrivée</Label>
-                    <div>
-                      {new Date(selectedMail.arrivedDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="md:col-span-2">
-                  <Label className="font-medium">Description</Label>
-                  <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded-md">
-                    {selectedMail.description || "Aucune description"}
-                  </div>
-                </div>
-                {selectedMail.attachments.length > 0 && (
-                  <div className="md:col-span-2">
-                    <Label className="font-medium">Pièces jointes</Label>
-                    <div className="mt-1">
+
+                {/* Attachments */}
+                {selectedMail.attachments && selectedMail.attachments.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      Pièces jointes ({selectedMail.attachments.length})
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {selectedMail.attachments.map((attachment, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-md mb-2"
-                        >
-                          <FileText className="h-4 w-4 text-blue-500" />
-                          <span>{attachment.name}</span>
-                          <span className="text-xs text-gray-500">
-                            ({attachment.size})
-                          </span>
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <FileText className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {attachment.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {attachment.size}
+                              </p>
+                            </div>
+                          </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="ml-auto"
                             onClick={() => {
                               toast({
                                 title: "Téléchargement",
                                 description: `Téléchargement de ${attachment.name} en cours...`,
                               })
                             }}
+                            className="flex-shrink-0 hover:bg-blue-100 hover:text-blue-700"
                           >
-                            <Download className="h-4 w-4" />
+                            <Download className="w-4 h-4" />
                           </Button>
                         </div>
                       ))}
@@ -1279,13 +1422,18 @@ const mapNatureToBackend = (nature: string): string => {
                   </div>
                 )}
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                  Fermer
-                </Button>
-              </DialogFooter>
-            </>
-          )}
+            )}
+          </div>
+          
+          <DialogFooter className="border-t border-gray-200 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsViewDialogOpen(false)}
+              className="hover:bg-gray-50"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1312,61 +1460,357 @@ const mapNatureToBackend = (nature: string): string => {
         }} 
       />
 
-      {/* History Dialog */}
+      {/* History Dialog - Modern Design */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-        <DialogContent className="max-w-4xl overflow-hidden bg-white" aria-describedby="history-dialog-description">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="text-xl font-semibold text-gray-900">Historique du Courrier</DialogTitle>
-            <DialogDescription id="history-dialog-description" className="text-sm text-gray-500">
-              Historique des modifications du courrier
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <History className="w-5 h-5 text-white" />
+              </div>
+              Historique du courrier
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Consultez l'historique complet des modifications et actions effectuées sur ce courrier
             </DialogDescription>
           </DialogHeader>
           
-          <div className="mt-6 max-h-[60vh] overflow-y-auto pr-4">
-            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:w-0.5 before:-translate-x-1/2 before:bg-gray-200">
-              {selectedMail?.historyList?.map((history) => {
-                return (
-                  <div key={history.id} className="relative pl-8 pb-8">
-                    {/* Timeline dot */}
-                    <div className="absolute left-0 top-2 h-4 w-4 rounded-full border-2 border-blue-600 bg-white" />
-                    
-                    <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                          ${history.actionType === 'CREATE' ? 'bg-green-100 text-green-800' : 
-                            history.actionType === 'UPDATE' ? 'bg-blue-100 text-blue-800' : 
-                            'bg-gray-100 text-gray-800'}`}>
-                          {history.actionType}
+          <div className="flex-1 overflow-y-auto py-6">
+            {selectedMail && (
+              <div className="space-y-6">
+                {/* Mail Information Header */}
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Courrier #{selectedMail.courielNumber}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {selectedMail.subject}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-xs text-gray-500">
+                          📧 {selectedMail.type}
                         </span>
-                        <time className="text-sm text-gray-500">
-                          
-                          {new Date(history.timestamp).toLocaleDateString ('fr-FR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
-                        </time>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-500">Créé par:</span>
-                          <span className="text-sm text-gray-900"> {history.createdById}</span>
-                        </div>
-                        
-                        {history.updatedById && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-500">Modifié par:</span>
-                            <span className="text-sm text-gray-900"> {history.updatedById}</span>
-                          </div>
-                        )}
+                        <span className="text-xs text-gray-500">
+                          🏷️ {selectedMail.nature}
+                        </span>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+
+                {/* Timeline */}
+                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <History className="w-5 h-5 text-purple-600" />
+                    Chronologie des événements
+                  </h3>
+                  
+                  {selectedMail.historyList && selectedMail.historyList.length > 0 ? (
+                    <div className="relative">
+                      {/* Timeline Line */}
+                      <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 via-purple-300 to-purple-200"></div>
+                      
+                      <div className="space-y-6">
+                        {selectedMail.historyList.map((entry, index) => {
+                          const isFirst = index === 0;
+// Removed unused isLast variable
+                          
+                          // Action type styling
+                          const getActionStyle = (action: string) => {
+                            switch (action) {
+                              case 'CREATE':
+                                return {
+                                  bg: 'bg-green-100',
+                                  text: 'text-green-700',
+                                  border: 'border-green-200',
+                                  dot: 'bg-green-500'
+                                };
+                              case 'UPDATE':
+                                return {
+                                  bg: 'bg-blue-100',
+                                  text: 'text-blue-700',
+                                  border: 'border-blue-200',
+                                  dot: 'bg-blue-500'
+                                };
+                              case 'ARCHIVE':
+                                return {
+                                  bg: 'bg-gray-100',
+                                  text: 'text-gray-700',
+                                  border: 'border-gray-200',
+                                  dot: 'bg-gray-500'
+                                };
+                              case 'DELETE':
+                                return {
+                                  bg: 'bg-red-100',
+                                  text: 'text-red-700',
+                                  border: 'border-red-200',
+                                  icon: '🗑️',
+                                  dot: 'bg-red-500'
+                                };
+                              default:
+                                return {
+                                  bg: 'bg-purple-100',
+                                  text: 'text-purple-700',
+                                  border: 'border-purple-200',
+                                  dot: 'bg-purple-500'
+                                };
+                            }
+                          };
+                          
+                          const actionStyle = getActionStyle(entry.actionType);
+                          
+                          return (
+                            <div key={index} className="relative flex items-start gap-4">
+                              {/* Timeline Dot */}
+                              <div className={`relative z-10 w-12 h-12 ${actionStyle.bg} ${actionStyle.border} border-2 rounded-full flex items-center justify-center flex-shrink-0`}>
+                                <div className={`w-3 h-3 ${actionStyle.dot} rounded-full`}></div>
+                              </div>
+                              
+                              {/* Content Card */}
+                              <div className={`flex-1 ${actionStyle.bg} ${actionStyle.border} border rounded-xl p-4 ${isFirst ? 'shadow-md' : 'shadow-sm'}`}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="text-lg">{actionStyle.icon}</span>
+                                      <h4 className={`font-semibold ${actionStyle.text}`}>
+                                        {entry.actionType}
+                                      </h4>
+                                      {isFirst && (
+                                        <span className="px-2 py-1 bg-white rounded-full text-xs font-medium text-purple-600 border border-purple-200">
+                                          Récent
+                                        </span>
+                                      )}
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                      <div className="flex items-center gap-4 text-sm">
+                                        <div className="flex items-center gap-1">
+                                          <User className="w-4 h-4 text-gray-500" />
+                                          <span className="text-gray-600">Par:</span>
+                                          <span className="font-medium text-gray-900">
+                                            {entry.createdById}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-1">
+                                          <Timer className="w-4 h-4 text-gray-500" />
+                                          <span className="text-gray-600">Le:</span>
+                                          <span className="font-medium text-gray-900">
+                                            {new Date(entry.timestamp).toLocaleDateString('fr-FR', {
+                                              year: 'numeric',
+                                              month: 'long',
+                                              day: 'numeric',
+                                            })}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      
+                                      {/* Additional details if available */}
+                                      {entry.updatedById && (
+                                        <div className="mt-3 p-3 bg-white bg-opacity-60 rounded-lg">
+                                          <p className="text-sm text-gray-700">
+                                            Modifié par: {entry.updatedById}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Time indicator */}
+                                 {/*  <div className="text-xs text-gray-500 ml-4">
+                                    {(() => {
+                                      const date = new Date(entry.timestamp);
+                                      const now = new Date();
+                                      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+                                      
+                                      if (diffInHours < 1) return 'Il y a moins d\'une heure';
+                                      if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+                                      const diffInDays = Math.floor(diffInHours / 24);
+                                      if (diffInDays < 30) return `Il y a ${diffInDays}j`;
+                                      const diffInMonths = Math.floor(diffInDays / 30);
+                                      return `Il y a ${diffInMonths} mois`;
+                                    })()
+                                    }
+                                  </div> */}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <History className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">
+                        Aucun historique disponible
+                      </h4>
+                      <p className="text-gray-500">
+                        L'historique de ce courrier n'est pas encore disponible.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Statistics Summary */}
+                {selectedMail.historyList && selectedMail.historyList.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-purple-600" />
+                      Résumé des activités
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-200 rounded-lg flex items-center justify-center">
+                            <Avatar className="text-lg"/>
+                          </div>
+                          <div>
+                            <p className="text-sm text-green-600 font-medium">Créations</p>
+                            <p className="text-xl font-bold text-green-700">
+                              {selectedMail.historyList.filter(h => h.actionType === 'CREATE').length}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-200 rounded-lg flex items-center justify-center">
+                            <span className="text-lg">✏️</span>
+                          </div>
+                          <div>
+                            <p className="text-sm text-blue-600 font-medium">Modifications</p>
+                            <p className="text-xl font-bold text-blue-700">
+                              {selectedMail.historyList.filter(h => h.actionType === 'UPDATE').length}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-purple-200 rounded-lg flex items-center justify-center">
+                            <span className="text-lg">📊</span>
+                          </div>
+                          <div>
+                            <p className="text-sm text-purple-600 font-medium">Total événements</p>
+                            <p className="text-xl font-bold text-purple-700">
+                              {selectedMail.historyList.length}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="border-t border-gray-200 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsHistoryDialogOpen(false)}
+              className="hover:bg-gray-50"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog - Modern Design */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader className="text-center pb-4">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mb-4">
+              <Trash2 className="w-8 h-8 text-white" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Confirmer la suppression
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Cette action est irréversible et supprimera définitivement ce courrier.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {selectedMail && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-red-800 mb-1">
+                      Courrier à supprimer:
+                    </h4>
+                    <div className="space-y-1">
+                      <p className="text-sm text-red-700">
+                        <span className="font-medium">Numéro:</span> {selectedMail.courielNumber}
+                      </p>
+                      <p className="text-sm text-red-700">
+                        <span className="font-medium">Type:</span> {selectedMail.type}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                    Attention
+                  </h4>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Le courrier sera définitivement supprimé</li>
+                    <li>• Toutes les pièces jointes seront également supprimées</li>
+                    <li>• L'historique du courrier sera perdu</li>
+                    <li>• Cette action ne peut pas être annulée</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
+          
+          <DialogFooter className="border-t border-gray-200 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="hover:bg-gray-50"
+            >
+              Annuler
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={async () => {
+                if (selectedMail) {
+                  try {
+                    await handleDeleteMail(selectedMail.courielNumber);
+                    setIsDeleteDialogOpen(false);
+                  } catch (error) {
+                    console.error('Error deleting mail:', error);
+                  }
+                }
+              }}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Supprimer définitivement
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

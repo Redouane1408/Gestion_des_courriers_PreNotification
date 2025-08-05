@@ -13,6 +13,7 @@ import { ArchivePage } from "@/pages/archive"
 import { NotFoundPage } from "@/pages/not-found"
 import { Example } from "@/pages/welcome"
 import { NotificationProviderGuard } from "@/components/notification-provider-guard"
+import NotificationsPage from "@/pages/notifications"
 
 function App() {
   const location = useLocation();
@@ -27,16 +28,17 @@ function App() {
             <Route path="/" element={<Navigate to="/welcome" replace />} />
 
             <Route element={<ProtectedRoute />}>
-            <Route element={
+              <Route element={
                 <NotificationProviderGuard>
-                <DashboardLayout />
+                  <DashboardLayout />
                 </NotificationProviderGuard>
-            }>
+              }>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/archive" element={<ArchivePage />} />
-            </Route>
+                <Route path="/notifications" element={<NotificationsPage />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />

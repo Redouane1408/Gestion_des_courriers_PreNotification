@@ -18,6 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   role: UserRole | null;
   userEmail: string | null;
+  directionGeneralId: string | null;
   divisionId: string | null;
   directionId: string | null;
   sousdirectionId: string | null;
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     role: null as UserRole | null,
     userEmail: null as string | null,
+    directionGeneralId: null as number | null,
     divisionId: null as number | null,
     directionId: null as number | null,
     sousdirectionId: null as number | null,
@@ -65,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isLoading: false,
             role: user.role,
             userEmail: decoded.sub || user.email || null,
+            directionGeneralId: decoded.directionGeneralId || null,
             divisionId: decoded.divisionId || null,
             directionId: decoded.directionId || null,
             sousdirectionId: decoded.sousdirectionId || null, // Changed from sousDirectionId to sousdirectionId
@@ -92,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
         role: data.role,
         userEmail: decoded.sub || email,
+        directionGeneralId: decoded.directionGeneralId || null,
         divisionId: data.divisionId || null,
         directionId: data.directionId || null,
         sousdirectionId: data.sousdirectionId || null, // Changed from sousDirectionId to sousdirectionId
@@ -110,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       role: null,
       userEmail: null,
+      directionGeneralId: null,
       divisionId: null,
       directionId: null,
       sousdirectionId: null,
@@ -123,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user: authState.userEmail || null,
         ...authState,
+        directionGeneralId: authState.directionGeneralId?.toString() || null,
         divisionId: authState.divisionId?.toString() || null,
         directionId: authState.directionId?.toString() || null,
         sousdirectionId: authState.sousdirectionId?.toString() || null,

@@ -1,16 +1,18 @@
 export interface SousDirection {
     id: number;  // Changed to number to match API response
-    name: string;
-    directionId: number;  // Changed to number to match API response
-    divisionId: number;  // Added to match the hierarchy
+    sousDirectionName: string;
+    directionId: string; // Changed to number to match API response
+    divisionId: string;  // Added to match the hierarchy
+    directionGeneralId: string; //new
     createdAt?: string;
     updatedAt?: string;
 }
 
 export interface SousDirectionFilters {
     search?: string;
+    directionGeneralId: number; //new
     directionId?: number;  // Changed to number to match API response
-    divisionId?: number;  // Added to match the hierarchy
+    divisionId?: number; // Added to match the hierarchy
     page?: number;
     limit?: number;
 }
@@ -21,4 +23,5 @@ export interface SousDirectionResponse {
     name: string;
     directionId: number;
     divisionId: number;
+    directionGeneralId: number; //new
 }

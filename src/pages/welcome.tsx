@@ -1,189 +1,1180 @@
 'use client'
 
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion'; // Import motion
-
-
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { 
+  Mail, Archive, Users, BarChart3, Shield, Zap, ArrowRight, FileText, Clock, CheckCircle,
+  UserPlus, Settings, Eye, Send, Search, Bell, Lock, ChevronRight
+} from 'lucide-react';
 
 export function Example() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { scrollYProgress } = useScroll();
+  const heroRef = useRef(null);
+  const featuresRef = useRef(null);
+  const statsRef = useRef(null);
+  const roadmapRef = useRef(null);
+  const guidesRef = useRef(null);
+  
+  const heroInView = useInView(heroRef, { once: true });
+  const featuresInView = useInView(featuresRef, { once: true });
+  const statsInView = useInView(statsRef, { once: true });
+  const roadmapInView = useInView(roadmapRef, { once: true });
+  const guidesInView = useInView(guidesRef, { once: true });
+  
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  /* const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const floatingVariants = {
+    animate: {
+      y: [-10, 10, -10],
+      rotate: [-5, 5, -5],
+      transition: {
+        duration: 6,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  }; */
+
+  const roadmapSteps = [
+    {
+      step: "01",
+      title: "Connexion",
+      description: "Connectez-vous avec vos identifiants fournis par l'administrateur",
+      icon: Lock,
+      color: "from-blue-500 to-blue-600"
+    },
+    {
+      step: "02",
+      title: "Tableau de bord",
+      description: "Accédez à votre tableau de bord personnalisé avec vue d'ensemble",
+      icon: BarChart3,
+      color: "from-purple-500 to-purple-600"
+    },
+    {
+      step: "03",
+      title: "Nouveau courrier",
+      description: "Créez un nouveau courrier avec toutes les informations nécessaires",
+      icon: FileText,
+      color: "from-green-500 to-green-600"
+    },
+    {
+      step: "04",
+      title: "Routage",
+      description: "Définissez les destinataires et le circuit de validation",
+      icon: Send,
+      color: "from-orange-500 to-orange-600"
+    },
+    {
+      step: "05",
+      title: "Suivi",
+      description: "Suivez l'état d'avancement et recevez des notifications",
+      icon: Eye,
+      color: "from-teal-500 to-teal-600"
+    },
+    {
+      step: "06",
+      title: "Archivage",
+      description: "Archivage automatique avec recherche et classification",
+      icon: Archive,
+      color: "from-red-500 to-red-600"
+    }
+  ];
+
+  const adminGuideSteps = [
+    {
+      title: "Gestion des utilisateurs",
+      description: "Créez, modifiez et gérez les comptes utilisateurs de votre direction",
+      icon: UserPlus,
+      details: [
+        "Créer de nouveaux comptes utilisateurs",
+        "Attribuer les rôles et permissions",
+        "Gérer les mots de passe et accès",
+        "Désactiver ou supprimer des comptes"
+      ]
+    },
+    {
+      title: "Configuration système",
+      description: "Configurez les paramètres de votre direction et sous-directions",
+      icon: Settings,
+      details: [
+        "Définir la structure organisationnelle",
+        "Configurer les circuits de validation",
+        "Paramétrer les notifications",
+        "Gérer les modèles de documents"
+      ]
+    },
+    {
+      title: "Supervision",
+      description: "Surveillez l'activité et les performances de votre direction",
+      icon: Eye,
+      details: [
+        "Consulter les tableaux de bord",
+        "Analyser les statistiques d'usage",
+        "Suivre les délais de traitement",
+        "Générer des rapports d'activité"
+      ]
+    }
+  ];
+
+  const userGuideSteps = [
+    {
+      title: "Création de courriers",
+      description: "Créez et envoyez vos courriers officiels en quelques étapes",
+      icon: FileText,
+      details: [
+        "Remplir les informations de base",
+        "Sélectionner les destinataires",
+        "Définir les dates importantes",
+        "Joindre les pièces nécessaires"
+      ]
+    },
+    {
+      title: "Suivi des courriers",
+      description: "Suivez l'état d'avancement de vos courriers en temps réel",
+      icon: Search,
+      details: [
+        "Consulter l'historique complet",
+        "Voir les étapes de validation",
+        "Recevoir des notifications",
+        "Identifier les blocages"
+      ]
+    },
+    {
+      title: "Gestion des archives",
+      description: "Accédez et gérez vos courriers archivés facilement",
+      icon: Archive,
+      details: [
+        "Rechercher dans les archives",
+        "Filtrer par critères",
+        "Télécharger les documents",
+        "Consulter les métadonnées"
+      ]
+    }
+  ];
 
   return (
-    <div className="bg-black animate-background-pan h-full w-screen grid-pattern">
-
-      {/* Removed the entire <header> section for the navbar */}
-
-      <div className="relative isolate lg:px-96 mx-7 w-screen ">
-        <motion.div // Added motion.div
-          aria-hidden="true"
-          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-          initial={{ x: -100, y: -100, rotate: 0 }}
-          animate={{ x: 100, y: 100, rotate: 360 }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "reverse",
-            duration: 20,
-            ease: "linear",
+    <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen w-screen overflow-hidden relative">
+      {/* Grid Pattern Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div 
+          className="w-full h-full opacity-[0.2]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px'
           }}
-        >
-          <div
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#2e49e4] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-          />
-        </motion.div>
-
-        {/* Division Logos Carousel */}
-        
-
-        <div className="mx-auto max-w-2xl py-32 sm:py-2 lg:py-36 sm:justify-center">
-          <div className="hidden sm:mt-6 sm:flex sm:justify-center">
-            
-          </div>
-          <div className="text-center scroll-pt-7"> {/* This div already has text-center for centering content */}
-            <div className="flex justify-center items-center mb-12 pb-9 gap-x-8"> {/* Added a flex container for the logos */}
-              <img src="/logo courriel management-05.svg" alt="Company Logo" className="h-10 w-auto" />
-              <h1 className="text-balance text-5xl font-medium tracking-tight text-gray-100 sm:text-xl/8">
-              X
-              </h1>
-              <img src="/Logo-MF.svg" alt="Company Logo" className="h-10 w-auto" />
-            </div>
-            <h1 className="text-balance text-5xl font-semibold tracking-tight text-gray-100 sm:text-7xl">
-              Gestion des courriers
-            </h1>
-            <p className="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">
-            Cette application traite, archive et suit les courriers de manière efficace et simple afin d'assurer une traçabilité complète au niveau de chaque division.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a
-                onClick={() => navigate('/login')} // Changed href to onClick for navigation
-                className="rounded-md bg-teal-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white hover:text-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" // Added cursor-pointer
-              >
-                Lancer
-              </a>
-              
-              {/* Removed the "Learn more" link */}
-            </div>
-          </div>
-        </div>
-        <motion.div // Added motion.div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-          initial={{ x: 100, y: 100, rotate: 0 }}
-          animate={{ x: -100, y: -100, rotate: -360 }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "reverse",
-            duration: 20,
-            ease: "linear",
+        />
+        {/* Animated Grid Overlay */}
+        <motion.div 
+          className="w-full h-full opacity-[0.02]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '100px 100px'
           }}
-        >
-          <div
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#80d7ff] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-          />
-        </motion.div>
+          animate={{
+            backgroundPosition: ['0px 0px', '100px 100px', '0px 0px']
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
       </div>
-      <div className="py-4 px-96">
-    <h2 className="text-center text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl mb-8">Nos Divisions</h2>
-    <div className="w-full overflow-hidden py-4">
-    <div className="flex animate-carousel-logos">
-        {/* Placeholder for logos - replace with actual images */}
-        <img src="/Logo-divisions-01.svg" alt="Logo 1" className="h-6 mx-8" />
-        <img src="/Logo-divisions-02.svg" alt="Logo 2" className="h-6 mx-8" />
-        <img src="/Logo-divisions-03.svg" alt="Logo 3" className="h-6 mx-8" />
-        <img src="/Logo-divisions-04.svg" alt="Logo 4" className="h-6 mx-8" />
-        <img src="/Logo-divisions-05.svg" alt="Logo 5" className="h-6 mx-8" />
-        {/* Duplicate logos for seamless loop */}
-        <img src="/Logo-divisions-01.svg" alt="Logo 1" className="h-6 mx-8" />
-        <img src="/Logo-divisions-02.svg" alt="Logo 2" className="h-6 mx-8" />
-        <img src="/Logo-divisions-03.svg" alt="Logo 3" className="h-6 mx-8" />
-        <img src="/Logo-divisions-04.svg" alt="Logo 4" className="h-6 mx-8" />
-        <img src="/Logo-divisions-05.svg" alt="Logo 5" className="h-6 mx-8" />
-    </div>
-    </div>
-</div>
 
-{/* Section: Pourquoi cette application */}
-<div className="py-16 px-96">
-    <h2 className="text-center text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl mb-8">Pourquoi cette application ?</h2>
-    <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-        {/* Left Column: Image */}
-        <div className="md:w-1/2 flex justify-center">
-            {/* Replace 'path/to/your/image.png' with the actual path to your image */}
-            <img src="/icon-02-02.svg" alt="Application Purpose" className="max-w-full h-auto rounded-lg shadow-lg" />
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-3/4 right-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.4, 0.2, 0.4],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      {/* Hero Section */}
+      <motion.section 
+        ref={heroRef}
+        className="relative min-h-screen flex items-center justify-center px-6"
+        style={{ y, opacity }}
+      >
+        <motion.div 
+          className="text-center max-w-6xl mx-auto"
+          variants={containerVariants}
+          initial="hidden"
+          animate={heroInView ? "visible" : "hidden"}
+        >
+          {/* Logo Section */}
+          <motion.div 
+            className="flex justify-center items-center mb-12 gap-x-8 pb-24"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  type: "spring" as const,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+            <motion.img 
+              src="/logo courriel management-05.svg" 
+              alt="Mail Management Logo" 
+              className="h-12 w-auto"
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            />
+            <motion.div
+              className="text-4xl font-bold text-white"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+              ×
+            </motion.div>
+            <motion.img 
+              src="/Logo-MF.svg" 
+              alt="Ministry Logo" 
+              className="h-12 w-auto"
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            />
+          </motion.div>
+
+          {/* Main Title */}
+          <motion.h1 
+            className="text-7xl md:text-8xl font-bold bg-gradient-to-r from-white via-blue-100 to-teal-200 bg-clip-text text-transparent mb-8"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  type: "spring" as const,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+            Gestion des
+            <br />
+            <motion.span
+              className="inline-block"
+              animate={{ 
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+              style={{
+                background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6)',
+                backgroundSize: '300% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              Courriers
+            </motion.span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  type: "spring" as const,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+            Révolutionnez la gestion de vos documents avec une solution intelligente, 
+            moderne et intuitive. Traçabilité complète, archivage automatisé, 
+            et collaboration simplifiée.
+          </motion.p>
+
+          {/* CTA Button */}
+          <motion.div 
+            className="flex justify-center"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  type: "spring" as const,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+            <motion.button
+              onClick={() => navigate('/login')}
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-lg font-semibold rounded-2xl shadow-2xl overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-teal-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              />
+              <span className="relative flex items-center gap-2">
+                Commencer maintenant
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </motion.button>
+          </motion.div>
+
+          {/* Floating Mail Icons */}
+          <div className="absolute inset-0 pointer-events-none">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                style={{
+                  left: `${20 + i * 15}%`,
+                  top: `${30 + (i % 2) * 40}%`,
+                }}
+                variants={{
+                  hidden: { y: 20, opacity: 0 },
+                  visible: {
+                    y: 0,
+                    opacity: 1,
+                    transition: {
+                      type: "spring" as const,
+                      stiffness: 100
+                    }
+                  }
+                }}
+                animate="animate"
+                transition={{ delay: i * 0.5 }}
+              >
+                <Mail className="w-8 h-8 text-blue-400/30" />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* Stats Section */}
+      <motion.section 
+        ref={statsRef}
+        className="py-20 px-6"
+        initial={{ opacity: 0, y: 50 }}
+        animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.h2 
+            className="text-4xl font-bold text-center text-white mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ delay: 0.2 }}
+          >
+            Performance en temps réel
+          </motion.h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { icon: FileText, value: "10K+", label: "Courriers traités", color: "from-blue-500 to-blue-600" },
+              { icon: Clock, value: "85%", label: "Temps économisé", color: "from-teal-500 to-teal-600" },
+              { icon: Users, value: "500+", label: "Utilisateurs actifs", color: "from-purple-500 to-purple-600" },
+              { icon: CheckCircle, value: "99.9%", label: "Fiabilité", color: "from-green-500 to-green-600" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                className="relative group"
+                initial={{ opacity: 0, y: 30 }}
+                animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                whileHover={{ y: -5 }}
+              >
+                <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+                  <div className={`w-16 h-16 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <stat.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <motion.div 
+                    className="text-3xl font-bold text-white mb-2"
+                    initial={{ scale: 0 }}
+                    animate={statsInView ? { scale: 1 } : { scale: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1, type: "spring" }}
+                  >
+                    {stat.value}
+                  </motion.div>
+                  <div className="text-gray-400">{stat.label}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        {/* Right Column: Content */}
-        <div className="md:w-1/2 text-gray-300 text-lg leading-relaxed">
-            <p className="mb-4">Notre application de gestion des courriers est conçue pour simplifier et optimiser le traitement de vos documents. Fini les tracas liés à la paperasse et aux processus manuels !</p>
-            <p className="mb-4">Grâce à une interface intuitive et des fonctionnalités robustes, vous pouvez facilement suivre, archiver et gérer tous vos courriers entrants et sortants. Que vous soyez un administrateur ou un utilisateur régulier, notre solution vous offre une traçabilité complète et une organisation hiérarchique impeccable.</p>
-            <p>Améliorez l'efficacité de votre division, réduisez les erreurs et assurez une communication fluide avec notre système de gestion des courriers de pointe.</p>
+      </motion.section>
+
+      {/* Roadmap Section */}
+      <motion.section 
+        ref={roadmapRef}
+        className="py-20 px-6"
+        initial={{ opacity: 0 }}
+        animate={roadmapInView ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.h2 
+            className="text-5xl font-bold text-center text-white mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={roadmapInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          >
+            Comment utiliser la plateforme
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-gray-300 text-center mb-16 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={roadmapInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ delay: 0.2 }}
+          >
+            Suivez ces étapes simples pour maîtriser la gestion de vos courriers
+          </motion.p>
+          
+          <div className="relative">
+            {/* Roadmap Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 via-purple-500 to-teal-500 rounded-full opacity-30" />
+            
+            <div className="space-y-12">
+              {roadmapSteps.map((step, index) => (
+                <motion.div
+                  key={index}
+                  className={`flex items-center gap-8 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  animate={roadmapInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  transition={{ delay: index * 0.2 }}
+                >
+                  <div className={`flex-1 ${index % 2 === 0 ? 'text-right' : 'text-left'}`}>
+                    <motion.div 
+                      className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                      whileHover={{ scale: 1.02, y: -5 }}
+                    >
+                      <div className={`flex items-center gap-4 mb-4 ${index % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`w-12 h-12 bg-gradient-to-r ${step.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                          <step.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">{step.title}</h3>
+                      </div>
+                      <p className="text-gray-300 leading-relaxed">{step.description}</p>
+                    </motion.div>
+                  </div>
+                  
+                  {/* Step Number */}
+                  <motion.div 
+                    className="relative z-10 w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-2xl"
+                    whileHover={{ scale: 1.1, rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    {step.step}
+                  </motion.div>
+                  
+                  <div className="flex-1" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
-    </div>
-</div>
+      </motion.section>
 
-{/* Guide for Admin Users */}
-<div className="py-16 px-96">
-    <h2 className="text-center text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl mb-8">Guide pour les Administrateurs</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* Card 1: Gestion des Utilisateurs */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">1. Gestion des Utilisateurs</h3>
-            <p className="text-gray-300">Apprenez à créer, modifier et supprimer des comptes utilisateurs, ainsi qu'à gérer leurs rôles et permissions.</p>
+      {/* Features Section */}
+      <motion.section 
+        ref={featuresRef}
+        className="py-20 px-6"
+        initial={{ opacity: 0 }}
+        animate={featuresInView ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.h2 
+            className="text-5xl font-bold text-center text-white mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={featuresInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          >
+            Pourquoi cette application ?
+          </motion.h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Archive,
+                title: "Archivage Intelligent",
+                description: "Système d'archivage automatisé avec recherche avancée et classification intelligente des documents. Retrouvez vos courriers en quelques secondes grâce à notre moteur de recherche puissant.",
+                gradient: "from-blue-500 to-cyan-500"
+              },
+              {
+                icon: Shield,
+                title: "Sécurité Renforcée",
+                description: "Chiffrement de bout en bout, authentification multi-facteurs et audit complet des accès. Vos données sont protégées selon les standards les plus élevés de sécurité.",
+                gradient: "from-purple-500 to-pink-500"
+              },
+              {
+                icon: Zap,
+                title: "Performance Optimale",
+                description: "Interface ultra-rapide, synchronisation en temps réel et notifications intelligentes. Gagnez du temps avec des workflows automatisés et une expérience utilisateur fluide.",
+                gradient: "from-orange-500 to-red-500"
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                className="group relative"
+                initial={{ opacity: 0, y: 50 }}
+                animate={featuresInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ delay: index * 0.2 }}
+                whileHover={{ y: -10 }}
+              >
+                <div className="relative bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden h-full">
+                  <motion.div
+                    className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                  />
+                  
+                  <motion.div
+                    className={`w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <feature.icon className="w-10 h-10 text-white" />
+                  </motion.div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 group-hover:bg-clip-text transition-all duration-300">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+                    {feature.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        {/* Card 2: Suivi des Courriers */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">2. Suivi et Archivage des Courriers</h3>
-            <p className="text-gray-300">Visualisez et gérez les courriers en cours de traitement ou archivé, avec des informations sur le créateur du courrier et la date de création. Une Notification est générée a chaque fois qu'un courrier est ( Archivé , Modifié ou Supprimé) , assurant une meilleure traçabilité.</p>
+      </motion.section>
 
-
-
-
-        </div>
-        {/* Card 3: Rapports et Statistiques */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">3. Statistiques Mensuelles</h3>
-            <p className="text-gray-300">Visualisez les totaux mensuels des courriers ( Entrants , Sortants )  pour suivre l'évaluation de l'activité.</p>
-        </div>
-    </div>
-</div>
-
-
-
-{/* Guide for Regular Users */}
-<div className="py-16 px-96">
-    <h2 className="text-center text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl mb-8">Guide pour les Utilisateurs</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* Card 1: Envoi de Courriers */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">1. Archivage des Courriers</h3>
-            <p className="text-gray-300">Découvrez comment soumettre de nouveaux courriers et les acheminer vers les services appropriés.</p>
-        </div>
-        
-        {/* Card 2: Consultation des Courriers */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">2. Consultation des Courriers</h3>
-            <p className="text-gray-300">Consultez le statut de vos courriers envoyés des notifications sur leur progression.</p>
+      {/* Guides Section */}
+      <motion.section 
+        ref={guidesRef}
+        className="py-20 px-6"
+        initial={{ opacity: 0 }}
+        animate={guidesInView ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.h2 
+            className="text-5xl font-bold text-center text-white mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={guidesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          >
+            Guides d'utilisation
+          </motion.h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Admin Guide */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, x: -50 }}
+              animate={guidesInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                    <Shield className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white">Guide pour les Administrateurs</h3>
+                </div>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  En tant qu'administrateur, vous avez accès à des fonctionnalités avancées pour gérer votre direction et superviser les activités.
+                </p>
                 
-        </div>
-        {/* Card 3: Archivage et Recherche */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">3. Recherche des Courriers</h3>
-            <p className="text-gray-300">Accédez facilement à l'historique de vos courriers et utilisez un filtre pour retrouver des documents spécifiques.</p>
-        </div>
-    </div>
-</div>
-{/* Simple Footer for Support Team */}
-    <footer className="bg-black py-8 text-center text-gray-400">
-        <p>Pour toute question ou problème, veuillez contacter l'équipe de support à <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" className="text-teal-400 hover:underline">support@mf.gov.dz</a>.</p>
-    </footer>
+                <div className="space-y-6">
+                  {adminGuideSteps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={guidesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                      transition={{ delay: 0.4 + index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <step.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
+                          <p className="text-gray-400 mb-4">{step.description}</p>
+                          <ul className="space-y-2">
+                            {step.details.map((detail, detailIndex) => (
+                              <li key={detailIndex} className="flex items-center gap-2 text-gray-300">
+                                <ChevronRight className="w-4 h-4 text-orange-400" />
+                                <span className="text-sm">{detail}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
 
-</div>
-    
-  )
+            {/* User Guide */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, x: 50 }}
+              animate={guidesInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-teal-500 rounded-2xl flex items-center justify-center">
+                    <Users className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white">Guide pour les Utilisateurs</h3>
+                </div>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  Découvrez comment utiliser efficacement la plateforme pour gérer vos courriers au quotidien.
+                </p>
+                
+                <div className="space-y-6">
+                  {userGuideSteps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={guidesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <step.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
+                          <p className="text-gray-400 mb-4">{step.description}</p>
+                          <ul className="space-y-2">
+                            {step.details.map((detail, detailIndex) => (
+                              <li key={detailIndex} className="flex items-center gap-2 text-gray-300">
+                                <ChevronRight className="w-4 h-4 text-teal-400" />
+                                <span className="text-sm">{detail}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Video Tutorial Section */}
+      <motion.section 
+        className="py-20 px-6 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl"
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.4, 0.2, 0.4],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Header */}
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-full px-6 py-3 border border-white/10 mb-6"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+              <span className="text-purple-300 font-medium">Tutoriels Vidéo</span>
+            </motion.div>
+            <h2 className="text-5xl font-bold text-white mb-6">
+              Apprenez à utiliser la
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> plateforme</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Découvrez toutes les fonctionnalités de notre système de gestion des courriers 
+              grâce à nos tutoriels vidéo détaillés et faciles à suivre.
+            </p>
+          </motion.div>
+
+          {/* Video Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Introduction à la plateforme",
+                description: "Découvrez l'interface et les fonctionnalités principales",
+                duration: "5:30",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Débutant",
+                views: "1.2k"
+              },
+              {
+                title: "Créer et envoyer un courrier",
+                description: "Guide complet pour rédiger et envoyer vos courriers",
+                duration: "8:45",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Essentiel",
+                views: "2.1k"
+              },
+              {
+                title: "Gestion des archives",
+                description: "Organisez et retrouvez facilement vos documents",
+                duration: "6:20",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Avancé",
+                views: "890"
+              },
+              {
+                title: "Tableau de bord et statistiques",
+                description: "Analysez vos données et suivez vos performances",
+                duration: "7:15",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Analyse",
+                views: "1.5k"
+              },
+              {
+                title: "Gestion des utilisateurs",
+                description: "Administrez les comptes et les permissions",
+                duration: "9:30",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Admin",
+                views: "750"
+              },
+              {
+                title: "Sécurité et bonnes pratiques",
+                description: "Protégez vos données et optimisez votre workflow",
+                duration: "4:50",
+                thumbnail: "/api/placeholder/400/225",
+                category: "Sécurité",
+                views: "980"
+              }
+            ].map((video, index) => (
+              <motion.div
+                key={index}
+                className="group cursor-pointer"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -10 }}
+              >
+                <div className="bg-white/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
+                  {/* Video Thumbnail */}
+                  <div className="relative aspect-video bg-gradient-to-br from-purple-900/50 to-pink-900/50 overflow-hidden">
+                    {/* Placeholder for video thumbnail */}
+                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <FileText className="w-8 h-8 text-white/60" />
+                        </div>
+                        <p className="text-white/40 text-sm">Aperçu vidéo</p>
+                      </div>
+                    </div>
+                    
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all duration-300">
+                      <motion.div
+                        className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-2xl"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <div className="w-0 h-0 border-l-[12px] border-l-gray-800 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1" />
+                      </motion.div>
+                    </div>
+                    
+                    {/* Duration Badge */}
+                    <div className="absolute bottom-3 right-3 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                      {video.duration}
+                    </div>
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        video.category === 'Débutant' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                        video.category === 'Essentiel' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                        video.category === 'Avancé' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' :
+                        video.category === 'Admin' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
+                        video.category === 'Analyse' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                        'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                      }`}>
+                        {video.category}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Video Info */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                      {video.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                      {video.description}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        <span>{video.views} vues</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{video.duration}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Call to Action */}
+          <motion.div
+            className="text-center mt-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <motion.button
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl transition-all duration-300 group"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span>Voir tous les tutoriels</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+            <p className="text-gray-400 text-sm mt-4">
+              Plus de 15 heures de contenu pour maîtriser la plateforme
+            </p>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Comprehensive Footer */}
+      <motion.footer 
+        className="bg-gradient-to-b from-black/50 to-black/80 backdrop-blur-lg border-t border-white/10 py-20"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            {/* Company Information */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="flex items-center gap-3">
+                  <img src="/public/logo courriel management-05.svg" alt="Ministry of Finance" className="w-16 h-16 text-white" />
+              </div>
+              <p className="text-gray-300 leading-relaxed">
+                Plateforme moderne de gestion des courriers pour le Ministère des Finances. 
+                Optimisez vos processus administratifs avec notre solution innovante.
+              </p>
+              <div className="flex items-center gap-2 text-teal-400">
+                <Shield className="w-5 h-5" />
+                <span className="text-sm font-medium">Sécurisé et Confidentiel</span>
+              </div>
+            </motion.div>
+
+            {/* Quick Links */}
+            {/* <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h4 className="text-xl font-semibold text-white mb-4">Liens Rapides</h4>
+              <ul className="space-y-3">
+                {[
+                  { name: 'Tableau de Bord', href: '/dashboard' },
+                  { name: 'Nouveau Courrier', href: '/courriers/new' },
+                  { name: 'Archives', href: '/archives' },
+                  { name: 'Utilisateurs', href: '/users' },
+                  { name: 'Statistiques', href: '/stats' },
+                  { name: 'Paramètres', href: '/settings' }
+                ].map((link, index) => (
+                  <motion.li key={index} whileHover={{ x: 5 }}>
+                    <a 
+                      href={link.href} 
+                      className="text-gray-300 hover:text-teal-400 transition-colors flex items-center gap-2 group"
+                    >
+                      <ChevronRight className="w-4 h-4 group-hover:text-teal-400 transition-colors" />
+                      {link.name}
+                    </a>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div> */}
+
+            {/* Support & Contact */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h4 className="text-xl font-semibold text-white mb-4">Support & Contact</h4>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-teal-400 mt-1" />
+                  <div>
+                    <p className="text-gray-300 text-sm">Email Support</p>
+                    <a href="mailto:support@mf.gov.dz" className="text-teal-400 hover:text-teal-300 transition-colors">
+                      support@mf.gov.dz
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Bell className="w-5 h-5 text-teal-400 mt-1" />
+                  <div>
+                    <p className="text-gray-300 text-sm">Support Technique</p>
+                    <a href="mailto:tech@mf.gov.dz" className="text-teal-400 hover:text-teal-300 transition-colors">
+                      tech@mf.gov.dz
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-teal-400 mt-1" />
+                  <div>
+                    <p className="text-gray-300 text-sm">Heures d'ouverture</p>
+                    <p className="text-white text-sm">Dimanche-Jeudi: 8h00 - 17h00</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* System Information */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h4 className="text-xl font-semibold text-white mb-4">Informations Système</h4>
+              <div className="space-y-4">
+                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 text-sm font-medium">Système Opérationnel</span>
+                  </div>
+                  <p className="text-gray-300 text-xs">Dernière mise à jour: 15 Jan 2024</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Version</span>
+                    <span className="text-white text-sm font-medium">v1.0.0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Uptime</span>
+                    <span className="text-green-400 text-sm font-medium">99.9%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Utilisateurs Actifs</span>
+                    <span className="text-teal-400 text-sm font-medium">12</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Features Grid */}
+          {/* <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            {[
+              { icon: FileText, title: 'Gestion Courriers', desc: 'Création et suivi' },
+              { icon: Archive, title: 'Archivage', desc: 'Stockage sécurisé' },
+              { icon: Search, title: 'Recherche', desc: 'Recherche avancée' },
+              { icon: BarChart3, title: 'Statistiques', desc: 'Rapports détaillés' }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                whileHover={{ scale: 1.05, y: -5 }}
+              >
+                <feature.icon className="w-8 h-8 text-teal-400 mb-3 group-hover:scale-110 transition-transform" />
+                <h5 className="text-white font-semibold mb-1">{feature.title}</h5>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div> */}
+
+          {/* Security & Compliance */}
+          {/* <motion.div
+            className="bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-2xl p-8 border border-red-500/20 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+                <Lock className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h4 className="text-xl font-semibold text-white">Sécurité & Conformité</h4>
+                <p className="text-gray-300">Protection des données gouvernementales</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Shield className="w-8 h-8 text-green-400" />
+                </div>
+                <h5 className="text-white font-medium mb-2">Chiffrement SSL/TLS</h5>
+                <p className="text-gray-400 text-sm">Communications sécurisées</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Lock className="w-8 h-8 text-blue-400" />
+                </div>
+                <h5 className="text-white font-medium mb-2">Authentification 2FA</h5>
+                <p className="text-gray-400 text-sm">Double authentification</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="w-8 h-8 text-purple-400" />
+                </div>
+                <h5 className="text-white font-medium mb-2">Conformité RGPD</h5>
+                <p className="text-gray-400 text-sm">Protection des données</p>
+              </div>
+            </div>
+          </motion.div> */}
+
+          {/* Bottom Section */}
+          <motion.div
+            className="border-t border-white/10 pt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-center md:text-left">
+                <p className="text-gray-400 text-sm mb-2">
+                  © 2025 Direction Générale du Budget - Ministère des Finances - République Algérienne Démocratique et Populaire
+                </p>
+                <p className="text-gray-500 text-xs">
+                  Tous droits réservés. Développé pour l'administration.
+                </p>
+              </div>
+              <div className="flex items-center gap-6">
+                <motion.a
+                  href="/privacy"
+                  className="text-gray-400 hover:text-teal-400 text-sm transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  Politique de Confidentialité
+                </motion.a>
+                <motion.a
+                  href="/terms"
+                  className="text-gray-400 hover:text-teal-400 text-sm transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  Conditions d'Utilisation
+                </motion.a>
+                <motion.a
+                  href="/help"
+                  className="text-gray-400 hover:text-teal-400 text-sm transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  Aide
+                </motion.a>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.footer>
+    </div>
+  );
 }
