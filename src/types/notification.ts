@@ -4,7 +4,7 @@ export interface Notification {
   message: string;
   courrielNumber: string;
   filesNames: string[];
-  operation: 'Archiver' | 'Supprimer' | 'Créer' | 'Modifier' | 'Transférer';
+  operation: 'Supprimer' | 'Modifier' | 'Archiver';
   time: string;
   directionName: string;
   divisionName: string;

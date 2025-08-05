@@ -207,6 +207,10 @@ button:focus-visible {
 }
 
 
+.main-content {
+  padding-top: 6rem; /* Adjust based on your header height */
+}
+
 .grid-pattern {
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                     linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);

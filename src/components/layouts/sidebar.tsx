@@ -2,7 +2,7 @@
 
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { Home, Archive, Users, Settings, HelpCircle, Plus, Bell, Menu } from "lucide-react" 
+import { Home, Archive, Users, HelpCircle, Plus, Bell, Menu } from "lucide-react" 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
@@ -150,18 +150,13 @@ export function Sidebar() {
               <Button
                 variant="ghost"
                 className="w-full justify-start h-11 transition-all duration-200 hover:scale-[1.02] border-0 hover:bg-white/10 text-white/90 hover:text-white"
+                asChild
                 onClick={() => setIsOpen(false)}
               >
-                <Settings className="mr-3 h-5 w-5" />
-                <span className="font-medium">Paramètres</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start h-11 transition-all duration-200 hover:scale-[1.02] border-0 hover:bg-white/10 text-white/90 hover:text-white"
-                onClick={() => setIsOpen(false)}
-              >
-                <HelpCircle className="mr-3 h-5 w-5" />
-                <span className="font-medium">Aide</span>
+                <Link to="/welcome">
+                  <HelpCircle className="mr-3 h-5 w-5" />
+                  <span className="font-medium">Aide</span>
+                </Link>
               </Button>
             </div>
           </div>

@@ -304,10 +304,6 @@ export function Dashboard() {
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Aperçu des courriers</CardTitle>
-                <CardDescription>Nombre de courriers par mois</CardDescription>
-              </CardHeader>
               <CardContent className="pl-2">
                 <Overview data={mailOverviewData} />
               </CardContent>
@@ -391,8 +387,8 @@ export function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredMails.map((mail) => (
-                      <TableRow key={mail.courielNumber || mail.id}>
+                    {filteredMails.map((mail, index) => (
+                      <TableRow key={`${mail.courielNumber || mail.id}-${mail.historyList[0]?.createdById || mail.createdBy || 'unknown'}-${index}`} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
                         <TableCell className="w-[50px]">
                           {/* <Checkbox
                             checked={selectedMails.includes(mail.courielNumber || mail.id)}

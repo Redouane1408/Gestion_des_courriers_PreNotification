@@ -34,8 +34,11 @@ export function DashboardLayout() {
       <div className="flex min-h-screen w-screen">
         <Sidebar />
         <div className="flex flex-col flex-1 md:ml-72">
-          <Header />
-          <main className="flex-1 overflow-auto p-4 md:p-8 ">
+          {/* Header container with proper positioning */}
+          <div className="relative">
+            <Header />
+          </div>
+          <main className="flex-1 overflow-auto p-4 pt-24 main-content">
             <Outlet />
           </main>
         </div>

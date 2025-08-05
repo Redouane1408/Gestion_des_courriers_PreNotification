@@ -33,6 +33,10 @@
   }
 }
 
+.main-content {
+  padding-top: 6rem; /* Adjust based on your header height */
+}
+
 .card {
   padding: 2em;
 }

@@ -2,7 +2,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { 
   Mail, Archive, Users, BarChart3, Shield, Zap, ArrowRight, FileText, Clock, CheckCircle,
   UserPlus, Settings, Eye, Send, Search, Bell, Lock, ChevronRight
@@ -17,6 +17,14 @@ export function Example() {
   const roadmapRef = useRef(null);
   const guidesRef = useRef(null);
   
+  // Typing animation state
+  const [displayText, setDisplayText] = useState('');
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(true);
+  const [showCursor, setShowCursor] = useState(true);
+  
+  const words = ['Courriers', 'Archives'];
+  
   const heroInView = useInView(heroRef, { once: true });
   const featuresInView = useInView(featuresRef, { once: true });
   const statsInView = useInView(statsRef, { once: true });
@@ -25,6 +33,48 @@ export function Example() {
   
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  // Typing animation effect with optimized delays
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    let timeoutId: NodeJS.Timeout;
+
+    if (isTyping) {
+      if (displayText.length < currentWord.length) {
+        timeoutId = setTimeout(() => {
+          setDisplayText(currentWord.slice(0, displayText.length + 1));
+        }, 80); // Reduced typing speed from 100ms to 80ms
+      } else {
+        // Finished typing, wait then start erasing
+        timeoutId = setTimeout(() => {
+          setIsTyping(false);
+        }, 450); // Reduced pause from 1000ms to 600ms
+      }
+    } else {
+      if (displayText.length > 0) {
+        timeoutId = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1));
+        }, 80); // Reduced erasing speed from 50ms to 30ms
+      } else {
+        // Finished erasing, move to next word
+        timeoutId = setTimeout(() => {
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+          setIsTyping(true);
+        }, 150); // Reduced delay from 300ms to 150ms
+      }
+    }
+
+    return () => clearTimeout(timeoutId);
+  }, [displayText, isTyping, currentWordIndex, words]);
+
+  // Cursor blinking effect
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+
+    return () => clearInterval(cursorInterval);
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -321,7 +371,20 @@ export function Example() {
                 WebkitTextFillColor: 'transparent'
               }}
             >
-              Courriers
+              {displayText}
+              <motion.span
+                className="inline-block w-1 h-20 bg-current ml-2"
+                animate={{
+                  opacity: showCursor ? 1 : 0
+                }}
+                transition={{
+                  duration: 0.1
+                }}
+                style={{
+                  background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6)',
+                  backgroundSize: '300% 100%'
+                }}
+              />
             </motion.span>
           </motion.h1>
 
@@ -516,7 +579,7 @@ export function Example() {
                   {/* Step Number */}
                   <motion.div 
                     className="relative z-10 w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-2xl"
-                    whileHover={{ scale: 1.1, rotate: 360 }}
+                    whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.6 }}
                   >
                     {step.step}

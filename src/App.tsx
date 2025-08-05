@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
-import { Toaster } from "sonner" // Changed from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster" // ✅ Correct import
 import { AuthProvider } from "@/contexts/auth-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import ProtectedRoute from "@/components/protected-route"

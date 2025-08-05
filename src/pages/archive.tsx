@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react"
 import {useMails} from "@/hooks/use-mails"
-import { AlertCircle, AlertTriangle, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, BarChart3 } from "lucide-react"
+import { AlertCircle, AlertTriangle, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, } from "lucide-react"
 import { Button } from "@/components/ui/button"
 //import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -1036,8 +1036,12 @@ const mapNatureToBackend = (nature: string): string => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredMails.map((mail) => (
-                    <TableRow key={mail.courielNumber} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
+                  {filteredMails.map((mail, index) => {
+                    // Create a unique composite key for each mail
+                    const uniqueKey = `${mail.courielNumber || mail.id}-${mail.historyList[0]?.createdById || mail.createdBy || 'unknown'}-${index}`;
+                    
+                    return (
+                    <TableRow key={uniqueKey} className="hover:bg-cyan-50 dark:hover:bg-gray-900">
                    {/*    <TableCell>
 
                       </TableCell> */}
@@ -1045,7 +1049,7 @@ const mapNatureToBackend = (nature: string): string => {
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-bold`}
                         >
-                          {mail.id}
+                          {mail.courielNumber || mail.id}
                         </span>  
                       </TableCell>
                       <TableCell>{mail.type}</TableCell>
@@ -1086,9 +1090,9 @@ const mapNatureToBackend = (nature: string): string => {
                         {mail.recipient}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu open={openDropdownId === mail.courielNumber} onOpenChange={(open) => {
+                        <DropdownMenu open={openDropdownId === uniqueKey} onOpenChange={(open) => {
                             if (open) {
-                              setOpenDropdownId(mail.courielNumber)
+                              setOpenDropdownId(uniqueKey)
                             } else {
                               setOpenDropdownId(null)
                             }
@@ -1098,7 +1102,7 @@ const mapNatureToBackend = (nature: string): string => {
                               variant="ghost"
                               className="h-8 w-8 p-0"
                               aria-label="Actions"
-                              data-state={openDropdownId === mail.courielNumber ? "open" : "closed"}
+                              data-state={openDropdownId === uniqueKey ? "open" : "closed"}
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
@@ -1132,7 +1136,8 @@ const mapNatureToBackend = (nature: string): string => {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -1660,58 +1665,6 @@ const mapNatureToBackend = (nature: string): string => {
                 </div>
                 
                 {/* Statistics Summary */}
-                {selectedMail.historyList && selectedMail.historyList.length > 0 && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5 text-purple-600" />
-                      Résumé des activités
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-green-200 rounded-lg flex items-center justify-center">
-                            <Avatar className="text-lg"/>
-                          </div>
-                          <div>
-                            <p className="text-sm text-green-600 font-medium">Créations</p>
-                            <p className="text-xl font-bold text-green-700">
-                              {selectedMail.historyList.filter(h => h.actionType === 'CREATE').length}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-200 rounded-lg flex items-center justify-center">
-                            <span className="text-lg">✏️</span>
-                          </div>
-                          <div>
-                            <p className="text-sm text-blue-600 font-medium">Modifications</p>
-                            <p className="text-xl font-bold text-blue-700">
-                              {selectedMail.historyList.filter(h => h.actionType === 'UPDATE').length}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-purple-200 rounded-lg flex items-center justify-center">
-                            <span className="text-lg">📊</span>
-                          </div>
-                          <div>
-                            <p className="text-sm text-purple-600 font-medium">Total événements</p>
-                            <p className="text-xl font-bold text-purple-700">
-                              {selectedMail.historyList.length}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

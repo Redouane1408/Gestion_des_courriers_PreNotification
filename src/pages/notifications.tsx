@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react"
 import {
   Bell,
-  Archive,
   Plus,
   Edit,
-  Send,
+  
   Search,
   Building,
   Mail,
   Clock,
   Eye,
-  CheckCircle
+  Trash2,
+  CheckCircle,
+  Archive
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -144,38 +145,32 @@ export default function NotificationsPage() {
   const getOperationIcon = (operation: string) => {
     switch (operation.toLowerCase()) {
       case 'create':
-      case 'créer':
+      case 'Archiver':
         return <Plus className="h-4 w-4" />
       case 'edit':
       case 'modifier':
         return <Edit className="h-4 w-4" />
-      case 'send':
-      case 'envoyer':
-        return <Send className="h-4 w-4" />
-      case 'archive':
-      case 'archiver':
-        return <Archive className="h-4 w-4" />
+      case 'delete':
+      case 'supprimer':
+        return <Trash2 className="h-4 w-4" />
       default:
-        return <Bell className="h-4 w-4" />
+        return <Archive className="h-4 w-4" />
     }
   }
 
   const getOperationColor = (operation: string) => {
-    switch (operation.toLowerCase()) {
-      case 'create':
-      case 'créer':
-        return 'bg-green-100 text-green-800'
-      case 'edit':
-      case 'modifier':
-        return 'bg-blue-100 text-blue-800'
-      case 'send':
-      case 'envoyer':
-        return 'bg-purple-100 text-purple-800'
-      case 'archive':
-      case 'archiver':
-        return 'bg-gray-100 text-gray-800'
+    switch(operation) {
+      case 'Archiver':
+        return 'bg-sky-500 text-white border-sky-500/30';
+
+      case 'Supprimer':
+        return 'bg-red-500/20 text-red-500 border-red-500/30';
+
+      case 'Modifier':
+        return 'bg-orange-500/20 text-orange-500 border-orange-500/30';
+
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   }
 
