@@ -399,7 +399,7 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
           Expéditeur / Destinataire
         </CardTitle>
         <CardDescription>
-          Définissez l'expéditeur et les destinataires du courrier
+          Définissez l'expéditeur ou les destinataires du courrier
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

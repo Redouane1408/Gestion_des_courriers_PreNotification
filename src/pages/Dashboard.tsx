@@ -525,11 +525,153 @@ export function Dashboard() {
               </div>
               <div>
                 <Label className="font-medium truncate">Expéditeur</Label>
-                <div>{selectedMail.sender}</div>
+                <div className="space-y-2">
+                  {selectedMail.fromExternal ? (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
+                          Externe
+                        </span>
+                        <span className="font-medium">{selectedMail.fromExternal}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 rounded text-xs font-medium">
+                          Interne
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        {selectedMail.fromDivisionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Division:</span>
+                            <span className="font-medium">{selectedMail.fromDivisionId}</span>
+                          </div>
+                        )}
+                        {selectedMail.fromDirectionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Direction:</span>
+                            <span className="font-medium">{selectedMail.fromDirectionId}</span>
+                          </div>
+                        )}
+                        {selectedMail.fromSousDirectionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Sous-Dir:</span>
+                            <span className="font-medium">{selectedMail.fromSousDirectionId}</span>
+                          </div>
+                        )}
+                        {!selectedMail.fromDivisionId && !selectedMail.fromDirectionId && !selectedMail.fromSousDirectionId && (
+                          <div className="text-gray-500 dark:text-gray-400 italic">
+                            {selectedMail.sender || "Informations d'expéditeur non disponibles"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <Label className="font-medium truncate">Destinataire</Label>
-                <div>{selectedMail.recipient}</div>
+                <div className="space-y-2">
+                  {selectedMail.toExternal ? (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
+                          Externe
+                        </span>
+                        <span className="font-medium">{selectedMail.toExternal}</span>
+                      </div>
+                    </div>
+                  ) : selectedMail.destinations && selectedMail.destinations.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedMail.destinations.map((destination, index) => (
+                        <div key={index} className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 rounded text-xs font-medium">
+                              {destination.type === 'external' ? 'Externe' : 'Interne'}
+                            </span>
+                            {selectedMail.destinations.length > 1 && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                Destinataire {index + 1}
+                              </span>
+                            )}
+                          </div>
+                          {destination.type === 'external' ? (
+                            <div className="text-sm font-medium">
+                              {destination.ministryName || destination.displayName || 'Ministère Externe'}
+                            </div>
+                          ) : (
+                            <div className="space-y-1 text-sm">
+                              {destination.directionGeneralId && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Dir. Gén.:</span>
+                                  <span className="font-medium">{destination.directionGeneralId}</span>
+                                </div>
+                              )}
+                              {destination.divisionId && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Division:</span>
+                                  <span className="font-medium">{destination.divisionId}</span>
+                                </div>
+                              )}
+                              {destination.directionId && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Direction:</span>
+                                  <span className="font-medium">{destination.directionId}</span>
+                                </div>
+                              )}
+                              {destination.sousDirectionId && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Sous-Dir:</span>
+                                  <span className="font-medium">{destination.sousDirectionId}</span>
+                                </div>
+                              )}
+                              {destination.displayName && (
+                                <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 italic">
+                                  {destination.displayName}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 rounded text-xs font-medium">
+                          Interne
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        {selectedMail.toDivisionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Division:</span>
+                            <span className="font-medium">{selectedMail.toDivisionId}</span>
+                          </div>
+                        )}
+                        {selectedMail.toDirectionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Direction:</span>
+                            <span className="font-medium">{selectedMail.toDirectionId}</span>
+                          </div>
+                        )}
+                        {selectedMail.toSousDirectionId && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 dark:text-gray-400 min-w-[80px]">Sous-Dir:</span>
+                            <span className="font-medium">{selectedMail.toSousDirectionId}</span>
+                          </div>
+                        )}
+                        {!selectedMail.toDivisionId && !selectedMail.toDirectionId && !selectedMail.toSousDirectionId && (
+                          <div className="text-gray-500 dark:text-gray-400 italic">
+                            {selectedMail.recipient || "Informations de destinataire non disponibles"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="md:col-span-2">
                 <Label className="font-medium">Description</Label>

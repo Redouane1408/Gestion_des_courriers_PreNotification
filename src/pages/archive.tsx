@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react"
 import {useMails} from "@/hooks/use-mails"
-import { AlertCircle, AlertTriangle, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, } from "lucide-react"
+import { AlertCircle, AlertTriangle, ChevronRight, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, } from "lucide-react"
 import { Button } from "@/components/ui/button"
 //import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -32,7 +32,7 @@ import {
 //import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 //import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-//import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/contexts/auth-context"
 //import { format } from "date-fns"//
 //import { useNavigate } from "react-router-dom"
 //import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -41,7 +41,7 @@ import { mailService } from "@/services/mail-service"
 
 // Import necessary types
 import type { Mail, MailFilters, FilterState } from "@/types/mail"
-import { Avatar } from "@radix-ui/react-avatar"
+//import { Avatar } from "@radix-ui/react-avatar"
 
 interface Division {
   id: string
@@ -61,8 +61,15 @@ interface SousDirection {
 }
 
 export function ArchivePage() {
-  /* const navigate = useNavigate()
-  const { getToken, directionId } = useAuth(); */
+  const { 
+    role, 
+    userEmail, 
+    //directionId, 
+    //divisionId, 
+    //sousdirectionId,
+    isGlobalAdmin,
+    //isDirectionAdmin 
+  } = useAuth()
   const { toast } = useToast()
 
   const { mails, pagination, filters, isLoading, error, updateFilters, refresh } = useMails({
@@ -278,6 +285,52 @@ export function ArchivePage() {
   const safeCloseDialog = (setDialogState: React.Dispatch<React.SetStateAction<boolean>>) => {
     setDialogState(false)
   } */
+
+  // Helper function to check if user can edit a mail
+  const canEditMail = (mail: Mail): boolean => {
+    if (!userEmail) return false;
+    
+    // Global admin can edit everything
+    if (isGlobalAdmin()) return true;
+    
+    // Check if user created this mail
+    const isCreator = mail.createdBy === userEmail || 
+                     mail.historyList?.[0]?.createdById === userEmail;
+    
+    if (role === 'ADMIN') {
+      // Direction/Division admin can ONLY edit mails they created
+      return isCreator;
+    }
+    
+    if (role === 'USER') {
+      // Regular users can only edit mails they created
+      return isCreator;
+    }
+    
+    return false;
+  };
+  
+  // Helper function to check if user can delete a mail
+  const canDeleteMail = (mail: Mail): boolean => {
+    if (!userEmail) return false;
+    
+    // Global admin can delete everything
+    if (isGlobalAdmin()) return true;
+    
+    // Users cannot delete any mails
+    if (role === 'USER') return false;
+    
+    // Check if user created this mail
+    const isCreator = mail.createdBy === userEmail || 
+                     mail.historyList?.[0]?.createdById === userEmail;
+    
+    if (role === 'ADMIN') {
+      // Direction/Division admin can ONLY delete mails they created
+      return isCreator;
+    }
+    
+    return false;
+  };
 
   // Modifiez également les fonctions de gestion des actions pour s'assurer qu'elles nettoient correctement après leur exécution
   const handleViewDetails = (mail: Mail) => {
@@ -1115,14 +1168,18 @@ const mapNatureToBackend = (nature: string): string => {
                               <Eye className="mr-2 h-4 w-4" />
                               Voir détails
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openEditDialog(mail)}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Modifier
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => confirmDeleteMail(mail)}>
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Supprimer
-                            </DropdownMenuItem>
+                            {canEditMail(mail) && (
+                              <DropdownMenuItem onClick={() => openEditDialog(mail)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Modifier
+                              </DropdownMenuItem>
+                            )}
+                            {canDeleteMail(mail) && (
+                              <DropdownMenuItem onClick={() => confirmDeleteMail(mail)}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Supprimer
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDownloadAttachments(mail)}>
                               <Download className="mr-2 h-4 w-4" />
@@ -1338,30 +1395,174 @@ const mapNatureToBackend = (nature: string): string => {
                       </h3>
                       
                       <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 block mb-2">
-                            Expéditeur
-                          </label>
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                            <div className="flex items-center gap-2 text-green-800">
-                              <FileText className="w-4 h-4" />
-                              <span className="font-medium">
-                                {selectedMail.sender}
-                              </span>
+                        {/* Expéditeur et Destinataire Section */}
+                        <div className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-gray-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                              <User className="w-4 h-4 text-white" />
                             </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                              Expéditeur et Destinataire
+                            </h3>
                           </div>
-                        </div>
-                        
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 block mb-2">
-                            Destinataire
-                          </label>
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <div className="flex items-center gap-2 text-blue-800">
-                              <FileText className="w-4 h-4" />
-                              <span className="font-medium">
-                                {selectedMail.recipient}
-                              </span>
+
+                          <div className="space-y-6">
+                            {/* Expéditeur */}
+                            <div>
+                              <Label className="font-medium truncate">Expéditeur</Label>
+                              <div className="mt-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                <div className="flex items-start gap-3">
+                                  <div className="w-6 h-6 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span className="text-xs font-medium text-green-700 dark:text-green-300">E</span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
+                                      {selectedMail.fromExternal }
+                                    </div>
+                                    {/* <div className="text-green-700 dark:text-green-300 text-sm leading-relaxed break-words mb-2">
+                                      {selectedMail.sender}
+                                    </div> */}
+                                    {!selectedMail.fromExternal && (
+                                      <div className="space-y-2">
+                                        {selectedMail.fromDivisionId && (
+                                          <div className="flex items-center gap-2 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded">
+                                            <ChevronRight className="w-3 h-3" />
+                                            <span>{selectedMail.fromDivisionId}</span>
+                                          </div>
+                                        )}
+                                        {selectedMail.fromDirectionId && (
+                                          <div className="flex items-center gap-2 text-xs bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-2 py-1 rounded">
+                                            <ChevronRight className="w-3 h-3" />
+                                            <span>{selectedMail.fromDirectionId}</span>
+                                          </div>
+                                        )}
+                                        {selectedMail.fromSousDirectionId && (
+                                          <div className="flex items-center gap-2 text-xs bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 px-2 py-1 rounded">
+                                            <ChevronRight className="w-3 h-3" />
+                                            <span>{selectedMail.fromSousDirectionId}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Destinataire */}
+                            <div>
+                              <Label className="font-medium">Destinataire</Label>
+                              <div className="mt-2 space-y-3">
+                                {/* External Recipient */}
+                                {selectedMail.toExternal && (
+                                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-6 h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">E</span>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                                          Externe
+                                        </div>
+                                        <div className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed break-words">
+                                          {selectedMail.recipient}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Internal Recipients from destinations array */}
+                                {selectedMail.destinations && selectedMail.destinations.length > 0 && (
+                                  <div className={`space-y-3 ${selectedMail.destinations.length > 5 ? 'max-h-80 overflow-y-auto pr-2' : ''}`}>
+                                    {selectedMail.destinations.map((destination, index) => (
+                                      <div key={index} className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                                        <div className="flex items-start gap-3">
+                                          <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <span className="text-xs font-medium text-indigo-700 dark:text-indigo-300">{index + 1}</span>
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-3">
+                                              Destinataire {index + 1}
+                                            </div>
+                                            <div className="space-y-2">
+                                              {destination.ministryName && (
+                                                <div className="flex items-center gap-2 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                                                  <ChevronRight className="w-3 h-3" />
+                                                  <span>{destination.ministryName}</span>
+                                                </div>
+                                              )}
+                                              {destination.directionGeneralId && (
+                                                <div className="flex items-center gap-2 text-xs bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-1 rounded">
+                                                  <ChevronRight className="w-3 h-3" />
+                                                  <span>{destination.directionGeneralId}</span>
+                                                </div>
+                                              )}
+                                              {destination.divisionId && (
+                                                <div className="flex items-center gap-2 text-xs bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-2 py-1 rounded">
+                                                  <ChevronRight className="w-3 h-3" />
+                                                  <span>{destination.divisionId}</span>
+                                                </div>
+                                              )}
+                                              {destination.directionId && (
+                                                <div className="flex items-center gap-2 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1 rounded">
+                                                  <ChevronRight className="w-3 h-3" />
+                                                  <span>{destination.directionId}</span>
+                                                </div>
+                                              )}
+                                              {destination.sousDirectionId && (
+                                                <div className="flex items-center gap-2 text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1 rounded">
+                                                  <ChevronRight className="w-3 h-3" />
+                                                  <span>{destination.sousDirectionId}</span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Legacy Internal Recipient */}
+                                {!selectedMail.toExternal && (!selectedMail.destinations || selectedMail.destinations.length === 0) && (
+                                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-6 h-6 bg-purple-100 dark:bg-purple-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-xs font-medium text-purple-700 dark:text-purple-300">I</span>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-1">
+                                          Interne
+                                        </div>
+                                        <div className="text-purple-700 dark:text-purple-300 text-sm leading-relaxed break-words mb-2">
+                                          {selectedMail.recipient}
+                                        </div>
+                                        <div className="space-y-2">
+                                          {selectedMail.toDivisionId && (
+                                            <div className="flex items-center gap-2 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-2 py-1 rounded">
+                                              <ChevronRight className="w-3 h-3" />
+                                              <span>Division: {selectedMail.toDivisionId}</span>
+                                            </div>
+                                          )}
+                                          {selectedMail.toDirectionId && (
+                                            <div className="flex items-center gap-2 text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
+                                              <ChevronRight className="w-3 h-3" />
+                                              <span>Direction: {selectedMail.toDirectionId}</span>
+                                            </div>
+                                          )}
+                                          {selectedMail.toSousDirectionId && (
+                                            <div className="flex items-center gap-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+                                              <ChevronRight className="w-3 h-3" />
+                                              <span>Sous-Direction: {selectedMail.toSousDirectionId}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

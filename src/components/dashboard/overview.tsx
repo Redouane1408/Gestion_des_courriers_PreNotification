@@ -1,4 +1,4 @@
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts"
 import { TrendingUp, Calendar } from "lucide-react"
 
 interface OverviewData {
@@ -134,7 +134,7 @@ export function Overview({ data }: { data: OverviewData[] }) {
               radius={[6, 6, 0, 0]} 
               className="transition-all duration-300 hover:opacity-80"
             >
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={colors[index % colors.length]}
