@@ -64,9 +64,9 @@ export function ArchivePage() {
   const { 
     role, 
     userEmail, 
-    //directionId, 
-    //divisionId, 
-    //sousdirectionId,
+    directionId, 
+    divisionId, 
+    sousdirectionId,
     isGlobalAdmin,
     //isDirectionAdmin 
   } = useAuth()
@@ -298,13 +298,48 @@ export function ArchivePage() {
                      mail.historyList?.[0]?.createdById === userEmail;
     
     if (role === 'ADMIN') {
-      // Direction/Division admin can ONLY edit mails they created
-      return isCreator;
+      // Admin can edit mails they created
+      if (isCreator) return true;
+      
+      // Admin can edit mails from users at the same hierarchy level
+      const isSameHierarchy = (
+        // Same direction level
+        (directionId && (
+          mail.fromDirectionId === directionId || 
+          mail.toDirectionId === directionId ||
+          mail.destinations?.some(dest => dest.directionId === directionId)
+        )) ||
+        // Same division level  
+        (divisionId && (
+          mail.fromDivisionId === divisionId ||
+          mail.toDivisionId === divisionId ||
+          mail.destinations?.some(dest => dest.divisionId === divisionId)
+        )) ||
+        // Same sous-direction level
+        (sousdirectionId && (
+          mail.fromSousDirectionId === sousdirectionId ||
+          mail.toSousDirectionId === sousdirectionId ||
+          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
+        ))
+      );
+      
+      return isSameHierarchy || false; // Ensure boolean return type
     }
     
     if (role === 'USER') {
-      // Regular users can only edit mails they created
-      return isCreator;
+      // User can edit mails they created
+      if (isCreator) return true;
+      
+      // User can edit mails from other users in the same sous-direction
+      const isSameSousDirection = (
+        sousdirectionId && (
+          mail.fromSousDirectionId === sousdirectionId ||
+          mail.toSousDirectionId === sousdirectionId ||
+          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
+        )
+      );
+      
+      return isSameSousDirection || false;
     }
     
     return false;
@@ -317,7 +352,7 @@ export function ArchivePage() {
     // Global admin can delete everything
     if (isGlobalAdmin()) return true;
     
-    // Users cannot delete any mails
+    // Users cannot delete any mails (keeping original restriction)
     if (role === 'USER') return false;
     
     // Check if user created this mail
@@ -325,8 +360,32 @@ export function ArchivePage() {
                      mail.historyList?.[0]?.createdById === userEmail;
     
     if (role === 'ADMIN') {
-      // Direction/Division admin can ONLY delete mails they created
-      return isCreator;
+      // Admin can delete mails they created
+      if (isCreator) return true;
+      
+      // Admin can delete mails from users at the same hierarchy level
+      const isSameHierarchy = (
+        // Same direction level
+        (directionId && (
+          mail.fromDirectionId === directionId || 
+          mail.toDirectionId === directionId ||
+          mail.destinations?.some(dest => dest.directionId === directionId)
+        )) ||
+        // Same division level  
+        (divisionId && (
+          mail.fromDivisionId === divisionId ||
+          mail.toDivisionId === divisionId ||
+          mail.destinations?.some(dest => dest.divisionId === divisionId)
+        )) ||
+        // Same sous-direction level
+        (sousdirectionId && (
+          mail.fromSousDirectionId === sousdirectionId ||
+          mail.toSousDirectionId === sousdirectionId ||
+          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
+        ))
+      );
+      
+      return isSameHierarchy || false; // Ensure boolean return type
     }
     
     return false;
