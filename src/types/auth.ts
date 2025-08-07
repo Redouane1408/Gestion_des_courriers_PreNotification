@@ -2,6 +2,7 @@ export interface JWTClaims {
     sub?: string;
     iat?: number;
     exp?: number;
+    mail?: string;
     role: 'ADMIN' | 'USER';
     divisionId: number;
     directionId?: number;

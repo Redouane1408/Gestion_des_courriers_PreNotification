@@ -35,6 +35,8 @@ const mapFiltersToBackend = (filters: MailFilters) => {
     toreturnDate: formatDateForApi(filters.dateRetourTo || ''),
     
     savedDate: null,
+    editable: filters.editable || null, // Map from frontend filters
+
 
     fromDivisionId: filters.senderDivision ? parseInt(filters.senderDivision) : null,
     fromDirectionId: filters.senderDirection ? parseInt(filters.senderDirection) : null,
@@ -101,6 +103,7 @@ export const mapResponseToMails = (data: any[]): Mail[] => {
       destinations,
       
       // Keep legacy fields for backward compatibility
+      editable: mail.editable,
       fromDivisionId: mail.fromDivisionId,
       fromDirectionId: mail.fromDirectionId,
       fromSousDirectionId: mail.fromSousDirectionId,

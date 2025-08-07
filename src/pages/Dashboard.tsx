@@ -430,14 +430,18 @@ export function Dashboard() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 Voir les détails
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => openEditDialog(mail)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Modifier
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDeleteMail(mail)}>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Supprimer
-                              </DropdownMenuItem>
+                              {mail.editable && (
+                                <DropdownMenuItem onClick={() => openEditDialog(mail)}>
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Modifier
+                                </DropdownMenuItem>
+                              )}
+                              {mail.editable && (
+                                <DropdownMenuItem onClick={() => handleDeleteMail(mail)}>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Supprimer
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem onClick={() => openHistoryDialog(mail)}>
                                 <History className="mr-2 h-4 w-4" />

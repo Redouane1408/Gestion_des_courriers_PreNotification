@@ -2,7 +2,6 @@ import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { UserNav } from "./user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useTheme } from "@/components/theme-provider"
 import { useNotifications } from '@/contexts/notification-context';
 import {
   Popover,
@@ -16,7 +15,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect } from "react"
 
 export function Header() {
-  const { theme } = useTheme();
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -91,9 +89,9 @@ export function Header() {
         width: 'calc(100% - 18rem)' // Adjust width to not overlap sidebar
       }}
     >
-      <div className="w-full max-w-screen-2xl mx-auto border border-white/10 bg-gradient-to-b from-blue-600 to-cyan-600 backdrop-blur-xl shadow-xl rounded-full">
+      <div className="w-full max-w-screen-2xl mx-auto border border-white/10 bg-gradient-to-b from-blue-600 to-cyan-600 backdrop-blur-xl shadow-xl rounded-xl">
         {/* Animated background overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-cyan-600/40 backdrop-blur-sm rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-cyan-600/40 backdrop-blur-sm rounded-xl pointer-events-none" />
         
         {/* Floating particles effect */}
         <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
@@ -120,8 +118,8 @@ export function Header() {
           ))}
         </div>
         
-        <div className="relative container flex h-16 items-center justify-between px-24">
-          {/* Logo Section with Animation */}
+        <div className="relative container flex h-16 items-center justify-between mx-auto px-4">
+          {/* Logo Section with Animation - Fixed to always show the same logo */}
           <motion.div 
             className="flex items-center space-x-4"
             initial={{ x: -50, opacity: 0 }}
@@ -129,23 +127,16 @@ export function Header() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <motion.div 
-              className=" flex items-center"
+              className=" relative flex items-center "
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              transition={{ type: "spring", stiffness: 100 }}
             >
-              {theme === 'dark' ? (
-                <img 
-                  src="logo courriel management-05.svg" 
-                  alt="Gestion des Courriers" 
-                  className="h-8 w-auto drop-shadow-lg ml-96 pl-52 " 
-                />
-              ) : (
-                <img 
-                  src="logo courriel management-05.svg" 
-                  alt="Gestion des Courriers" 
-                  className="h-8 w-auto drop-shadow-lg ml-96 pl-52" 
-                />
-              )}
+              {/* Fixed logo - no theme switching */}
+              <img 
+                src="logo courriel management-05.svg" 
+                alt="Logo"
+                className="h-8 w-auto drop-shadow-lg items-end" 
+              />
               <motion.div 
                 className="hidden md:block"
                 initial={{ opacity: 0 }}
@@ -163,9 +154,6 @@ export function Header() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {/* Search Button */}
-            
-
             {/* Notifications with Advanced Animation */}
             <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
               <PopoverTrigger asChild>
@@ -330,9 +318,8 @@ export function Header() {
 
             {/* Theme Toggle with Animation */}
             <motion.div
-              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              
             >
               <div className="[&>button]:h-10 [&>button]:w-10 [&>button]:text-white/80 [&>button]:hover:text-white [&>button]:hover:bg-white/20 [&>button]:transition-all [&>button]:duration-300 [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/10 ">
                 <ThemeToggle />
@@ -341,8 +328,7 @@ export function Header() {
 
             {/* User Navigation with Animation */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              
+              whileHover={{ scale: 1.2 }}
             >
               <div className="[&>div>button]:ring-2 [&>div>button]:ring-white/20 [&>div>button]:hover:ring-white/40 [&>div>button]:transition-all [&>div>button]:duration-300">
                 <UserNav />
@@ -351,8 +337,6 @@ export function Header() {
           </motion.div>
         </div>
       </div>
-      
- 
     </motion.header>
   );
 }

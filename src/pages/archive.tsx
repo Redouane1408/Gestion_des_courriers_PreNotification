@@ -32,7 +32,7 @@ import {
 //import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 //import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useAuth } from "@/contexts/auth-context"
+//import { useAuth } from "@/contexts/auth-context"
 //import { format } from "date-fns"//
 //import { useNavigate } from "react-router-dom"
 //import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -61,7 +61,7 @@ interface SousDirection {
 }
 
 export function ArchivePage() {
-  const { 
+ /*  const { 
     role, 
     userEmail, 
     directionId, 
@@ -69,7 +69,7 @@ export function ArchivePage() {
     sousdirectionId,
     isGlobalAdmin,
     //isDirectionAdmin 
-  } = useAuth()
+  } = useAuth() */
   const { toast } = useToast()
 
   const { mails, pagination, filters, isLoading, error, updateFilters, refresh } = useMails({
@@ -84,8 +84,17 @@ export function ArchivePage() {
     updateFilters({ page: newPage });
   };
 
-  const handleSizeChange = (newSize: number) => {
-    updateFilters({ limit: newSize, page: 0 });
+  const handleSizeChange = (newSize: number | string) => {
+    let limit: number;
+    
+    if (newSize === "all") {
+      // Use the total count from pagination to show all items
+      limit = pagination.total || 1000; // fallback to a large number if total is not available
+    } else {
+      limit = Number(newSize);
+    }
+    
+    updateFilters({ limit, page: 0 });
   };
   /* const [searchTerm, setSearchTerm] = useState("")
 
@@ -287,109 +296,6 @@ export function ArchivePage() {
   } */
 
   // Helper function to check if user can edit a mail
-  const canEditMail = (mail: Mail): boolean => {
-    if (!userEmail) return false;
-    
-    // Global admin can edit everything
-    if (isGlobalAdmin()) return true;
-    
-    // Check if user created this mail
-    const isCreator = mail.createdBy === userEmail || 
-                     mail.historyList?.[0]?.createdById === userEmail;
-    
-    if (role === 'ADMIN') {
-      // Admin can edit mails they created
-      if (isCreator) return true;
-      
-      // Admin can edit mails from users at the same hierarchy level
-      const isSameHierarchy = (
-        // Same direction level
-        (directionId && (
-          mail.fromDirectionId === directionId || 
-          mail.toDirectionId === directionId ||
-          mail.destinations?.some(dest => dest.directionId === directionId)
-        )) ||
-        // Same division level  
-        (divisionId && (
-          mail.fromDivisionId === divisionId ||
-          mail.toDivisionId === divisionId ||
-          mail.destinations?.some(dest => dest.divisionId === divisionId)
-        )) ||
-        // Same sous-direction level
-        (sousdirectionId && (
-          mail.fromSousDirectionId === sousdirectionId ||
-          mail.toSousDirectionId === sousdirectionId ||
-          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
-        ))
-      );
-      
-      return isSameHierarchy || false; // Ensure boolean return type
-    }
-    
-    if (role === 'USER') {
-      // User can edit mails they created
-      if (isCreator) return true;
-      
-      // User can edit mails from other users in the same sous-direction
-      const isSameSousDirection = (
-        sousdirectionId && (
-          mail.fromSousDirectionId === sousdirectionId ||
-          mail.toSousDirectionId === sousdirectionId ||
-          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
-        )
-      );
-      
-      return isSameSousDirection || false;
-    }
-    
-    return false;
-  };
-  
-  // Helper function to check if user can delete a mail
-  const canDeleteMail = (mail: Mail): boolean => {
-    if (!userEmail) return false;
-    
-    // Global admin can delete everything
-    if (isGlobalAdmin()) return true;
-    
-    // Users cannot delete any mails (keeping original restriction)
-    if (role === 'USER') return false;
-    
-    // Check if user created this mail
-    const isCreator = mail.createdBy === userEmail || 
-                     mail.historyList?.[0]?.createdById === userEmail;
-    
-    if (role === 'ADMIN') {
-      // Admin can delete mails they created
-      if (isCreator) return true;
-      
-      // Admin can delete mails from users at the same hierarchy level
-      const isSameHierarchy = (
-        // Same direction level
-        (directionId && (
-          mail.fromDirectionId === directionId || 
-          mail.toDirectionId === directionId ||
-          mail.destinations?.some(dest => dest.directionId === directionId)
-        )) ||
-        // Same division level  
-        (divisionId && (
-          mail.fromDivisionId === divisionId ||
-          mail.toDivisionId === divisionId ||
-          mail.destinations?.some(dest => dest.divisionId === divisionId)
-        )) ||
-        // Same sous-direction level
-        (sousdirectionId && (
-          mail.fromSousDirectionId === sousdirectionId ||
-          mail.toSousDirectionId === sousdirectionId ||
-          mail.destinations?.some(dest => dest.sousDirectionId === sousdirectionId)
-        ))
-      );
-      
-      return isSameHierarchy || false; // Ensure boolean return type
-    }
-    
-    return false;
-  };
 
   // Modifiez également les fonctions de gestion des actions pour s'assurer qu'elles nettoient correctement après leur exécution
   const handleViewDetails = (mail: Mail) => {
@@ -668,7 +574,7 @@ const mapNatureToBackend = (nature: string): string => {
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-muted-foreground text-sm">Afficher</span>
-            <Select value={pagination.limit.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
+            <Select value={pagination.limit.toString()} onValueChange={(value) => handleSizeChange(value)}>
               <SelectTrigger className="w-[80px]">
                 <SelectValue placeholder="" />
               </SelectTrigger>
@@ -677,6 +583,7 @@ const mapNatureToBackend = (nature: string): string => {
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="20">20</SelectItem>
                 <SelectItem value="50">50</SelectItem>
+                <SelectItem value="all">Touts</SelectItem>
               </SelectContent>
             </Select>
             <span className="text-muted-foreground text-sm">entrées</span>
@@ -1227,13 +1134,13 @@ const mapNatureToBackend = (nature: string): string => {
                               <Eye className="mr-2 h-4 w-4" />
                               Voir détails
                             </DropdownMenuItem>
-                            {canEditMail(mail) && (
+                            {mail.editable && (
                               <DropdownMenuItem onClick={() => openEditDialog(mail)}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Modifier
                               </DropdownMenuItem>
                             )}
-                            {canDeleteMail(mail) && (
+                            {mail.editable && (
                               <DropdownMenuItem onClick={() => confirmDeleteMail(mail)}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Supprimer
@@ -1257,27 +1164,172 @@ const mapNatureToBackend = (nature: string): string => {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Affichage de {pagination.total === 0 ? 0 : pagination.page * pagination.limit + 1} à {Math.min(pagination.total, (pagination.page + 1) * pagination.limit)} sur {pagination.total} entrées
               </div>
-              <div className="flex space-x-2">
+              
+              {/* Enhanced Pagination */}
+              <div className="flex items-center space-x-2">
+                {/* First Page Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(0)}
+                  disabled={pagination.page === 0}
+                  className="px-3 py-1"
+                >
+                  <ChevronRight className="h-4 w-4 rotate-180" />
+                  <ChevronRight className="h-4 w-4 rotate-180 -ml-1" />
+                </Button>
+                
+                {/* Previous Page Button */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 0}
+                  className="px-3 py-1"
                 >
+                  <ChevronRight className="h-4 w-4 rotate-180" />
                   Précédent
                 </Button>
+                
+                {/* Page Numbers */}
+                <div className="flex items-center space-x-1">
+                  {(() => {
+                    const currentPage = pagination.page;
+                    const totalPages = pagination.totalPages;
+                    const pages = [];
+                    
+                    // Always show first page
+                    if (totalPages > 0) {
+                      pages.push(
+                        <Button
+                          key={0}
+                          variant={currentPage === 0 ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(0)}
+                          className={`px-3 py-1 min-w-[40px] ${
+                            currentPage === 0 
+                              ? "bg-blue-600 text-white hover:bg-blue-700" 
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          1
+                        </Button>
+                      );
+                    }
+                    
+                    // Add ellipsis if needed
+                    if (currentPage > 3) {
+                      pages.push(
+                        <span key="ellipsis1" className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    
+                    // Show pages around current page
+                    const start = Math.max(1, currentPage - 1);
+                    const end = Math.min(totalPages - 1, currentPage + 1);
+                    
+                    for (let i = start; i <= end; i++) {
+                      if (i !== 0 && i !== totalPages - 1) {
+                        pages.push(
+                          <Button
+                            key={i}
+                            variant={currentPage === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(i)}
+                            className={`px-3 py-1 min-w-[40px] ${
+                              currentPage === i 
+                                ? "bg-blue-600 text-white hover:bg-blue-700" 
+                                : "hover:bg-gray-100"
+                            }`}
+                          >
+                            {i + 1}
+                          </Button>
+                        );
+                      }
+                    }
+                    
+                    // Add ellipsis if needed
+                    if (currentPage < totalPages - 4) {
+                      pages.push(
+                        <span key="ellipsis2" className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    
+                    // Always show last page if there's more than one page
+                    if (totalPages > 1) {
+                      pages.push(
+                        <Button
+                          key={totalPages - 1}
+                          variant={currentPage === totalPages - 1 ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(totalPages - 1)}
+                          className={`px-3 py-1 min-w-[40px] ${
+                            currentPage === totalPages - 1 
+                              ? "bg-blue-600 text-white hover:bg-blue-700" 
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          {totalPages}
+                        </Button>
+                      );
+                    }
+                    
+                    return pages;
+                  })()
+                  }
+                </div>
+                
+                {/* Next Page Button */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page + 1 >= pagination.totalPages}
+                  className="px-3 py-1"
                 >
                   Suivant
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
+                
+                {/* Last Page Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.totalPages - 1)}
+                  disabled={pagination.page + 1 >= pagination.totalPages}
+                  className="px-3 py-1"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 -ml-1" />
+                </Button>
+              </div>
+              
+              {/* Page Size Selector */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">Aller à la page:</span>
+                <Select 
+                  value={(pagination.page + 1).toString()} 
+                  onValueChange={(value) => handlePageChange(parseInt(value) - 1)}
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: pagination.totalPages }, (_, i) => (
+                      <SelectItem key={i + 1} value={(i + 1).toString()}>
+                        {i + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </>

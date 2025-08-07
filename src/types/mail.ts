@@ -38,6 +38,13 @@ export interface Mail {
   createdAt: string;
   modifiedBy: Modification[];
   
+  // NEW: Creator's hierarchy information
+  creatorHierarchy?: {
+    directionId?: string;
+    divisionId?: string;
+    sousdirectionId?: string;
+  };
+  
   // Updated for multiple destinations support
   destinations: Destination[];
   
@@ -68,6 +75,7 @@ export interface Mail {
     filePath: string;
     fileSize: number;
   }>;
+  editable: boolean; // New property from backend
 }
 
   
@@ -171,6 +179,8 @@ export interface MailFilters {
   destinations?: Destination[];
   ministryName?: string;
   toExternal?: string | null;
+  editable?: boolean; // New filter for editable mails
+
   
 }
 

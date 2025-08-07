@@ -175,8 +175,6 @@ export default function NotificationsPage() {
   }
 
   const uniqueOperations = [...new Set(notifications.map(n => n.operation))]
-  const uniqueTypes = [...new Set(notifications.map(n => n.type))]
-
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -220,19 +218,6 @@ export default function NotificationsPage() {
             </SelectContent>
           </Select>
 
-          <Select value={filters.type || "all"} onValueChange={(value) => 
-            setFilters(prev => ({ ...prev, type: value === "all" ? undefined : value }))
-          }>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les types</SelectItem>
-              {uniqueTypes.map(type => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="flex gap-2">
@@ -341,7 +326,7 @@ export default function NotificationsPage() {
                         {notification.courrielNumber && (
                           <span className="flex items-center">
                             <Building className="h-3 w-3 mr-1" />
-                            Courrier #{notification.courrielNumber}
+                            Courrier : {notification.courrielNumber}
                           </span>
                         )}
                       </div>
