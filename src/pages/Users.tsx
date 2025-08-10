@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
 import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -103,6 +104,7 @@ export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [directions, setDirections] = useState<Direction[]>([]);
   const [sousDirections, setSousDirections] = useState<Direction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -114,17 +116,24 @@ export function UsersPage() {
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filter users based on search term
+  // Filter users based on search term and role
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredUsers(users);
-    } else {
-      const filtered = users.filter(user => 
+    let filtered = users;
+    
+    // Apply search filter (only by name/username)
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(user => 
         user.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredUsers(filtered);
     }
-  }, [users, searchTerm]);
+    
+    // Apply role filter
+    if (roleFilter !== "all") {
+      filtered = filtered.filter(user => user.role === roleFilter);
+    }
+    
+    setFilteredUsers(filtered);
+  }, [users, searchTerm, roleFilter]);
 
   // Helper functions
   const hasDirectionId = () => {
@@ -595,18 +604,32 @@ const handleCopyPassword = () => {
           {shouldShowAdminForm() ? "Nouvel admin de direction" : "Nouvel utilisateur"}
         </Button>
       </div>
-
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Rechercher par nom complet..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+ 
+      {/* Search and Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between pb-4">
+        <div className="flex flex-col sm:flex-row gap-2 flex-1">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Rechercher par nom d'utilisateur..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Rôle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les rôles</SelectItem>
+              {[...new Set(users.map(user => user.role))].map(role => (
+                <SelectItem key={role} value={role}>{role}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -624,6 +647,7 @@ const handleCopyPassword = () => {
                 <TableHead>Téléphone</TableHead>
                 <TableHead>Profession</TableHead>
                 <TableHead>Quattre Chiffres</TableHead>
+                <TableHead>Rôle</TableHead>
                 <TableHead>{shouldShowAdminForm() ? "Direction" : "Sous-direction"}</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -631,7 +655,7 @@ const handleCopyPassword = () => {
             <TableBody>
               {filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={8} className="h-24 text-center">
                     {searchTerm.trim() !== "" ? "Aucun utilisateur trouvé pour cette recherche" : "Aucun utilisateur trouvé"}
                   </TableCell>
                 </TableRow>
@@ -643,6 +667,22 @@ const handleCopyPassword = () => {
                     <TableCell>{user.phone || '-'}</TableCell>
                     <TableCell>{user.profession || '-'}</TableCell>
                     <TableCell>{user.quatreChiffres}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={
+                          user.role === 'ADMIN' || user.role === 'Admin du direction' 
+                            ? 'default' 
+                            : 'secondary'
+                        }
+                        className={
+                          user.role === 'ADMIN' || user.role === 'Admin du direction'
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-green-500 hover:bg-green-600 text-white'
+                        }
+                      >
+                        {user.role}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{shouldShowAdminForm() ? user.direction : user.subDirection}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

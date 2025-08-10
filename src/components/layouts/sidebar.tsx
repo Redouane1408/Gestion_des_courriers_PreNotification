@@ -2,7 +2,7 @@
 
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { Home, Archive, Users, HelpCircle, Plus, Bell, Menu } from "lucide-react" 
+import { Home, Archive, Users, HelpCircle, Plus, Bell, Menu , LucideCircleArrowOutUpLeft} from "lucide-react" 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
@@ -41,6 +41,13 @@ export function Sidebar() {
       show: role !== "ADMIN",
       badge: null,
     },
+    {
+      label: "Organigramme",
+      icon: LucideCircleArrowOutUpLeft,
+      href: "/organigramme",
+      active: pathname === "/organigramme",
+      badge: null,
+    },
   ]
 
   const quickActions = [
@@ -55,6 +62,7 @@ export function Sidebar() {
       label: "Notifications",
       icon: Bell,
       href: "/notifications",
+      show: role === "ADMIN", // Changed from role !== "ADMIN" to role === "ADMIN"
       active: pathname === "/notifications",
       variant: "outline" as const,
       badge: unreadCount > 0 ? unreadCount.toString() : undefined,
@@ -71,32 +79,34 @@ export function Sidebar() {
               Actions rapides
             </h3>
             <div className="space-y-2">
-              {quickActions.map((action) => (
-                <Button
-                  key={action.href}
-                  variant={action.active ? "default" : "ghost"}
-                  className={cn(
-                    "w-full justify-start h-11 transition-all duration-200 hover:scale-[1.02] border-0",
-                    action.active 
-                      ? "bg-white/20 text-white shadow-md backdrop-blur-sm" 
-                      : "hover:bg-white/10 text-white/90 hover:text-white"
-                  )}
-                  asChild
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Link to={action.href} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <action.icon className="mr-3 h-5 w-5" />
-                      <span className="font-medium">{action.label}</span>
-                    </div>
-                    {action.badge && (
-                      <Badge variant="secondary" className="ml-auto bg-white/20 text-white border-white/30">
-                        {action.badge}
-                      </Badge>
+              {quickActions
+                .filter((action) => action.show !== false) // Filter based on show property
+                .map((action) => (
+                  <Button
+                    key={action.href}
+                    variant={action.active ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start h-11 transition-all duration-200 hover:scale-[1.02] border-0",
+                      action.active 
+                        ? "bg-white/20 text-white shadow-md backdrop-blur-sm" 
+                        : "hover:bg-white/10 text-white/90 hover:text-white"
                     )}
-                  </Link>
-                </Button>
-              ))}
+                    asChild
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Link to={action.href} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <action.icon className="mr-3 h-5 w-5" />
+                        <span className="font-medium">{action.label}</span>
+                      </div>
+                      {action.badge && (
+                        <Badge variant="secondary" className="ml-auto bg-white/20 text-white border-white/30">
+                          {action.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </Button>
+                ))}
             </div>
           </div>
 

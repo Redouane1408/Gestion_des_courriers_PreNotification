@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
-import { Toaster } from "@/components/ui/toaster" // ✅ Correct import
+import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/contexts/auth-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import ProtectedRoute from "@/components/protected-route"
@@ -14,6 +14,7 @@ import { NotFoundPage } from "@/pages/not-found"
 import { Example } from "@/pages/welcome"
 import { NotificationProviderGuard } from "@/components/notification-provider-guard"
 import NotificationsPage from "@/pages/notifications"
+import OrganigrammePage from "@/pages/Organigramme"
 
 function App() {
   const location = useLocation();
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/archive" element={<ArchivePage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/organigramme" element={<OrganigrammePage />} />
               </Route>
             </Route>
 

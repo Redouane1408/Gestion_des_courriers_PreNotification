@@ -79,7 +79,7 @@ export function AttachmentsStep({ files, onFileChange, onRemoveFile, completedSt
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Formats acceptés: PDF, DOC, DOCX | Taille maximale: 100MB
+          Formats acceptés: PDF | Taille maximale: 100MB
         </p>
       </CardContent>
     </Card>

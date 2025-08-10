@@ -15,7 +15,7 @@ export function ThemeToggle() {
     if (theme === "dark") {
       return <Moon className="h-[1.2rem] w-[1.2rem]" />
     }
-    return <Sun className="h-[1.2rem] w-[1.2rem]" />
+    return <Sun className="h-[1.2rem] w-[1.2rem] " />
   }
 
   return (

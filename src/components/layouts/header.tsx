@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { UserNav } from "./user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useNotifications } from '@/contexts/notification-context';
+import { useAuth } from "@/contexts/auth-context"; // Add this import
 import {
   Popover,
   PopoverContent,
@@ -16,6 +17,7 @@ import { useState, useEffect } from "react"
 
 export function Header() {
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
+  const { role } = useAuth(); // Add this line
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -154,187 +156,189 @@ export function Header() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {/* Notifications with Advanced Animation */}
-            <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
-              <PopoverTrigger asChild>
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="relative h-10 w-10 text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10"
+            {/* Notifications with Advanced Animation - Only show for ADMIN role */}
+            {role === "ADMIN" && (
+              <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+                <PopoverTrigger asChild>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <motion.div
-                      animate={unreadCount > 0 ? { rotate: [0, 15, -15, 0] } : {}}
-                      transition={{ duration: 0.5, repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 3 }}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="relative h-10 w-10 text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10"
                     >
-                      <Bell className="h-4 w-4" />
-                    </motion.div>
-                    <AnimatePresence>
+                      <motion.div
+                        animate={unreadCount > 0 ? { rotate: [0, 15, -15, 0] } : {}}
+                        transition={{ duration: 0.5, repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 3 }}
+                      >
+                        <Bell className="h-4 w-4" />
+                      </motion.div>
+                      <AnimatePresence>
+                        {unreadCount > 0 && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="absolute -top-1 -right-1"
+                          >
+                            <Badge className="h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-gradient-to-r from-red-500 to-pink-500 border-0 shadow-lg">
+                              <motion.span
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ duration: 1, repeat: Infinity }}
+                              >
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                              </motion.span>
+                            </Badge>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <span className="sr-only">Notifications</span>
+                    </Button>
+                  </motion.div>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-96 p-0 bg-gradient-to-b from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-white/10 shadow-2xl" 
+                  align="end" 
+                  sideOffset={8}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                      <h4 className="font-semibold text-white">Notifications</h4>
                       {unreadCount > 0 && (
                         <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="absolute -top-1 -right-1"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          <Badge className="h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-gradient-to-r from-red-500 to-pink-500 border-0 shadow-lg">
-                            <motion.span
-                              animate={{ scale: [1, 1.2, 1] }}
-                              transition={{ duration: 1, repeat: Infinity }}
-                            >
-                              {unreadCount > 99 ? '99+' : unreadCount}
-                            </motion.span>
-                          </Badge>
+                          <Button 
+                            onClick={markAllAsRead} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs h-auto p-2 text-cyan-400 hover:text-white hover:bg-cyan-600/20"
+                          >
+                            Tout marquer
+                          </Button>
                         </motion.div>
                       )}
-                    </AnimatePresence>
-                    <span className="sr-only">Notifications</span>
-                  </Button>
-                </motion.div>
-              </PopoverTrigger>
-              <PopoverContent 
-                className="w-96 p-0 bg-gradient-to-b from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-white/10 shadow-2xl" 
-                align="end" 
-                sideOffset={8}
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="flex items-center justify-between p-4 border-b border-white/10">
-                    <h4 className="font-semibold text-white">Notifications</h4>
-                    {unreadCount > 0 && (
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button 
-                          onClick={markAllAsRead} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-xs h-auto p-2 text-cyan-400 hover:text-white hover:bg-cyan-600/20"
+                    </div>
+                    
+                    <ScrollArea className="h-80">
+                      {notifications.length === 0 ? (
+                        <motion.div 
+                          className="flex flex-col items-center justify-center p-8 text-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2 }}
                         >
-                          Tout marquer
-                        </Button>
-                      </motion.div>
-                    )}
-                  </div>
-                  
-                  <ScrollArea className="h-80">
-                    {notifications.length === 0 ? (
-                      <motion.div 
-                        className="flex flex-col items-center justify-center p-8 text-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                          <Bell className="h-8 w-8 text-white/30 mb-2" />
-                        </motion.div>
-                        <p className="text-sm text-white/60">Aucune notification</p>
-                      </motion.div>
-                    ) : (
-                      <div className="divide-y divide-white/10">
-                        {notifications.map((notif, index) => (
-                          <motion.div 
-                            key={notif.id} 
-                            className="p-4 hover:bg-white/5 transition-all duration-300"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ x: 5 }}
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                           >
-                            <div className="flex items-start space-x-3">
-                              <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                              >
-                                <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-cyan-500/30">
-                                  <AvatarImage src="/placeholder.svg" alt={notif.email} />
-                                  <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-semibold">
-                                    {getInitials(notif.email)}
-                                  </AvatarFallback>
-                                </Avatar>
-                              </motion.div>
-                              
-                              <div className="flex-1 min-w-0 space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium truncate text-white">
-                                    {notif.email.split('@')[0]}
-                                  </p>
-                                  <span className="text-xs text-white/60">
-                                    {formatTime(notif.time)}
-                                  </span>
-                                </div>
+                            <Bell className="h-8 w-8 text-white/30 mb-2" />
+                          </motion.div>
+                          <p className="text-sm text-white/60">Aucune notification</p>
+                        </motion.div>
+                      ) : (
+                        <div className="divide-y divide-white/10">
+                          {notifications.map((notif, index) => (
+                            <motion.div 
+                              key={notif.id} 
+                              className="p-4 hover:bg-white/5 transition-all duration-300"
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              whileHover={{ x: 5 }}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <motion.div
+                                  whileHover={{ scale: 1.1 }}
+                                  transition={{ type: "spring", stiffness: 300 }}
+                                >
+                                  <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-cyan-500/30">
+                                    <AvatarImage src="/placeholder.svg" alt={notif.email} />
+                                    <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-semibold">
+                                      {getInitials(notif.email)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </motion.div>
                                 
-                                <p className="text-sm text-white/80 line-clamp-2">
-                                  {notif.message}
-                                </p>
-                                
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-2">
-                                    <Badge 
-                                      variant="outline" 
-                                      className={`text-xs border ${getOperationBadgeStyle(notif.operation)}`}
-                                    >
-                                      {notif.operation}
-                                    </Badge>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium truncate text-white">
+                                      {notif.email.split('@')[0]}
+                                    </p>
                                     <span className="text-xs text-white/60">
-                                      {notif.courrielNumber}
+                                      {formatTime(notif.time)}
                                     </span>
                                   </div>
                                   
-                                  <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                  >
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      onClick={() => markAsRead(notif.id)}
-                                      className="text-xs h-auto p-1 text-cyan-400 hover:text-white hover:bg-cyan-600/20 transition-all duration-200"
+                                  <p className="text-sm text-white/80 line-clamp-2">
+                                    {notif.message}
+                                  </p>
+                                  
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <Badge 
+                                        variant="outline" 
+                                        className={`text-xs border ${getOperationBadgeStyle(notif.operation)}`}
+                                      >
+                                        {notif.operation}
+                                      </Badge>
+                                      <span className="text-xs text-white/60">
+                                        {notif.courrielNumber}
+                                      </span>
+                                    </div>
+                                    
+                                    <motion.div
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
                                     >
-                                      Marquer
-                                    </Button>
-                                  </motion.div>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        onClick={() => markAsRead(notif.id)}
+                                        className="text-xs h-auto p-1 text-cyan-400 hover:text-white hover:bg-cyan-600/20 transition-all duration-200"
+                                      >
+                                        Marquer
+                                      </Button>
+                                    </motion.div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-                  </ScrollArea>
-                </motion.div>
-              </PopoverContent>
-            </Popover>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </motion.div>
+                </PopoverContent>
+              </Popover>
+              )}
 
-            {/* Theme Toggle with Animation */}
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="[&>button]:h-10 [&>button]:w-10 [&>button]:text-white/80 [&>button]:hover:text-white [&>button]:hover:bg-white/20 [&>button]:transition-all [&>button]:duration-300 [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/10 ">
-                <ThemeToggle />
-              </div>
-            </motion.div>
 
-            {/* User Navigation with Animation */}
-            <motion.div
-              whileHover={{ scale: 1.2 }}
-            >
-              <div className="[&>div>button]:ring-2 [&>div>button]:ring-white/20 [&>div>button]:hover:ring-white/40 [&>div>button]:transition-all [&>div>button]:duration-300">
+              {/* Theme Toggle */}
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="[&>button]:h-10 [&>button]:w-10 [&>button]:text-white/80 [&>button]:hover:text-white [&>button]:hover:bg-white/20 [&>button]:transition-all [&>button]:duration-300 [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/10 [&>button]:rounded-full">
+                  <ThemeToggle />
+                </div>
+              </motion.div>
+              
+              {/* User Navigation */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <UserNav />
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
         </div>
       </div>
     </motion.header>

@@ -3,6 +3,12 @@
 //import type React from "react"
 
 import { useState, useEffect } from "react"
+
+// Helper function to detect text direction (RTL for Arabic, LTR otherwise)
+const detectTextDirection = (text: string): 'ltr' | 'rtl' => {
+  const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  return arabicRegex.test(text) ? 'rtl' : 'ltr';
+};
 import {useMails} from "@/hooks/use-mails"
 import { AlertCircle, AlertTriangle, ChevronRight, Download, Eye, FileText, Filter, History, MoreHorizontal, Pencil, Plus, Trash2, X , Timer , SendToBackIcon, User, } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -608,13 +614,14 @@ const mapNatureToBackend = (nature: string): string => {
               <div>
                 <Label htmlFor="filter-id">N° de courrier</Label>
                 <Input
-                  id="filter-id"
-                  placeholder="Numéro de courrier"
-                  value={tempFilters.id}
-                  onChange={(e) =>
-                    setTempFilters({ ...tempFilters, id: e.target.value })
-                  }
-                />
+                    id="filter-id"
+                    placeholder="Numéro de courrier"
+                    value={tempFilters.id}
+                    onChange={(e) =>
+                      setTempFilters({ ...tempFilters, id: e.target.value })
+                    }
+                    style={{ direction: detectTextDirection(tempFilters.id) }}
+                  />
               </div>
               <div>
                 <Label htmlFor="filter-type">Type</Label>
@@ -655,13 +662,14 @@ const mapNatureToBackend = (nature: string): string => {
               <div>
                 <Label htmlFor="filter-subject">Objet</Label>
                 <Input
-                  id="filter-subject"
-                  placeholder="Objet du courrier"
-                  value={tempFilters.subject}
-                  onChange={(e) =>
-                    setTempFilters({ ...tempFilters, subject: e.target.value })
-                  }
-                />
+                    id="filter-subject"
+                    placeholder="Objet du courrier"
+                    value={tempFilters.subject}
+                    onChange={(e) =>
+                      setTempFilters({ ...tempFilters, subject: e.target.value })
+                    }
+                    style={{ direction: detectTextDirection(tempFilters.subject) }}
+                  />
               </div>
               <div>
                 <Label>Date d'envoi</Label>
@@ -876,6 +884,7 @@ const mapNatureToBackend = (nature: string): string => {
                         },
                       })
                     }
+                    style={{ direction: detectTextDirection(tempFilters.sender?.name || '') }}
                   />
                 </div>
               ) : null}
@@ -1007,6 +1016,7 @@ const mapNatureToBackend = (nature: string): string => {
                         },
                       })
                     }
+                    style={{ direction: detectTextDirection(tempFilters.recipient?.name || '') }}
                   />
                 </div>
               ) : null}
@@ -1067,6 +1077,7 @@ const mapNatureToBackend = (nature: string): string => {
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-bold`}
+                          style={{ direction: detectTextDirection(mail.courielNumber || mail.id) }}
                         >
                           {mail.courielNumber || mail.id}
                         </span>  

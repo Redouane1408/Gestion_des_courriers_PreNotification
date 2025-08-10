@@ -45,6 +45,7 @@ export function BasicInfoStep({ formState, onInputChange, completedSteps }: Basi
               value={formState.courielNumber}
               onChange={(e) => onInputChange('courielNumber', e.target.value)}
               placeholder="Entrez le numéro de courrier"
+              style={{ direction: detectTextDirection(formState.courielNumber) }}
               required
             />
           </div>
