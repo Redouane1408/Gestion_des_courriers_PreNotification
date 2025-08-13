@@ -1071,7 +1071,7 @@ export function Example() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h4 className="text-xl font-semibold text-white mb-4">Support & Contact</h4>
+              <h4 className="text-xl font-semibold text-white mb-4">Contact</h4>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <Mail className="w-5 h-5 text-teal-400 mt-1" />
