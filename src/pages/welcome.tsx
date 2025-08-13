@@ -1016,8 +1016,14 @@ export function Example() {
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center gap-3">
-                  <img src="/public/logo courriel management-05.svg" alt="Ministry of Finance" className="w-16 h-16 text-white" />
-              </div>
+                    <motion.img 
+                    src="/logo courriel management-05.svg" 
+                    alt="Mail Management Logo" 
+                    className="h-12 w-auto"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    />              
+                </div>
               <p className="text-gray-300 leading-relaxed">
                 Plateforme moderne de gestion des courriers pour le Ministère des Finances. 
                 Optimisez vos processus administratifs avec notre solution innovante.

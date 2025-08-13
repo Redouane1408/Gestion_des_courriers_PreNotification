@@ -33,6 +33,7 @@ export function OrganigrammePage() {
           </CardHeader>
           <CardContent>
             <Accordion type="multiple" className="w-full">
+                
               {/* Direction Générale */}
               <AccordionItem value="direction-generale">
                 <AccordionTrigger className="text-xl font-bold">
