@@ -160,9 +160,12 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
   const progressPercentage = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <>
+    <>      
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogContent 
+          className="max-w-4xl max-h-[90vh] flex flex-col"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader className="flex-shrink-0">
             <DialogTitle>Créer un nouveau courrier</DialogTitle>
             <DialogDescription>
@@ -275,7 +278,10 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <DialogContent className="max-w-md">
+        <DialogContent 
+          className="max-w-md"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-orange-600">
               <AlertTriangle className="w-5 h-5" />

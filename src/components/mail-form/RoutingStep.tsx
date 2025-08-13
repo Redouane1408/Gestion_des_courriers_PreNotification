@@ -70,6 +70,7 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
       });
     }
   }, [showDestinationForm, formState.nature]);
+  
 
     const getToken = async () => {
     const userData = localStorage.getItem('user');

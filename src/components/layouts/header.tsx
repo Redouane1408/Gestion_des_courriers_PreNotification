@@ -2,6 +2,7 @@ import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { UserNav } from "./user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
+
 import { useNotifications } from '@/contexts/notification-context';
 import { useAuth } from "@/contexts/auth-context"; // Add this import
 import {

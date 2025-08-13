@@ -431,14 +431,54 @@ export function UsersPage() {
     }
   };
 
-  // Add a function to handle copying passwords
-const handleCopyPassword = () => {
+  // Add a function to handle copying passwords with fallback
+const handleCopyPassword = async () => {
   if (generatedPassword) {
-    navigator.clipboard.writeText(generatedPassword);
-    toast({
-      title: "Copié",
-      description: "Le mot de passe a été copié dans le presse-papiers"
-    });
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(generatedPassword);
+        toast({
+          title: "Copié",
+          description: "Le mot de passe a été copié dans le presse-papiers"
+        });
+      } else {
+        // Fallback for older browsers or insecure contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = generatedPassword;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          toast({
+            title: "Copié",
+            description: "Le mot de passe a été copié dans le presse-papiers"
+          });
+        } catch (err) {
+          // If all copy methods fail, show the password for manual copy
+          toast({
+            title: "Copie impossible",
+            description: "Veuillez copier manuellement le mot de passe affiché",
+            variant: "destructive"
+          });
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+    } catch (err) {
+      // Handle any errors from the clipboard API
+      console.error('Copy failed:', err);
+      toast({
+        title: "Erreur de copie",
+        description: "Impossible de copier automatiquement. Veuillez copier manuellement.",
+        variant: "destructive"
+      });
+    }
   }
 };
 
