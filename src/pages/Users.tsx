@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import axios from "axios"
 import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import copy from 'clipboard-copy'
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -458,92 +459,31 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
     }
   };
 
-  // Add a function to handle copying passwords with fallback
-const handleCopyPassword = async () => {
+  const handleCopyPassword = async () => {
   if (!generatedPassword) return;
   
   try {
-    // Method 1: Try modern clipboard API (works in HTTPS and localhost)
-    if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(generatedPassword);
-      toast({
-        title: "Copié",
-        description: "Le mot de passe a été copié dans le presse-papiers"
-      });
-      return;
-    }
-    
-    // Method 2: Fallback using execCommand (should work in HTTP deployment)
-    const textArea = document.createElement('textarea');
-    textArea.value = generatedPassword;
-    
-    // Make sure the textarea is not visible but still functional
-    textArea.style.position = 'fixed';
-    textArea.style.top = '0';
-    textArea.style.left = '0';
-    textArea.style.width = '2em';
-    textArea.style.height = '2em';
-    textArea.style.padding = '0';
-    textArea.style.border = 'none';
-    textArea.style.outline = 'none';
-    textArea.style.boxShadow = 'none';
-    textArea.style.background = 'transparent';
-    textArea.style.opacity = '0';
-    textArea.style.zIndex = '-1';
-    
-    document.body.appendChild(textArea);
-    
-    // Focus and select
-    textArea.focus();
-    textArea.select();
-    textArea.setSelectionRange(0, generatedPassword.length);
-    
-    // Execute copy command
-    const successful = document.execCommand('copy');
-    
-    // Clean up
-    document.body.removeChild(textArea);
-    
-    if (successful) {
-      toast({
-        title: "Copié",
-        description: "Le mot de passe a été copié dans le presse-papiers"
-      });
-      return;
-    }
-    
-    // If execCommand also fails, throw error to trigger final fallback
-    throw new Error('execCommand copy failed');
-    
+    await copy(generatedPassword);
+    toast({
+      title: "Copié",
+      description: "Le mot de passe a été copié dans le presse-papiers"
+    });
   } catch (err) {
-    console.error('Automatic copy failed:', err);
+    console.error('Copy failed:', err);
     
-    // Method 3: Final fallback - auto-select the password for manual copy
-    try {
-      const passwordElement = document.getElementById('generated-password');
-      if (passwordElement) {
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(passwordElement);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        
-        toast({
-          title: "Sélection automatique",
-          description: "Le mot de passe est sélectionné. Utilisez Ctrl+C pour copier",
-          variant: "default",
-          duration: 4000
-        });
-      } else {
-        throw new Error('Password element not found');
-      }
-    } catch (selectErr) {
-      // Absolute final fallback
+    // Fallback to auto-selection
+    const passwordElement = document.getElementById('generated-password');
+    if (passwordElement) {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(passwordElement);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      
       toast({
-        title: "Copie manuelle requise",
-        description: "Veuillez sélectionner le mot de passe et utiliser Ctrl+C",
-        variant: "destructive",
-        duration: 5000
+        title: "Sélection automatique",
+        description: "Le mot de passe est sélectionné. Utilisez Ctrl+C pour copier",
+        duration: 4000
       });
     }
   }
