@@ -463,7 +463,7 @@ const handleCopyPassword = async () => {
   if (!generatedPassword) return;
   
   try {
-    // Try modern clipboard API first (works in HTTPS and localhost)
+    // Method 1: Try modern clipboard API (works in HTTPS and localhost)
     if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(generatedPassword);
       toast({
@@ -473,21 +473,35 @@ const handleCopyPassword = async () => {
       return;
     }
     
-    // Fallback for non-secure contexts (deployed HTTP sites)
+    // Method 2: Fallback using execCommand (should work in HTTP deployment)
     const textArea = document.createElement('textarea');
     textArea.value = generatedPassword;
+    
+    // Make sure the textarea is not visible but still functional
     textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
     textArea.style.opacity = '0';
-    textArea.setAttribute('readonly', '');
+    textArea.style.zIndex = '-1';
     
     document.body.appendChild(textArea);
+    
+    // Focus and select
     textArea.focus();
     textArea.select();
     textArea.setSelectionRange(0, generatedPassword.length);
     
+    // Execute copy command
     const successful = document.execCommand('copy');
+    
+    // Clean up
     document.body.removeChild(textArea);
     
     if (successful) {
@@ -495,18 +509,43 @@ const handleCopyPassword = async () => {
         title: "Copié",
         description: "Le mot de passe a été copié dans le presse-papiers"
       });
-    } else {
-      throw new Error('Copy failed');
+      return;
     }
     
+    // If execCommand also fails, throw error to trigger final fallback
+    throw new Error('execCommand copy failed');
+    
   } catch (err) {
-    console.error('Copy failed:', err);
-    toast({
-      title: "Copie manuelle requise",
-      description: "Sélectionnez le mot de passe affiché et utilisez Ctrl+C pour le copier",
-      variant: "destructive",
-      duration: 5000
-    });
+    console.error('Automatic copy failed:', err);
+    
+    // Method 3: Final fallback - auto-select the password for manual copy
+    try {
+      const passwordElement = document.getElementById('generated-password');
+      if (passwordElement) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(passwordElement);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        toast({
+          title: "Sélection automatique",
+          description: "Le mot de passe est sélectionné. Utilisez Ctrl+C pour copier",
+          variant: "default",
+          duration: 4000
+        });
+      } else {
+        throw new Error('Password element not found');
+      }
+    } catch (selectErr) {
+      // Absolute final fallback
+      toast({
+        title: "Copie manuelle requise",
+        description: "Veuillez sélectionner le mot de passe et utiliser Ctrl+C",
+        variant: "destructive",
+        duration: 5000
+      });
+    }
   }
 };
 
