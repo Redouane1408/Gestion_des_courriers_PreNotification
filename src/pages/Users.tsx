@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import axios from "axios"
 import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import copy from 'clipboard-copy'
+
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -73,45 +73,42 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
 }) => {
   if (!password) return null;
   
-  const handlePasswordClick = () => {
-    // Auto-select the password when clicked
-    const selection = window.getSelection();
-    const range = document.createRange();
-    const passwordElement = document.getElementById('generated-password');
-    if (passwordElement && selection) {
-      range.selectNodeContents(passwordElement);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  };
-  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Mot de passe généré</DialogTitle>
           <DialogDescription>
-            Veuillez copier ce mot de passe et le partager avec l'utilisateur de manière sécurisée.
+            Voici le mot de passe généré pour le nouvel utilisateur. Assurez-vous de le copier avant de fermer cette fenêtre.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center justify-between p-4 bg-muted rounded-md">
-          <code 
-            id="generated-password"
-            className="text-sm font-mono cursor-pointer select-all hover:bg-gray-100 p-1 rounded flex-1 mr-2"
-            onClick={handlePasswordClick}
-            title="Cliquez pour sélectionner le mot de passe"
-          >
-            {password}
-          </code>
-          <Button variant="outline" size="sm" onClick={onCopy}>
-            <Copy className="h-4 w-4 mr-2" />
-            Copier
+        <div className="flex items-center space-x-2">
+          <div className="grid flex-1 gap-2">
+            <label htmlFor="password" className="sr-only">
+              Mot de passe
+            </label>
+            <div 
+              id="generated-password"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background cursor-pointer select-all"
+              onClick={() => {
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(document.getElementById('generated-password')!);
+                selection?.removeAllRanges();
+                selection?.addRange(range);
+              }}
+            >
+              {password}
+            </div>
+          </div>
+          <Button type="button" size="sm" className="px-3" onClick={onCopy}>
+            <span className="sr-only">Copier</span>
+            <Copy className="h-4 w-4" />
           </Button>
         </div>
-        <div className="text-xs text-muted-foreground text-center">
-          💡 Astuce: Cliquez sur le mot de passe pour le sélectionner, puis utilisez Ctrl+C
+        <div className="flex justify-end">
+          <Button onClick={onClose}>Fermer</Button>
         </div>
-        <Button onClick={onClose} className="w-full">Fermer</Button>
       </DialogContent>
     </Dialog>
   );
@@ -463,15 +460,42 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
   if (!generatedPassword) return;
   
   try {
-    await copy(generatedPassword);
-    toast({
-      title: "Copié",
-      description: "Le mot de passe a été copié dans le presse-papiers"
-    });
+    // Try modern clipboard API first (works in HTTPS and localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(generatedPassword);
+      toast({
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
+      });
+      return;
+    }
+    
+    // Fallback: Create a temporary textarea and use execCommand
+    const textArea = document.createElement('textarea');
+    textArea.value = generatedPassword;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    if (successful) {
+      toast({
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
+      });
+    } else {
+      throw new Error('execCommand failed');
+    }
+    
   } catch (err) {
     console.error('Copy failed:', err);
     
-    // Fallback to auto-selection
+    // Final fallback: Auto-select the password for manual copying
     const passwordElement = document.getElementById('generated-password');
     if (passwordElement) {
       const selection = window.getSelection();
@@ -484,6 +508,14 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
         title: "Sélection automatique",
         description: "Le mot de passe est sélectionné. Utilisez Ctrl+C pour copier",
         duration: 4000
+      });
+    } else {
+      // Last resort: Show the password in a prompt for manual copying
+      toast({
+        variant: "destructive",
+        title: "Copie impossible",
+        description: `Copiez manuellement: ${generatedPassword}`,
+        duration: 8000
       });
     }
   }
