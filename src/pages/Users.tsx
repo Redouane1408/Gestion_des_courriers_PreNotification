@@ -460,22 +460,7 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
   const handleCopyPassword = () => {
   if (!generatedPassword) return;
   
-  // Try modern methods first
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(generatedPassword).then(() => {
-        toast({
-          title: "Copié",
-          description: "Le mot de passe a été copié dans le presse-papiers"
-        });
-      });
-      return;
-    }
-  } catch (err) {
-    console.log('Modern clipboard failed');
-  }
-  
-  // Try copy-to-clipboard library
+  // Try standard copy first
   try {
     const success = copy(generatedPassword);
     if (success) {
@@ -486,45 +471,68 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
       return;
     }
   } catch (err) {
-    console.log('copy-to-clipboard failed');
+    // Fallback to custom modal
   }
   
-  // Try execCommand
-  try {
-    const textArea = document.createElement('textarea');
-    textArea.value = generatedPassword;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    const successful = document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    if (successful) {
-      toast({
-        title: "Copié",
-        description: "Le mot de passe a été copié dans le presse-papiers"
-      });
-      return;
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+  
+  // Create modal
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 90%;
+  `;
+  
+  // Create content
+  modal.innerHTML = `
+    <h3 style="margin: 0 0 15px 0; color: #333;">Mot de passe généré</h3>
+    <p style="margin: 0 0 15px 0; color: #666;">Sélectionnez et copiez le mot de passe:</p>
+    <input type="text" value="${generatedPassword}" readonly 
+           style="width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 4px; font-family: monospace; font-size: 14px;"
+           id="copy-password-input">
+    <div style="margin-top: 15px; text-align: right;">
+      <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+              style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Fermer
+      </button>
+    </div>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  // Auto-select the input
+  setTimeout(() => {
+    const input = document.getElementById('copy-password-input') as HTMLInputElement;
+    if (input) {
+      input.focus();
+      input.select();
     }
-  } catch (err) {
-    console.log('execCommand failed');
-  }
+  }, 100);
   
-  // Ultimate fallback: Use prompt (works 100% everywhere)
-  const userAction = window.prompt(
-    'Copiez ce mot de passe (sélectionnez tout avec Ctrl+A puis Ctrl+C):',
-    generatedPassword
-  );
-  
-  if (userAction !== null) {
-    toast({
-      title: "Mot de passe affiché",
-      description: "Le mot de passe a été affiché pour copie manuelle"
-    });
-  }
+  // Remove on click outside
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
 };
 
   // Form submission
