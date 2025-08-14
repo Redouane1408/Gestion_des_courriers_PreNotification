@@ -403,9 +403,12 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
     try {
       const token = await getToken();
       await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/toggle_account/${userToToggle.email}`,
+        `${import.meta.env.VITE_API_BASE_URL}/auth/toggle_account`,
         {},
         {
+          params: {
+            email: userToToggle.email
+          },
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -435,52 +438,60 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
 
   // Add a function to handle copying passwords with fallback
 const handleCopyPassword = async () => {
-  if (generatedPassword) {
-    try {
-      // Try modern clipboard API first
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(generatedPassword);
-        toast({
-          title: "Copié",
-          description: "Le mot de passe a été copié dans le presse-papiers"
-        });
-      } else {
-        // Fallback for older browsers or insecure contexts
-        const textArea = document.createElement('textarea');
-        textArea.value = generatedPassword;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        try {
-          document.execCommand('copy');
-          toast({
-            title: "Copié",
-            description: "Le mot de passe a été copié dans le presse-papiers"
-          });
-        } catch (err) {
-          // If all copy methods fail, show the password for manual copy
-          toast({
-            title: "Copie impossible",
-            description: "Veuillez copier manuellement le mot de passe affiché",
-            variant: "destructive"
-          });
-        } finally {
-          document.body.removeChild(textArea);
-        }
-      }
-    } catch (err) {
-      // Handle any errors from the clipboard API
-      console.error('Copy failed:', err);
+  if (!generatedPassword) return;
+  
+  try {
+    // Check if we're in a secure context and clipboard API is available
+    if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(generatedPassword);
       toast({
-        title: "Erreur de copie",
-        description: "Impossible de copier automatiquement. Veuillez copier manuellement.",
-        variant: "destructive"
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
       });
+      return;
     }
+    
+    // Fallback method for non-secure contexts or older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = generatedPassword;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    textArea.style.opacity = '0';
+    textArea.setAttribute('readonly', '');
+    textArea.setAttribute('aria-hidden', 'true');
+    
+    document.body.appendChild(textArea);
+    
+    // Focus and select the text
+    textArea.focus();
+    textArea.select();
+    textArea.setSelectionRange(0, generatedPassword.length);
+    
+    // Try to copy using execCommand
+    const successful = document.execCommand('copy');
+    
+    if (successful) {
+      toast({
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
+      });
+    } else {
+      throw new Error('execCommand failed');
+    }
+    
+    document.body.removeChild(textArea);
+    
+  } catch (err) {
+    console.error('Copy failed:', err);
+    
+    // Final fallback - show instructions for manual copy
+    toast({
+      title: "Copie manuelle requise",
+      description: "Sélectionnez le mot de passe affiché et utilisez Ctrl+C pour le copier",
+      variant: "destructive",
+      duration: 5000
+    });
   }
 };
 
