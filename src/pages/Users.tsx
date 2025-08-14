@@ -32,11 +32,11 @@ interface User {
   email: string;
   phone?: string;
   role: string;
-  
+  enabled: boolean; // Add this field to track user account status
   direction?: string;
   subDirection?: string;
   profession?: string;
-  quatreChiffres?: string; // Add this line
+  quatreChiffres?: string;
 }
 
 interface Direction {
@@ -99,22 +99,22 @@ export function UsersPage() {
   const { toast } = useToast();
   
   // State management
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [directions, setDirections] = useState<Direction[]>([]);
-  const [sousDirections, setSousDirections] = useState<Direction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingDirections, setIsLoadingDirections] = useState(false);
-  const [isLoadingSousDirections, setIsLoadingSousDirections] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+const [isToggleDialogOpen, setIsToggleDialogOpen] = useState(false); // Replace isDeleteDialogOpen
+const [users, setUsers] = useState<User[]>([]);
+const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+const [searchTerm, setSearchTerm] = useState("");
+const [roleFilter, setRoleFilter] = useState<string>("all");
+const [directions, setDirections] = useState<Direction[]>([]);
+const [sousDirections, setSousDirections] = useState<Direction[]>([]);
+const [isLoading, setIsLoading] = useState(false);
+const [isLoadingDirections, setIsLoadingDirections] = useState(false);
+const [isLoadingSousDirections, setIsLoadingSousDirections] = useState(false);
+const [selectedUser, setSelectedUser] = useState<User | null>(null);
+const [userToToggle, setUserToToggle] = useState<User | null>(null); // Replace userToDelete
+const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
 
   // Filter users based on search term and role
   useEffect(() => {
@@ -338,8 +338,8 @@ export function UsersPage() {
         phone: user.telephone,
         quatreChiffres: user.quatreChiffres || '-',
         role: user.role || '-',
+        enabled: user.enabled, // Add this new field mapping
         direction: user.directionId || '-',
-        
         subDirection: user.souDirectionId || '-',
         profession: user.profession || '-'
       })) : [];
@@ -391,19 +391,20 @@ export function UsersPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteClick = (user: User) => {
-    setUserToDelete(user);
-    setIsDeleteDialogOpen(true);
+  const handleToggleClick = (user: User) => {
+    setUserToToggle(user);
+    setIsToggleDialogOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!userToDelete) return;
+  const handleToggleStatus = async () => {
+    if (!userToToggle) return;
     
-    setIsDeleting(true);
+    setIsToggling(true);
     try {
       const token = await getToken();
-      await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/delete/${userToDelete.id}`,
+      await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/toggle_account/${userToToggle.email}`,
+        {},
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -411,23 +412,24 @@ export function UsersPage() {
         }
       );
       
+      const action = userToToggle.enabled ? "désactivé" : "activé";
       toast({
         title: "Succès",
-        description: "Utilisateur supprimé avec succès"
+        description: `Utilisateur ${action} avec succès`
       });
       
       fetchUsers();
     } catch (error: any) {
-      console.error("Error deleting user:", error);
+      console.error("Error toggling user account:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.response?.data?.message || "Impossible de supprimer l'utilisateur"
+        description: error.response?.data?.message || "Impossible de modifier le statut de l'utilisateur"
       });
     } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
-      setUserToDelete(null);
+      setIsToggling(false);
+      setIsToggleDialogOpen(false);
+      setUserToToggle(null);
     }
   };
 
@@ -688,6 +690,7 @@ const handleCopyPassword = async () => {
                 <TableHead>Profession</TableHead>
                 <TableHead>Quattre Chiffres</TableHead>
                 <TableHead>Rôle</TableHead>
+                <TableHead>Statut</TableHead> {/* Add status column */}
                 <TableHead>{shouldShowAdminForm() ? "Direction" : "Sous-direction"}</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -695,7 +698,7 @@ const handleCopyPassword = async () => {
             <TableBody>
               {filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     {searchTerm.trim() !== "" ? "Aucun utilisateur trouvé pour cette recherche" : "Aucun utilisateur trouvé"}
                   </TableCell>
                 </TableRow>
@@ -723,14 +726,23 @@ const handleCopyPassword = async () => {
                         {user.role}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant={user.enabled ? 'default' : 'destructive'}>
+                        {user.enabled ? 'Actif' : 'Inactif'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{shouldShowAdminForm() ? user.direction : user.subDirection}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleEdit(user)}>
                           Modifier
                         </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(user)}>
-                          Supprimer
+                        <Button 
+                          variant={user.enabled ? "destructive" : "default"} 
+                          size="sm" 
+                          onClick={() => handleToggleClick(user)}
+                        >
+                          {user.enabled ? "Désactiver" : "Activer"}
                         </Button>
                       </div>
                     </TableCell>
@@ -998,31 +1010,45 @@ const handleCopyPassword = async () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      {/* Toggle Account Dialog */}
+      <AlertDialog open={isToggleDialogOpen} onOpenChange={setIsToggleDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogTitle>
+              {userToToggle?.enabled ? "Désactiver" : "Activer"} l'utilisateur
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+              Êtes-vous sûr de vouloir {userToToggle?.enabled ? "désactiver" : "activer"} l'utilisateur <strong>{userToToggle?.name}</strong> ?
+              {userToToggle?.enabled 
+                ? " L'utilisateur ne pourra plus se connecter à l'application."
+                : " L'utilisateur pourra à nouveau se connecter à l'application."
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => {
+              setIsToggleDialogOpen(false);
+              setUserToToggle(null);
+            }}>
+              Annuler
+            </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete} 
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleToggleStatus} 
+              disabled={isToggling}
+              className={userToToggle?.enabled 
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : "bg-green-600 text-white hover:bg-green-700"
+              }
             >
-              {isDeleting ? (
+              {isToggling ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Suppression...
+                  {userToToggle?.enabled ? "Désactivation..." : "Activation..."}
                 </>
               ) : (
                 <>
                   <AlertCircle className="mr-2 h-4 w-4" />
-                  Supprimer
+                  {userToToggle?.enabled ? "Désactiver" : "Activer"}
                 </>
               )}
             </AlertDialogAction>
