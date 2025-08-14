@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { PageTransition } from "@/components/page-transition";
@@ -12,9 +12,17 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/hooks/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
+import { Copy, Loader2, AlertCircle, Search, Edit, UserCheck, UserX, MoreHorizontal } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import copy from 'copy-to-clipboard'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import { 
   AlertDialog,
@@ -136,6 +144,41 @@ const [userToToggle, setUserToToggle] = useState<User | null>(null); // Replace 
 const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
+const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+// The aria-hidden manipulation useEffect has been removed as it was causing conflicts with Radix UI components
+// If you need custom accessibility handling, use a safer approach that doesn't interfere with Radix UI:
+/*
+useEffect(() => {
+  const handleAccessibility = () => {
+    // Only target non-Radix elements
+    const elements = document.querySelectorAll('[aria-hidden="true"]:not([data-radix-popper-content-wrapper]):not([data-radix-dialog-overlay]):not([data-radix-dropdown-menu-content])');
+    
+    elements.forEach((element) => {
+      // Your custom logic here, but avoid Radix components
+    });
+  };
+
+  // Use a longer delay to avoid conflicts
+  const timeoutId = setTimeout(handleAccessibility, 500);
+  
+  return () => clearTimeout(timeoutId);
+}, []);
+*/
+
+// Helper function to handle dialog close and reset forms
+const handleDialogClose = (open: boolean) => {
+  setIsDialogOpen(open);
+  if (!open) {
+    // Clean up state when dialog closes
+    setSelectedUser(null);
+    // Close any open dropdown
+    setOpenDropdownId(null);
+    // Reset forms
+    adminForm.reset();
+    userForm.reset();
+  }
+};
 
   // Filter users based on search term and role
   useEffect(() => {
@@ -410,11 +453,15 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
     }
     
     setIsDialogOpen(true);
+    // Close any open dropdown
+    setOpenDropdownId(null);
   };
 
   const handleToggleClick = (user: User) => {
     setUserToToggle(user);
     setIsToggleDialogOpen(true);
+    // Close any open dropdown
+    setOpenDropdownId(null);
   };
 
   const handleToggleStatus = async () => {
@@ -739,9 +786,9 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
                 <TableHead>Email</TableHead>
                 <TableHead>Téléphone</TableHead>
                 <TableHead>Profession</TableHead>
-                <TableHead>Quattre Chiffres</TableHead>
                 <TableHead>Rôle</TableHead>
-                <TableHead>Statut</TableHead> {/* Add status column */}
+                <TableHead>Quatre Chiffres</TableHead>
+                <TableHead>Statut</TableHead>
                 <TableHead>{shouldShowAdminForm() ? "Direction" : "Sous-direction"}</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -760,7 +807,6 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.phone || '-'}</TableCell>
                     <TableCell>{user.profession || '-'}</TableCell>
-                    <TableCell>{user.quatreChiffres}</TableCell>
                     <TableCell>
                       <Badge 
                         variant={
@@ -769,7 +815,7 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
                             : 'secondary'
                         }
                         className={
-                          user.role === 'ADMIN' || user.role === 'Admin du direction'
+                          user.role === 'USER' || user.role === 'Admin du direction'
                             ? 'bg-blue-500 hover:bg-blue-600 text-white'
                             : 'bg-green-500 hover:bg-green-600 text-white'
                         }
@@ -777,6 +823,7 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
                         {user.role}
                       </Badge>
                     </TableCell>
+                    <TableCell>{user.quatreChiffres || '-'}</TableCell>
                     <TableCell>
                       <Badge variant={user.enabled ? 'default' : 'destructive'}>
                         {user.enabled ? 'Actif' : 'Inactif'}
@@ -784,18 +831,43 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
                     </TableCell>
                     <TableCell>{shouldShowAdminForm() ? user.direction : user.subDirection}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(user)}>
-                          Modifier
-                        </Button>
-                        <Button 
-                          variant={user.enabled ? "destructive" : "default"} 
-                          size="sm" 
-                          onClick={() => handleToggleClick(user)}
-                        >
-                          {user.enabled ? "Désactiver" : "Activer"}
-                        </Button>
-                      </div>
+                      <DropdownMenu 
+                        open={openDropdownId === user.id} 
+                        onOpenChange={(open) => {
+                          setOpenDropdownId(open ? user.id : null);
+                        }}
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Ouvrir le menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleEdit(user)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleToggleClick(user)}
+                            className={user.enabled ? "text-red-600" : "text-green-600"}
+                          >
+                            {user.enabled ? (
+                              <>
+                                <UserX className="mr-2 h-4 w-4" />
+                                Désactiver
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck className="mr-2 h-4 w-4" />
+                                Activer
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -806,7 +878,7 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
       )}
 
       {/* Create/Edit User Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="w-full max-w-fit overflow-auto">
           <DialogHeader>
             <DialogTitle>

@@ -5,13 +5,15 @@ import { PageTransition } from "@/components/page-transition"
 import {
   Archive,
   ArrowUpDown,
-  FileText,
   MoreHorizontal,
   Plus,
   Eye,
   Pencil,
   History,
+  Users2Icon,
   Trash2,
+  FileOutput,
+  FileInput
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +36,6 @@ import { useToast } from "@/hooks/use-toast"
 import { fetchDashboardSummary, fetchMailOverview, fetchRecentMails } from "@/services/dashboardService";
 import { Mail } from "@/types/mail"; // Keep this import
 import { RecentMails } from "@/components/dashboard/recent-mails"
-import { Avatar } from "@radix-ui/react-avatar"
 //import { useMails } from "@/hooks/use-mails"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { EditMailDialog } from "@/components/edit-mail-dialog"
@@ -260,45 +261,76 @@ export function Dashboard() {
           <TabsTrigger value="mails">Courriers Récents</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4 w-full">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total des courriers</CardTitle>
-                <Archive className="h-4 w-4 text-muted-foreground" />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 w-full">
+            {/* Total des courriers */}
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Total des courriers</CardTitle>
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <Archive className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardSummary.totalMails}</div>
-                
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-1">{dashboardSummary.totalMails}</div>
+                <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                  Tous les courriers
+                </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Courriers entrants</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+
+            {/* Courriers entrants */}
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-300">Courriers entrants</CardTitle>
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <FileOutput className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardSummary.incomingMails}</div>
-                
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-1">{dashboardSummary.incomingMails}</div>
+                <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                  {dashboardSummary.totalMails > 0 ? `${Math.round((dashboardSummary.incomingMails / dashboardSummary.totalMails) * 100)}%` : '0%'} du total
+                </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Courriers sortants</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+
+            {/* Courriers sortants */}
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Courriers sortants</CardTitle>
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <FileInput className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardSummary.outgoingMails}</div>
-                
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-1">{dashboardSummary.outgoingMails}</div>
+                <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                  {dashboardSummary.totalMails > 0 ? `${Math.round((dashboardSummary.outgoingMails / dashboardSummary.totalMails) * 100)}%` : '0%'} du total
+                </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
-                <Avatar className="h-4 w-4 text-muted-foreground" />
+
+            {/* Utilisateurs */}
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-purple-200 dark:bg-purple-800 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">Utilisateurs</CardTitle>
+                <div className="p-2 bg-purple-500 rounded-lg">
+                  <Users2Icon className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardSummary.activeUsers}</div>
-                
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-purple-900 dark:text-purple-100 mb-1">{dashboardSummary.activeUsers}</div>
+                <div className="flex items-center text-xs text-purple-600 dark:text-purple-400">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2 animate-pulse"></div>
+                  Utilisateurs actifs
+                </div>
               </CardContent>
             </Card>
           </div>
