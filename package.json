@@ -51,6 +51,7 @@
     "class-variance-authority": "^0.7.1",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
+    "copy-to-clipboard": "^3.3.3",
     "date-fns": "^4.1.0",
     "event-source-polyfill": "^1.0.31",
     "framer-motion": "^12.23.12",

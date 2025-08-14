@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import axios from "axios"
 import { Copy, Loader2, AlertCircle, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import copy from 'copy-to-clipboard'
 
 import { 
   AlertDialog,
@@ -456,68 +457,25 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
     }
   };
 
-  const handleCopyPassword = async () => {
+  const handleCopyPassword = () => {
   if (!generatedPassword) return;
   
-  try {
-    // Try modern clipboard API first (works in HTTPS and localhost)
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(generatedPassword);
-      toast({
-        title: "Copié",
-        description: "Le mot de passe a été copié dans le presse-papiers"
-      });
-      return;
-    }
-    
-    // Fallback: Create a temporary textarea and use execCommand
-    const textArea = document.createElement('textarea');
-    textArea.value = generatedPassword;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    const successful = document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    if (successful) {
-      toast({
-        title: "Copié",
-        description: "Le mot de passe a été copié dans le presse-papiers"
-      });
-    } else {
-      throw new Error('execCommand failed');
-    }
-    
-  } catch (err) {
-    console.error('Copy failed:', err);
-    
-    // Final fallback: Auto-select the password for manual copying
-    const passwordElement = document.getElementById('generated-password');
-    if (passwordElement) {
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(passwordElement);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      
-      toast({
-        title: "Sélection automatique",
-        description: "Le mot de passe est sélectionné. Utilisez Ctrl+C pour copier",
-        duration: 4000
-      });
-    } else {
-      // Last resort: Show the password in a prompt for manual copying
-      toast({
-        variant: "destructive",
-        title: "Copie impossible",
-        description: `Copiez manuellement: ${generatedPassword}`,
-        duration: 8000
-      });
-    }
+  const success = copy(generatedPassword, {
+    debug: true,
+    message: 'Appuyez sur #{key} pour copier',
+  });
+  
+  if (success) {
+    toast({
+      title: "Copié",
+      description: "Le mot de passe a été copié dans le presse-papiers"
+    });
+  } else {
+    toast({
+      variant: "destructive",
+      title: "Erreur de copie",
+      description: "Impossible de copier automatiquement"
+    });
   }
 };
 
