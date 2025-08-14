@@ -72,6 +72,18 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
 }) => {
   if (!password) return null;
   
+  const handlePasswordClick = () => {
+    // Auto-select the password when clicked
+    const selection = window.getSelection();
+    const range = document.createRange();
+    const passwordElement = document.getElementById('generated-password');
+    if (passwordElement && selection) {
+      range.selectNodeContents(passwordElement);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent className="sm:max-w-[425px]">
@@ -82,13 +94,23 @@ const PasswordDialog = ({ password, isOpen, onClose, onCopy }: {
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-between p-4 bg-muted rounded-md">
-          <code className="text-sm font-mono">{password}</code>
+          <code 
+            id="generated-password"
+            className="text-sm font-mono cursor-pointer select-all hover:bg-gray-100 p-1 rounded flex-1 mr-2"
+            onClick={handlePasswordClick}
+            title="Cliquez pour sélectionner le mot de passe"
+          >
+            {password}
+          </code>
           <Button variant="outline" size="sm" onClick={onCopy}>
             <Copy className="h-4 w-4 mr-2" />
             Copier
           </Button>
         </div>
-        <Button onClick={onClose}>Fermer</Button>
+        <div className="text-xs text-muted-foreground text-center">
+          💡 Astuce: Cliquez sur le mot de passe pour le sélectionner, puis utilisez Ctrl+C
+        </div>
+        <Button onClick={onClose} className="w-full">Fermer</Button>
       </DialogContent>
     </Dialog>
   );
@@ -441,7 +463,7 @@ const handleCopyPassword = async () => {
   if (!generatedPassword) return;
   
   try {
-    // Check if we're in a secure context and clipboard API is available
+    // Try modern clipboard API first (works in HTTPS and localhost)
     if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(generatedPassword);
       toast({
@@ -451,7 +473,7 @@ const handleCopyPassword = async () => {
       return;
     }
     
-    // Fallback method for non-secure contexts or older browsers
+    // Fallback for non-secure contexts (deployed HTTP sites)
     const textArea = document.createElement('textarea');
     textArea.value = generatedPassword;
     textArea.style.position = 'fixed';
@@ -459,17 +481,14 @@ const handleCopyPassword = async () => {
     textArea.style.top = '-999999px';
     textArea.style.opacity = '0';
     textArea.setAttribute('readonly', '');
-    textArea.setAttribute('aria-hidden', 'true');
     
     document.body.appendChild(textArea);
-    
-    // Focus and select the text
     textArea.focus();
     textArea.select();
     textArea.setSelectionRange(0, generatedPassword.length);
     
-    // Try to copy using execCommand
     const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
     
     if (successful) {
       toast({
@@ -477,15 +496,11 @@ const handleCopyPassword = async () => {
         description: "Le mot de passe a été copié dans le presse-papiers"
       });
     } else {
-      throw new Error('execCommand failed');
+      throw new Error('Copy failed');
     }
-    
-    document.body.removeChild(textArea);
     
   } catch (err) {
     console.error('Copy failed:', err);
-    
-    // Final fallback - show instructions for manual copy
     toast({
       title: "Copie manuelle requise",
       description: "Sélectionnez le mot de passe affiché et utilisez Ctrl+C pour le copier",
