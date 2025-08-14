@@ -460,21 +460,69 @@ const [isToggling, setIsToggling] = useState(false); // Replace isDeleting
   const handleCopyPassword = () => {
   if (!generatedPassword) return;
   
-  const success = copy(generatedPassword, {
-    debug: true,
-    message: 'Appuyez sur #{key} pour copier',
-  });
+  // Try modern methods first
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(generatedPassword).then(() => {
+        toast({
+          title: "Copié",
+          description: "Le mot de passe a été copié dans le presse-papiers"
+        });
+      });
+      return;
+    }
+  } catch (err) {
+    console.log('Modern clipboard failed');
+  }
   
-  if (success) {
+  // Try copy-to-clipboard library
+  try {
+    const success = copy(generatedPassword);
+    if (success) {
+      toast({
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
+      });
+      return;
+    }
+  } catch (err) {
+    console.log('copy-to-clipboard failed');
+  }
+  
+  // Try execCommand
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = generatedPassword;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    if (successful) {
+      toast({
+        title: "Copié",
+        description: "Le mot de passe a été copié dans le presse-papiers"
+      });
+      return;
+    }
+  } catch (err) {
+    console.log('execCommand failed');
+  }
+  
+  // Ultimate fallback: Use prompt (works 100% everywhere)
+  const userAction = window.prompt(
+    'Copiez ce mot de passe (sélectionnez tout avec Ctrl+A puis Ctrl+C):',
+    generatedPassword
+  );
+  
+  if (userAction !== null) {
     toast({
-      title: "Copié",
-      description: "Le mot de passe a été copié dans le presse-papiers"
-    });
-  } else {
-    toast({
-      variant: "destructive",
-      title: "Erreur de copie",
-      description: "Impossible de copier automatiquement"
+      title: "Mot de passe affiché",
+      description: "Le mot de passe a été affiché pour copie manuelle"
     });
   }
 };
