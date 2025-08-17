@@ -150,7 +150,7 @@ export function CreateMailDialog({ open, onOpenChange, onSuccess }: CreateMailDi
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Erreur lors de la création du courrier"
+        description: "Le courrier avec le numéro dfgdfgdfg existe déjà dans votre hiérarchie !"
       });
     } finally {
       setIsLoading(false);
