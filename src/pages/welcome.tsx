@@ -347,7 +347,7 @@ export function Example() {
 
           {/* Main Title */}
           <motion.h1 
-            className="text-7xl md:text-8xl font-bold bg-gradient-to-r from-white via-blue-100 to-teal-200 bg-clip-text text-transparent mb-8"
+            className="text-7xl md:text-8xl font-bold bg-gradient-to-r from-white via-blue-100 to-teal-200 bg-clip-text text-transparent mb-4"
             variants={{
               hidden: { y: 20, opacity: 0 },
               visible: {
@@ -394,7 +394,7 @@ export function Example() {
 
           {/* Subtitle */}
           <motion.p 
-            className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+            className="text-xl md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
             variants={{
               hidden: { y: 20, opacity: 0 },
               visible: {
@@ -407,9 +407,23 @@ export function Example() {
               }
             }}
           >
-            Révolutionnez la gestion de vos documents avec une solution intelligente, 
-            moderne et intuitive. Traçabilité complète, archivage automatisé, 
-            et collaboration simplifiée.
+            Améliorez la gestion de vos courriersgrâce à une solution fiable et performante.
+          </motion.p>
+          <motion.p 
+            className="text-xl md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  type: "spring" as const,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+        Suivi en temps réel, Traçabilité complète, Archivage optimisé et d'un Suivi collaboratif simplifié: tout est conçu pour gagner du temps et améliorer l'efficacité.
           </motion.p>
 
           {/* CTA Button */}
@@ -862,7 +876,7 @@ export function Example() {
                 duration: "5:30",
                 videoSrc: "/videos/1.mp4",
                 thumbnail: thumbnail1, // Use imported thumbnail
-                category: "Débutant",
+                category: "Administrateur/Utilisateur",
                 views: "1.2k"
               },
               {
@@ -964,7 +978,7 @@ export function Example() {
                     {/* Category Badge */}
                     <div className="absolute top-3 left-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        video.category === 'Débutant' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                        video.category === 'Administrateur/Utilisateur' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
                         video.category === 'Essentiel' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
                         video.category === 'Avancé' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' :
                         video.category === 'Admin' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
