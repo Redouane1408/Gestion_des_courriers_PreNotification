@@ -22,6 +22,7 @@ export function Example() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
   const [showCursor, setShowCursor] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
   const words = ['Courriers', 'Archives'];
   
@@ -856,7 +857,8 @@ export function Example() {
                 title: "Introduction à la plateforme",
                 description: "Découvrez l'interface et les fonctionnalités principales",
                 duration: "5:30",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/1.mp4",
+                thumbnail: "public/videos/thumbnails/1.png",
                 category: "Débutant",
                 views: "1.2k"
               },
@@ -864,7 +866,8 @@ export function Example() {
                 title: "Créer et envoyer un courrier",
                 description: "Guide complet pour rédiger et envoyer vos courriers",
                 duration: "8:45",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/create-mail.mp4",
+                thumbnail: "/videos/thumbnails/create-mail.jpg",
                 category: "Essentiel",
                 views: "2.1k"
               },
@@ -872,7 +875,8 @@ export function Example() {
                 title: "Gestion des archives",
                 description: "Organisez et retrouvez facilement vos documents",
                 duration: "6:20",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/archive-management.mp4",
+                thumbnail: "/videos/thumbnails/archive-management.jpg",
                 category: "Avancé",
                 views: "890"
               },
@@ -880,7 +884,8 @@ export function Example() {
                 title: "Tableau de bord et statistiques",
                 description: "Analysez vos données et suivez vos performances",
                 duration: "7:15",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/dashboard-stats.mp4",
+                thumbnail: "/videos/thumbnails/dashboard-stats.jpg",
                 category: "Analyse",
                 views: "1.5k"
               },
@@ -888,7 +893,8 @@ export function Example() {
                 title: "Gestion des utilisateurs",
                 description: "Administrez les comptes et les permissions",
                 duration: "9:30",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/user-management.mp4",
+                thumbnail: "/videos/thumbnails/user-management.jpg",
                 category: "Admin",
                 views: "750"
               },
@@ -896,7 +902,8 @@ export function Example() {
                 title: "Sécurité et bonnes pratiques",
                 description: "Protégez vos données et optimisez votre workflow",
                 duration: "4:50",
-                thumbnail: "/api/placeholder/400/225",
+                videoSrc: "/videos/security-practices.mp4",
+                thumbnail: "/videos/thumbnails/security-practices.jpg",
                 category: "Sécurité",
                 views: "980"
               }
@@ -908,12 +915,25 @@ export function Example() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 whileHover={{ y: -10 }}
+                onClick={() => setSelectedVideo(video.videoSrc)}
               >
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
                   {/* Video Thumbnail */}
                   <div className="relative aspect-video bg-gradient-to-br from-purple-900/50 to-pink-900/50 overflow-hidden">
-                    {/* Placeholder for video thumbnail */}
-                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        // Fallback to placeholder if thumbnail doesn't exist
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    
+                    {/* Fallback placeholder */}
+                    <div className="hidden w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center absolute inset-0">
                       <div className="text-center">
                         <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-2">
                           <FileText className="w-8 h-8 text-white/60" />
@@ -962,20 +982,60 @@ export function Example() {
                       {video.description}
                     </p>
                     <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
+                      <span className="flex items-center gap-1">
                         <Eye className="w-3 h-3" />
-                        <span>{video.views} vues</span>
-                      </div>
-                      <div className="flex items-center gap-1">
+                        {video.views} vues
+                      </span>
+                      <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        <span>{video.duration}</span>
-                      </div>
+                        {video.duration}
+                      </span>
                     </div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* Video Modal */}
+      {selectedVideo && (
+        <motion.div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setSelectedVideo(null)}
+        >
+          <motion.div
+            className="bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 max-w-4xl w-full"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative aspect-video">
+              <video
+                src={selectedVideo}
+                controls
+                preload="metadata"
+                playsInline
+                className="w-full h-full"
+                onError={(e) => {
+                  console.error('Error loading video:', selectedVideo, e);
+                }}
+              >
+                Votre navigateur ne supporte pas la lecture vidéo.
+              </video>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors text-xl"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
 
           {/* Call to Action */}
           <motion.div
