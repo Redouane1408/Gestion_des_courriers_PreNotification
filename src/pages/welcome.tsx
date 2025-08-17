@@ -8,6 +8,9 @@ import {
   UserPlus, Settings, Eye, Send, Search, Bell, Lock, ChevronRight
 } from 'lucide-react';
 
+// Import thumbnails as modules for better build optimization
+import thumbnail1 from '/videos/thumbnails/1.png';
+
 export function Example() {
   const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
@@ -858,7 +861,7 @@ export function Example() {
                 description: "Découvrez l'interface et les fonctionnalités principales",
                 duration: "5:30",
                 videoSrc: "/videos/1.mp4",
-                thumbnail: "public/videos/thumbnails/1.png",
+                thumbnail: thumbnail1, // Use imported thumbnail
                 category: "Débutant",
                 views: "1.2k"
               },
@@ -867,7 +870,7 @@ export function Example() {
                 description: "Guide complet pour rédiger et envoyer vos courriers",
                 duration: "8:45",
                 videoSrc: "/videos/create-mail.mp4",
-                thumbnail: "/videos/thumbnails/create-mail.jpg",
+                /* thumbnail: thumbnailCreateMail, */ // Use imported thumbnail
                 category: "Essentiel",
                 views: "2.1k"
               },
@@ -876,7 +879,7 @@ export function Example() {
                 description: "Organisez et retrouvez facilement vos documents",
                 duration: "6:20",
                 videoSrc: "/videos/archive-management.mp4",
-                thumbnail: "/videos/thumbnails/archive-management.jpg",
+                /* thumbnail: thumbnailArchiveManagement, */ // Use imported thumbnail
                 category: "Avancé",
                 views: "890"
               },
@@ -885,7 +888,7 @@ export function Example() {
                 description: "Analysez vos données et suivez vos performances",
                 duration: "7:15",
                 videoSrc: "/videos/dashboard-stats.mp4",
-                thumbnail: "/videos/thumbnails/dashboard-stats.jpg",
+                /* thumbnail: thumbnailDashboardStats, */ // Use imported thumbnail
                 category: "Analyse",
                 views: "1.5k"
               },
@@ -894,7 +897,7 @@ export function Example() {
                 description: "Administrez les comptes et les permissions",
                 duration: "9:30",
                 videoSrc: "/videos/user-management.mp4",
-                thumbnail: "/videos/thumbnails/user-management.jpg",
+                /* thumbnail: thumbnailUserManagement, */ // Use imported thumbnail
                 category: "Admin",
                 views: "750"
               },
@@ -903,7 +906,7 @@ export function Example() {
                 description: "Protégez vos données et optimisez votre workflow",
                 duration: "4:50",
                 videoSrc: "/videos/security-practices.mp4",
-                thumbnail: "/videos/thumbnails/security-practices.jpg",
+                /* thumbnail: thumbnailSecurityPractices, */ // Use imported thumbnail
                 category: "Sécurité",
                 views: "980"
               }
