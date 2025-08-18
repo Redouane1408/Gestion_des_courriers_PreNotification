@@ -2,11 +2,9 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-// DO NOT IMPORT imagemin
-// import imagemin from 'vite-plugin-imagemin';
 
 const isDocker = process.env.DOCKER === 'true';
-const isWindows = process.platform === 'win32';
+//const isWindows = process.platform === 'win32';
 
 export default defineConfig({
   plugins: [
@@ -17,23 +15,6 @@ export default defineConfig({
         gzipSize: true,
         brotliSize: true,
       }),
-    // ⚠️ REMOVE vite-plugin-imagemin from Docker builds
-    ...(isWindows && !isDocker
-      ? [
-          // imagemin({
-          //   gifsicle: { optimizationLevel: 7, interlaced: false },
-          //   optipng: { optimizationLevel: 7 },
-          //   mozjpeg: { quality: 80 },
-          //   pngquant: { quality: [0.8, 0.9], speed: 4 },
-          //   svgo: {
-          //     plugins: [
-          //       { name: 'removeViewBox' },
-          //       { name: 'removeEmptyAttrs', active: false },
-          //     ],
-          //   },
-          // }),
-        ]
-      : []),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -68,5 +49,38 @@ export default defineConfig({
         lines: 70
       }
     },
+  },
+  build: {
+    // Enable code splitting and chunk optimization
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks for better caching
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          'animation-vendor': ['framer-motion'],
+          'chart-vendor': ['recharts'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'utils-vendor': ['axios', 'date-fns', 'lucide-react']
+        },
+        // Optimize chunk file names for better caching
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
+      }
+    },
+    // Enable minification and compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug']
+      }
+    },
+    // Optimize chunk size
+    chunkSizeWarningLimit: 1000,
+    // Enable source maps for debugging (optional)
+    sourcemap: false
   },
 });
