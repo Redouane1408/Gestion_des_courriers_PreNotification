@@ -22,7 +22,7 @@ export function RecentMails({ recentMails, getStatusColor }: RecentMailsProps) {
             recentMails.map((mail) => (
               <div key={mail.courielNumber || mail.id} className="flex items-center">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="/placeholder.svg" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>
                     <FileText className="h-4 w-4" />
                   </AvatarFallback>

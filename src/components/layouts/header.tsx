@@ -261,7 +261,7 @@ export function Header() {
                                   transition={{ type: "spring", stiffness: 300 }}
                                 >
                                   <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-cyan-500/30">
-                                    <AvatarImage src="/placeholder.svg" alt={notif.email} />
+                                    <AvatarImage alt={notif.email} />
                                     <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-semibold">
                                       {getInitials(notif.email)}
                                     </AvatarFallback>

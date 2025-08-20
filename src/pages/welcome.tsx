@@ -714,7 +714,7 @@ export function Example() {
                   <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center">
                     <Shield className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Guide pour les Administrateurs</h3>
+                  <h3 className="text-3xl font-bold text-white">Guide pour les Administrateur</h3>
                 </div>
                 <p className="text-gray-300 mb-8 leading-relaxed">
                   En tant qu'administrateur, vous avez accès à des fonctionnalités avancées pour gérer votre direction et superviser les activités.
