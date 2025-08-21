@@ -324,7 +324,7 @@ export function Example() {
             }}
           >
             <motion.img 
-              src="/logo courriel management-05.svg" 
+              src="/logo-courriel-management-05.svg" 
               alt="Mail Management Logo" 
               className="h-12 w-auto"
               whileHover={{ scale: 1.1 }}
@@ -1096,7 +1096,7 @@ export function Example() {
             >
               <div className="flex items-center gap-3">
                     <motion.img 
-                    src="/logo courriel management-05.svg" 
+                    src="/logo-courriel-management-05.svg" 
                     alt="Mail Management Logo" 
                     className="h-12 w-auto"
                     whileHover={{ scale: 1.1 }}
