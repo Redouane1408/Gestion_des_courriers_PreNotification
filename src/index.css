@@ -241,5 +241,26 @@ button:focus-visible {
   pointer-events: auto;
 }
 
+/* Add these cross-browser compatibility rules */
+img[src$=".svg"] {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+}
+
+/* Fix for Edge SVG rendering */
+@supports (-ms-ime-align:auto) {
+  img[src$=".svg"] {
+    width: 100%;
+  }
+}
+
+/* Fix for IE11 */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  img[src$=".svg"] {
+    width: 100%;
+  }
+}
+
 
 

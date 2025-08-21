@@ -136,7 +136,7 @@ export function Header() {
             >
               {/* Fixed logo - no theme switching */}
               <img 
-                src="logo courriel management-05.svg" 
+                src="/logo courriel management-05.svg" 
                 alt="Logo"
                 className="h-8 w-auto drop-shadow-lg items-end" 
               />
