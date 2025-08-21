@@ -19,8 +19,8 @@ RUN npm run build
 # Production stage with optimized nginx
 FROM nginx:alpine AS final
 
-# Install brotli module for better compression
-RUN apk add --no-cache nginx-mod-http-brotli
+# Removed: Install brotli module for better compression
+# Removed: RUN apk add --no-cache nginx-mod-http-brotli
 
 # Copy built assets
 COPY --from=build /app/dist /usr/share/nginx/html

@@ -12,8 +12,8 @@ export default defineConfig({
     !isDocker &&
       visualizer({
         open: true,
-        gzipSize: true,
-        brotliSize: true,
+        gzipSize: false,  // Désactivé
+        brotliSize: false, // Désactivé
       }),
   ].filter(Boolean),
   resolve: {
@@ -69,18 +69,18 @@ export default defineConfig({
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
       }
     },
-    // Enable minification and compression
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug']
-      }
-    },
+    // Désactivation de la minification et compression
+    minify: false,  // Désactivé
+    // terserOptions: {  // Commenté ou supprimé
+    //   compress: {
+    //     drop_console: true,
+    //     drop_debugger: true,
+    //     pure_funcs: ['console.log', 'console.info', 'console.debug']
+    //   }
+    // },
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for debugging (optional)
-    sourcemap: false
+    // Enable source maps for debugging
+    sourcemap: true  // Activé pour faciliter le débogage
   },
 });
