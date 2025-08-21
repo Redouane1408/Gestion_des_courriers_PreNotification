@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 // Import thumbnails as modules for better build optimization
-import thumbnail1 from '/videos/thumbnails/1.png';
+import thumbnail1 from '/videos/thumbnails/Overview-Cover.jpg';
 
 export function Example() {
   const navigate = useNavigate();
@@ -873,11 +873,12 @@ export function Example() {
               {
                 title: "Introduction à la plateforme",
                 description: "Découvrez l'interface et les fonctionnalités principales",
-                duration: "5:30",
-                videoSrc: "/videos/1.mp4",
+                duration: "0:28",
+                videoSrc: "/videos/Overview.mp4",
                 thumbnail: thumbnail1, // Use imported thumbnail
-                category: "Administrateur/Utilisateur",
-                views: "1.2k"
+                category: "Overview",
+
+                views: "+1k"
               },
               {
                 title: "Créer et envoyer un courrier",
@@ -978,7 +979,7 @@ export function Example() {
                     {/* Category Badge */}
                     <div className="absolute top-3 left-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        video.category === 'Administrateur/Utilisateur' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                        video.category === 'Overview' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
                         video.category === 'Essentiel' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
                         video.category === 'Avancé' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' :
                         video.category === 'Admin' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
