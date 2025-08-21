@@ -407,7 +407,7 @@ export function Example() {
               }
             }}
           >
-            Améliorez la gestion de vos courriersgrâce à une solution fiable et performante.
+            Améliorez la gestion de vos courriers grâce à une solution fiable et performante.
           </motion.p>
           <motion.p 
             className="text-xl md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
