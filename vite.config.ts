@@ -55,7 +55,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor chunks for better caching
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
           'animation-vendor': ['framer-motion'],
@@ -63,24 +62,20 @@ export default defineConfig({
           'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
           'utils-vendor': ['axios', 'date-fns', 'lucide-react']
         },
-        // Optimize chunk file names for better caching
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
       }
     },
-    // Désactivation de la minification et compression
-    minify: false,  // Désactivé
-    // terserOptions: {  // Commenté ou supprimé
-    //   compress: {
-    //     drop_console: true,
-    //     drop_debugger: true,
-    //     pure_funcs: ['console.log', 'console.info', 'console.debug']
-    //   }
-    // },
-    // Optimize chunk size
+    // Enable minification for production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for debugging
-    sourcemap: true  // Activé pour faciliter le débogage
-  },
+    sourcemap: false // Disable for production
+},
 });

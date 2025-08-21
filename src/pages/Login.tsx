@@ -336,7 +336,7 @@ export default function LoginPage() {
             >
               {theme === 'dark' ? (
                 <motion.img 
-                  src="logo courriel management-05.svg" 
+                  src="/logo-courriel-management-05.svg" 
                   alt="Dark Logo" 
                   width={80} 
                   height={80} 
@@ -346,7 +346,7 @@ export default function LoginPage() {
                 />
               ) : (
                 <motion.img 
-                  src="logo courriel management-05.svg" 
+                  src="/logo-courriel-management-05.svg" 
                   alt="Light Logo" 
                   width={80} 
                   height={80} 
