@@ -242,10 +242,34 @@ button:focus-visible {
 }
 
 /* Add these cross-browser compatibility rules */
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+  img[src$=".svg"] {
+    width: auto !important;
+    height: auto !important;
+  }
+  
+  /* Fix for Firefox video display */
+  video {
+    display: block;
+  }
+  
+  /* Fix for Firefox flexbox issues */
+  .flex {
+    display: -moz-box;
+    display: flex;
+  }
+  
+  /* Fix for backdrop-filter in Firefox */
+  .backdrop-blur-lg {
+    -moz-backdrop-filter: blur(16px);
+  }
+}
+
+/* General SVG fixes for all browsers */
 img[src$=".svg"] {
-  width: auto;
-  height: auto;
   max-width: 100%;
+  object-fit: contain;
 }
 
 /* Fix for Edge SVG rendering */

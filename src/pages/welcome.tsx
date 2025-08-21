@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 
 // Import thumbnails as modules for better build optimization
-import thumbnail1 from '/videos/thumbnails/Overview-Cover.jpg';
+import thumbnail1 from '/videos/thumbnails/Overview-Cover.png';
+// Fallback thumbnail for videos without specific thumbnails
 
 export function Example() {
   const navigate = useNavigate();
