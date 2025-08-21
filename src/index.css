@@ -241,10 +241,30 @@ button:focus-visible {
   pointer-events: auto;
 }
 
-/* Add these cross-browser compatibility rules */
+
+/* Add these cross-browser compatibility rules at the end of the file */
+
+/* General SVG fixes for all browsers */
+img[src$=".svg"] {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+}
+
 /* Firefox-specific fixes */
 @-moz-document url-prefix() {
   img[src$=".svg"] {
+    width: auto !important;
+    height: auto !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+  }
+  
+  /* Specific fix for logos */
+  img[src*="logo"][src$=".svg"] {
+    display: inline-block !important;
     width: auto !important;
     height: auto !important;
   }
@@ -266,18 +286,13 @@ button:focus-visible {
   }
 }
 
-/* General SVG fixes for all browsers */
-img[src$=".svg"] {
-  max-width: 100%;
-  object-fit: contain;
-}
-
-/* Fix for Edge Chromium */
-@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+/* Edge and Chrome specific fixes */
+@supports (-ms-ime-align:auto) or (-webkit-appearance:none) {
   img[src$=".svg"] {
     width: auto !important;
     height: auto !important;
     max-width: 100%;
+    max-height: 100%;
   }
   
   /* Ensure SVG images display correctly */
@@ -287,17 +302,11 @@ img[src$=".svg"] {
   }
 }
 
-/* Fix for Edge SVG rendering */
-@supports (-ms-ime-align:auto) {
+/* Safari specific fixes */
+@supports (-webkit-overflow-scrolling: touch) {
   img[src$=".svg"] {
-    width: 100%;
-  }
-}
-
-/* Fix for IE11 */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  img[src$=".svg"] {
-    width: 100%;
+    width: auto !important;
+    height: auto !important;
   }
 }
 
