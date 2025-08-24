@@ -248,14 +248,14 @@ img[src$=".svg"] {
 }
 
 /* Edge/Chrome SVG optimization */
-@supports (-webkit-appearance: none) {
+/* @supports (-webkit-appearance: none) {
   img[src$=".svg"] {
     image-rendering: -webkit-optimize-contrast;
   }
-}
+} */
 
 /* Add near the end */
 /* Modern forced colors support */
-@media (forced-colors: active) {
+/* @media (forced-colors: active) {
   svg { forced-color-adjust: auto; }
-}
+} */
