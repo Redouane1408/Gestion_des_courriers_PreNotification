@@ -1,4 +1,4 @@
-const CACHE_NAME = 'courier-app-v2'; // Increment version to force cache refresh
+const CACHE_NAME = 'courier-app-v3'; // Increment version to force cache refresh
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
@@ -29,9 +29,24 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Skip caching for SVG files
-  if (event.request.url.match(/\.svg$/)) {
-    event.respondWith(fetch(event.request));
+  // Skip caching for SVG files - handle both formats (with spaces and with hyphens)
+  if (event.request.url.match(/\.svg$/) || 
+      event.request.url.includes('%20') && event.request.url.endsWith('.svg')) {
+    event.respondWith(
+      fetch(event.request).catch(error => {
+        // If the URL contains spaces, try to fetch with hyphens instead
+        if (event.request.url.includes('%20')) {
+          const newUrl = new URL(event.request.url);
+          const path = newUrl.pathname.replace(/%20/g, '-');
+          newUrl.pathname = path;
+          return fetch(new Request(newUrl.toString(), {
+            headers: event.request.headers,
+            method: event.request.method
+          }));
+        }
+        throw error;
+      })
+    );
     return;
   }
   
