@@ -1,18 +1,19 @@
-const CACHE_NAME = 'courier-app-v3'; // Increment version to force cache refresh
+const CACHE_NAME = 'courier-app-v5'; // Increment version to force cache refresh
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/videos/thumbnails/1.png'
+  '/index.html'
+  // Don't cache JS/CSS files to avoid encoding issues
 ];
 
 // Clear old caches on activation
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activated, clearing old caches');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -22,31 +23,23 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => {
+        console.log('Caching app shell');
+        return cache.addAll(urlsToCache);
+      })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Skip caching for SVG files - handle both formats (with spaces and with hyphens)
-  if (event.request.url.match(/\.svg$/) || 
-      event.request.url.includes('%20') && event.request.url.endsWith('.svg')) {
-    event.respondWith(
-      fetch(event.request).catch(error => {
-        // If the URL contains spaces, try to fetch with hyphens instead
-        if (event.request.url.includes('%20')) {
-          const newUrl = new URL(event.request.url);
-          const path = newUrl.pathname.replace(/%20/g, '-');
-          newUrl.pathname = path;
-          return fetch(new Request(newUrl.toString(), {
-            headers: event.request.headers,
-            method: event.request.method
-          }));
-        }
-        throw error;
-      })
-    );
+  // Skip caching for all assets that might have encoding issues
+  if (event.request.url.match(/\.(svg|js|css)$/) || event.request.url.includes('%20')) {
+    console.log('Bypassing cache for:', event.request.url);
+    event.respondWith(fetch(event.request));
     return;
   }
   
@@ -57,7 +50,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         return fetch(event.request);
-      }
-    )
+      })
   );
 });

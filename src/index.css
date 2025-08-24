@@ -235,15 +235,15 @@ button:focus-visible {
 /* Cross-browser SVG compatibility */
 img[src$=".svg"] {
   max-width: 100%;
-  height: auto;
+  /* height: auto; */
   display: block;
 }
 
 /* Firefox SVG fixes */
 @-moz-document url-prefix() {
   img[src$=".svg"] {
-    width: auto;
-    height: auto;
+    /* width: auto;
+    height: auto; */
   }
 }
 
