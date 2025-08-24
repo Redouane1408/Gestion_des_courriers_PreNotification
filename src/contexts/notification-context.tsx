@@ -168,7 +168,7 @@ export const NotificationProvider = ({ token, username, children }: Notification
           if (Notification.permission === 'granted') {
             new Notification('Nouvelle notification', {
               body: notif.message,
-              icon: '/logo-app.svg',
+              icon: '/logo-courriel-management-03.png',
               tag: `notification-${notif.id}`,
               requireInteraction: false,
             });

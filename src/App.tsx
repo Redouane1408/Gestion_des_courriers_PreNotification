@@ -9,17 +9,26 @@ import LoginPage from "@/pages/Login"
 import { DashboardLayout } from "@/components/layouts/dashboard-layout"
 import { NotificationProviderGuard } from "@/components/notification-provider-guard"
 import { LoadingScreen } from "@/components/loading-screen"
-import { lazy } from "react"
+import { Example } from "./pages/welcome"
+import { Dashboard } from "./pages/Dashboard"
+import { UsersPage } from "./pages/Users"
+import { ProfilePage } from "./pages/Profile"
+import { OrganigrammePage } from "./pages/Organigramme"
+import { ArchivePage } from "./pages/archive"
+import { NotFoundPage } from "./pages/not-found"
+import  NotificationsPage  from "./pages/notifications"
+
+//import { lazy } from "react"
 
 // Lazy load heavy components
-const Dashboard = lazy(() => import("@/pages/Dashboard").then(module => ({ default: module.Dashboard })));
+/* const Dashboard = lazy(() => import("@/pages/Dashboard").then(module => ({ default: module.Dashboard })));
 const UsersPage = lazy(() => import("@/pages/Users").then(module => ({ default: module.UsersPage })));
 const ProfilePage = lazy(() => import("@/pages/Profile").then(module => ({ default: module.ProfilePage })));
 const ArchivePage = lazy(() => import("@/pages/archive").then(module => ({ default: module.ArchivePage })));
 const NotFoundPage = lazy(() => import("@/pages/not-found").then(module => ({ default: module.NotFoundPage })));
 const Example = lazy(() => import("@/pages/welcome").then(module => ({ default: module.Example })));
 const NotificationsPage = lazy(() => import("@/pages/notifications"));
-const OrganigrammePage = lazy(() => import("@/pages/Organigramme"));
+const OrganigrammePage = lazy(() => import("@/pages/Organigramme")); */
 
 function App() {
   const location = useLocation();
