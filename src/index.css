@@ -231,31 +231,3 @@ button:focus-visible {
   /* This is a known Radix UI issue - suppress the warning */
   pointer-events: auto;
 }
-
-/* Cross-browser SVG compatibility */
-img[src$=".svg"] {
-  max-width: 100%;
-  /* height: auto; */
-  display: block;
-}
-
-/* Firefox SVG fixes */
-@-moz-document url-prefix() {
-  img[src$=".svg"] {
-    /* width: auto;
-    height: auto; */
-  }
-}
-
-/* Edge/Chrome SVG optimization */
-/* @supports (-webkit-appearance: none) {
-  img[src$=".svg"] {
-    image-rendering: -webkit-optimize-contrast;
-  }
-} */
-
-/* Add near the end */
-/* Modern forced colors support */
-/* @media (forced-colors: active) {
-  svg { forced-color-adjust: auto; }
-} */
