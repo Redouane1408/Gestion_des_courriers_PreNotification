@@ -339,7 +339,7 @@ export function Example() {
             </motion.div>
             <motion.img 
               src="/public/Logo-MF.png" 
-              alt="Ministry Logo" 
+              alt="Ministry Logooooooi" 
               className="h-12 w-auto"
               whileHover={{ scale: 1.1 }}
               transition={{ type: "spring", stiffness: 300 }}
