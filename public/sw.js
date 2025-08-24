@@ -1,8 +1,10 @@
-const CACHE_NAME = 'courier-app-v5'; // Increment version to force cache refresh
+const CACHE_NAME = 'courier-app-v6'; // Increment version to force cache refresh
 const urlsToCache = [
   '/',
-  '/index.html'
-  // Don't cache JS/CSS files to avoid encoding issues
+  '/index.html',
+  '/logo-courriel-management-05.svg',
+  '/Logo-MF.svg'
+  // Add SVGs back to cache list
 ];
 
 // Clear old caches on activation
@@ -36,8 +38,8 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Skip caching for all assets that might have encoding issues
-  if (event.request.url.match(/\.(svg|js|css)$/) || event.request.url.includes('%20')) {
+  // Only skip caching for JS and CSS files that might have encoding issues
+  if (event.request.url.match(/\.(js|css)$/) || event.request.url.includes('%20')) {
     console.log('Bypassing cache for:', event.request.url);
     event.respondWith(fetch(event.request));
     return;
