@@ -207,7 +207,7 @@ export default function LoginPage() {
               animate="visible"
             >
               <motion.img 
-                src="/Logo-MF.png" 
+                src="/public/Logo-MF.png" 
                 alt="Ministry of Finance" 
                 width={300} 
                 height={100} 
@@ -336,7 +336,7 @@ export default function LoginPage() {
             >
               {theme === 'dark' ? (
                 <motion.img 
-                  src="/logo-courriel-management-05.png" 
+                  src="/public/logo-courriel-management-05.png" 
                   alt="Dark Logo" 
                   width={80} 
                   height={80} 
@@ -346,7 +346,7 @@ export default function LoginPage() {
                 />
               ) : (
                 <motion.img 
-                  src="/logo-courriel-management-05.png" 
+                  src="/public/logo-courriel-management-05.png" 
                   alt="Light Logo" 
                   width={80} 
                   height={80} 
