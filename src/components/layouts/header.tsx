@@ -66,7 +66,7 @@ export function Header() {
         return 'bg-sky-500 text-white border-sky-500/30';
 
       case 'Supprimer':
-        return 'bg-red-500/20 text-red-300 border-red-500/30';
+        return 'bg-red-500/20 text-red-300 border-red-700/30';
 
       case 'Modifier':
         return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
