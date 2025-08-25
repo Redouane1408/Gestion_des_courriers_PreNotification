@@ -1292,7 +1292,7 @@ export function Example() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="text-center md:text-left">
                 <p className="text-gray-400 text-sm mb-2">
-                  © 2025 Direction Générale du Budget - Ministère des Finances - République Algérienne Démocratique et Populaire
+                  © 2025 MP-Direction Générale du Budget - Ministère des Finances - République Algérienne Démocratique et Populaire
                 </p>
                 <p className="text-gray-500 text-xs">
                   Tous droits réservés. Développé pour l'administration.
