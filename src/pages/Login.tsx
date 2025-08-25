@@ -11,6 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { useTheme } from "@/components/theme-provider";
 import { PageTransition } from "@/components/page-transition";
 import { Mail, Lock, ArrowRight } from 'lucide-react';
+import thumbnail2 from '@/assets/logo-courriel-management-05.png';
+import thumbnail3 from '@/assets/Logo-MF.png';
+
 
 export default function LoginPage() {
     const { theme } = useTheme();
@@ -207,7 +210,7 @@ export default function LoginPage() {
               animate="visible"
             >
               <motion.img 
-                src="/public/Logo-MF.png" 
+                src={thumbnail3}
                 alt="Ministry of Finance" 
                 width={300} 
                 height={100} 
@@ -336,7 +339,7 @@ export default function LoginPage() {
             >
               {theme === 'dark' ? (
                 <motion.img 
-                  src="/public/logo-courriel-management-05.png" 
+                  src={thumbnail2} 
                   alt="Dark Logo" 
                   width={80} 
                   height={80} 
@@ -346,7 +349,7 @@ export default function LoginPage() {
                 />
               ) : (
                 <motion.img 
-                  src="/public/logo-courriel-management-05.png" 
+                  src={thumbnail2} 
                   alt="Light Logo" 
                   width={80} 
                   height={80} 
