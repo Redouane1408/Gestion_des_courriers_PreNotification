@@ -10,6 +10,8 @@ import {
 
 // Import thumbnails as modules for better build optimization
 import thumbnail1 from '/videos/thumbnails/Overview-Cover.png';
+import thumbnail2 from '/public/logo-courriel-management-05.png';
+import thumbnail3 from '/public/Logo-MF.png';
 // Fallback thumbnail for videos without specific thumbnails
 
 export function Example() {
@@ -324,7 +326,7 @@ export function Example() {
             }}
           >
             <motion.img 
-              src="/public/logo-courriel-management-05.png" 
+              src={thumbnail2} 
               alt="Mail Management Logo" 
               className="h-12 w-auto"
               whileHover={{ scale: 1.1 }}
@@ -338,7 +340,7 @@ export function Example() {
               ×
             </motion.div>
             <motion.img 
-              src="/public/Logo-MF.png" 
+              src={thumbnail3} 
               alt="Ministry Logooooooi" 
               className="h-12 w-auto"
               whileHover={{ scale: 1.1 }}
@@ -1096,7 +1098,7 @@ export function Example() {
             >
               <div className="flex items-center gap-3">
                     <motion.img 
-                    src="/public/logo-courriel-management-05.png" 
+                    src={thumbnail2}
                     alt="Mail Management Logo" 
                     className="h-12 w-auto"
                     whileHover={{ scale: 1.1 }}
