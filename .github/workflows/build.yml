@@ -28,6 +28,7 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
+          no-cache: true
           
       - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v2
