@@ -10,8 +10,8 @@ import {
 
 // Import thumbnails as modules for better build optimization
 import thumbnail1 from '/videos/thumbnails/Overview-Cover.png';
-import thumbnail2 from '@/assets/logo-courriel-management-05.png';
-import thumbnail3 from '@/assets/Logo-MF.png';
+import thumbnail2 from '/videos/thumbnails/logo-courriel-management-05.png';
+import thumbnail3 from '/videos/thumbnails/Logo-MF.png';
 // Fallback thumbnail for videos without specific thumbnails
 
 export function Example() {

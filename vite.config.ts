@@ -7,7 +7,7 @@ const isDocker = process.env.DOCKER === 'true';
 //const isWindows = process.platform === 'win32';
 
 export default defineConfig({
-    base: '/',
+    base: './',
   plugins: [
     react(),
     !isDocker &&

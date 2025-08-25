@@ -11,8 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { useTheme } from "@/components/theme-provider";
 import { PageTransition } from "@/components/page-transition";
 import { Mail, Lock, ArrowRight } from 'lucide-react';
-import thumbnail2 from '@/assets/logo-courriel-management-05.png';
-import thumbnail3 from '@/assets/Logo-MF.png';
+import thumbnail2 from '/videos/thumbnails/logo-courriel-management-05.png';
+import thumbnail3 from '/videos/thumbnails/Logo-MF.png';
 
 
 export default function LoginPage() {
