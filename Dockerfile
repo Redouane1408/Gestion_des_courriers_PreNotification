@@ -3,13 +3,21 @@ FROM node:20-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
 # Use npm ci for faster, reliable, reproducible builds
-RUN npm ci --only=production && npm cache clean --force
+# Add retry and timeout options to handle rate limiting
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --only=production && npm cache clean --force
 
 # Build stage
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+# Add retry and timeout options to handle rate limiting
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci
 COPY . .
 ENV DOCKER=true
 ENV NODE_ENV=production
