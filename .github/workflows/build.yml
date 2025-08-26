@@ -13,6 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Update Service Worker Cache Version
+        run: |
+          # Get current timestamp for cache version
+          TIMESTAMP=$(date +%s)
+          # Update the cache version in service worker
+          sed -i "s/const CACHE_VERSION = '[0-9]*';/const CACHE_VERSION = '$TIMESTAMP';/" public/service-worker.js
+          echo "Updated cache version to $TIMESTAMP"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 

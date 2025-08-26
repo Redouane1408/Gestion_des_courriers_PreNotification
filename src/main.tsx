@@ -16,12 +16,44 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 )
 
-// ✅ Register service worker after the app is mounted
+// Service worker registration with update handling
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
-      .then(() => console.log('✅ Service Worker registered'))
+      .then(registration => {
+        console.log('✅ Service Worker registered with scope:', registration.scope);
+        
+        // Check for updates on page load
+        registration.update();
+        
+        // Check for updates periodically (every 60 minutes)
+        setInterval(() => {
+          registration.update();
+          console.log('🔄 Checking for Service Worker updates...');
+        }, 60 * 60 * 1000);
+        
+        // Handle updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          console.log('🔔 New service worker being installed...');
+          
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('🆕 New content is available! Refreshing page...');
+                // Force refresh the page to get new assets
+                window.location.reload();
+              }
+            });
+          }
+        });
+      })
       .catch((err) => console.error('❌ Service Worker registration failed:', err));
+  });
+  
+  // Handle controller change (when a new service worker takes over)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    console.log('🔄 New Service Worker controller, page will reload...');
   });
 }
