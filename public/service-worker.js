@@ -1,8 +1,12 @@
-const CACHE_VERSION = '2'; // Increment this on each deployment
+const CACHE_VERSION = '2'; // This gets updated automatically by CI/CD
 const CACHE_NAME = `app-cache-v${CACHE_VERSION}`;
 
-// Add a timestamp parameter to force cache busting
-const CACHE_TIMESTAMP = new Date().getTime();
+// Add a unique query parameter to ALL asset URLs to force cache busting
+function addCacheBustingParam(url) {
+  const urlObj = new URL(url, self.location.origin);
+  urlObj.searchParams.set('v', CACHE_VERSION);
+  return urlObj.toString();
+}
 
 // Assets that need to be cached
 const ASSETS_TO_CACHE = [
@@ -11,24 +15,20 @@ const ASSETS_TO_CACHE = [
   "/src/main.tsx",
 ];
 
-// Dynamic assets that should be fetched from network first, then cached
-const DYNAMIC_ASSETS = [
-  "/public/videos/thumbnails/logo-courriel-management-05.png",
-  "/public/videos/thumbnails/Logo-MF.png",
-  "/public/videos/thumbnails/logo-courriel-management-01.png",
-  "/public/videos/thumbnails/logo-courriel-management-02.png",
-  "/public/videos/thumbnails/logo-courriel-management-03.png",
-  "/public/videos/thumbnails/logo-courriel-management-04.png",
-];
+// ALL image assets should use network-first strategy
+const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp"];
 
-// Install event → cache required assets
+// Install event → cache required assets with cache busting
 self.addEventListener("install", (event) => {
   console.log('🔧 Service Worker installing with cache version:', CACHE_VERSION);
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Cache static assets
-      return cache.addAll(ASSETS_TO_CACHE);
+      // Cache static assets with cache busting parameter
+      const assetsWithCacheBusting = ASSETS_TO_CACHE.map(url => {
+        return addCacheBustingParam(url);
+      });
+      return cache.addAll(assetsWithCacheBusting);
     })
   );
   
@@ -36,7 +36,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate event → delete old caches
+// Activate event → delete ALL old caches
 self.addEventListener("activate", (event) => {
   console.log('🚀 Service Worker activating with cache version:', CACHE_VERSION);
   
@@ -52,17 +52,19 @@ self.addEventListener("activate", (event) => {
       );
     }).then(() => {
       console.log('✅ Service Worker activated and controlling the page');
-      return self.clients.claim(); // Take control of all clients
+      // Force claim all clients to ensure immediate control
+      return self.clients.claim(); 
     })
   );
 });
 
 // Helper function to determine if a request is for an image
 function isImageRequest(request) {
-  return request.url.match(/\.(png|jpg|jpeg|svg|gif)$/i);
+  const url = request.url.toLowerCase();
+  return IMAGE_EXTENSIONS.some(ext => url.endsWith(ext));
 }
 
-// Fetch event → network-first strategy for images, cache-first for other assets
+// Fetch event → network-first for images, cache-first for other assets
 self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   
@@ -71,23 +73,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   
+  // Add cache busting for all requests
+  const cacheBustedUrl = addCacheBustingParam(event.request.url);
+  const cacheBustedRequest = new Request(cacheBustedUrl, {
+    method: event.request.method,
+    headers: event.request.headers,
+    mode: event.request.mode,
+    credentials: event.request.credentials,
+    redirect: event.request.redirect
+  });
+  
   // Network-first strategy for images (always try to get fresh images)
   if (isImageRequest(event.request)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(cacheBustedRequest)
         .then(response => {
           // Clone the response to store in cache
           const responseToCache = response.clone();
           
           caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
+            cache.put(cacheBustedRequest, responseToCache);
           });
           
           return response;
         })
         .catch(() => {
           // If network fails, try to get from cache
-          return caches.match(event.request);
+          return caches.match(cacheBustedRequest) || caches.match(event.request);
         })
     );
     return;
@@ -95,32 +107,29 @@ self.addEventListener("fetch", (event) => {
   
   // Cache-first strategy for other assets
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      
-      // Not in cache, get from network
-      return fetch(event.request).then(response => {
-        // Don't cache non-successful responses
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    caches.match(cacheBustedRequest)
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
         
-        // Clone the response to store in cache
-        const responseToCache = response.clone();
-        
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        
-        return response;
-      });
-    })
+        // Not in cache, get from network
+        return fetch(cacheBustedRequest)
+          .then(response => {
+            // Clone the response to store in cache
+            const responseToCache = response.clone();
+            
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(cacheBustedRequest, responseToCache);
+            });
+            
+            return response;
+          });
+      })
   );
 });
 
-// Listen for messages from the client
+// Listen for messages from the main thread
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
