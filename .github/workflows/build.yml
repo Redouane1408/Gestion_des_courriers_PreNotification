@@ -12,11 +12,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 20000
+          npm config set fetch-retry-maxtimeout 120000
+          npm ci
 
       - name: Update Service Worker Cache Version
         run: |
@@ -24,6 +34,8 @@ jobs:
           TIMESTAMP=$(date +%s)
           # Update the cache version in service worker
           sed -i "s/const CACHE_VERSION = '[0-9]*';/const CACHE_VERSION = '$TIMESTAMP';/" public/service-worker.js
+          # Also update CACHE_TIMESTAMP
+          sed -i "s/const CACHE_TIMESTAMP = new Date().getTime();/const CACHE_TIMESTAMP = $TIMESTAMP;/" public/service-worker.js
           echo "Updated cache version to $TIMESTAMP"
 
       - name: Set up Docker Buildx
@@ -42,6 +54,8 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
           no-cache: true
+          build-args: |
+            BUILD_TIMESTAMP=$(date +%s)
           
       - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v2

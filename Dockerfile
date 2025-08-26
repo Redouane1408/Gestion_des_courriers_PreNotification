@@ -21,12 +21,13 @@ RUN npm config set fetch-retries 5 && \
 COPY . .
 ENV DOCKER=true
 ENV NODE_ENV=production
+# Add timestamp to force cache busting
+RUN echo "// Force cache busting with timestamp: $(date +%s)" >> src/force-cache-bust.js
 # Build with optimizations
 RUN npm run build
 
 # Production stage with optimized nginx
 FROM nginx:alpine AS final
-
 
 # Copy built assets
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -40,7 +41,11 @@ RUN rm /etc/nginx/conf.d/default.conf.bak 2>/dev/null || true
 # Add security headers
 RUN echo 'add_header X-Frame-Options "SAMEORIGIN" always;' >> /etc/nginx/conf.d/security.conf && \
     echo 'add_header X-Content-Type-Options "nosniff" always;' >> /etc/nginx/conf.d/security.conf && \
-    echo 'add_header X-XSS-Protection "1; mode=block" always;' >> /etc/nginx/conf.d/security.conf
+    echo 'add_header X-XSS-Protection "1; mode=block" always;' >> /etc/nginx/conf.d/security.conf && \
+    echo 'add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;' >> /etc/nginx/conf.d/security.conf
+
+# Add custom error page for 404
+RUN echo '<html><body><h1>Page not found</h1><p>The requested resource could not be found.</p></body></html>' > /usr/share/nginx/html/404.html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

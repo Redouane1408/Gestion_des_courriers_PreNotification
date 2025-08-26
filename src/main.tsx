@@ -1,4 +1,12 @@
 // src/main.tsx
+// Add these imports at the top of the file
+import 'core-js/features/object/from-entries';
+import 'core-js/features/object/entries';
+import 'core-js/features/promise/finally';
+import 'core-js/features/symbol';
+import 'core-js/features/array/flat';
+import 'core-js/features/array/flat-map';
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'

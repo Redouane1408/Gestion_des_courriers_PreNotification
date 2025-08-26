@@ -15,6 +15,16 @@
     "test:coverage": "vitest run --coverage",
     "browser-check": "echo 'Vérification de la compatibilité des navigateurs...' && npx browserslist"
   },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all",
+    "IE 11",
+    "Edge >= 80",
+    "Firefox >= 78",
+    "Chrome >= 87",
+    "Safari >= 13"
+  ],
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix"
@@ -55,6 +65,7 @@
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
+    "core-js": "^3.45.1",
     "date-fns": "^4.1.0",
     "event-source-polyfill": "^1.0.31",
     "framer-motion": "^12.23.12",
