@@ -363,7 +363,7 @@ export function Example() {
               }
             }}
           >
-            Gestion des
+            Ges des
             <br />
             <motion.span
               className="inline-block"

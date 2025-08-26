@@ -95,7 +95,7 @@ self.addEventListener("fetch", (event) => {
     new Request(mappedUrl, {
       method: event.request.method,
       headers: event.request.headers,
-      mode: event.request.mode,
+      mode: event.request.mode === 'navigate' ? 'cors' : event.request.mode, // Fix here
       credentials: event.request.credentials,
       redirect: event.request.redirect
     }) : event.request;
@@ -106,7 +106,7 @@ self.addEventListener("fetch", (event) => {
   const cacheBustRequest = new Request(cacheBustUrl.toString(), {
     method: mappedRequest.method,
     headers: mappedRequest.headers,
-    mode: mappedRequest.mode,
+    mode: mappedRequest.mode === 'navigate' ? 'cors' : mappedRequest.mode, // Fix here too
     credentials: mappedRequest.credentials,
     redirect: mappedRequest.redirect
   });
