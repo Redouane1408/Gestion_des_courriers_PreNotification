@@ -2047,7 +2047,7 @@ export function OrganigrammePage() {
                                                                     <div className="flex items-center gap-2">
                                                                       <Network className="h-4 w-4 text-teal-500" />
                                                                       Direction de la Sauvegarde des Deniers de l’État         
-                                                                      <Badge variant="outline" className="border-purple-600 text-purple-600">DSDE</Badge>
+                                                                      <Badge variant="outline" className="border-teal-500 text-teal-500">DSDE</Badge>
                                                                     </div>
                                                                   </AccordionTrigger>
                                                                   <AccordionContent>
