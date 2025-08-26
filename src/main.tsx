@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './contexts/auth-context'
 import './index.css'
+import './forced-colors.css' // Add this line
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

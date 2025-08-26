@@ -1,0 +1,29 @@
+/* Replace -ms-high-contrast with the standard forced-colors */
+
+@media (forced-colors: active) {
+  /* Add your high contrast styles here */
+  .bg-gradient-to-br,
+  .bg-gradient-to-r,
+  .bg-gradient-to-b {
+    background: Canvas;
+    border: 1px solid CanvasText;
+  }
+  
+  /* Ensure text is visible */
+  button, a, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: CanvasText;
+  }
+  
+  /* Make sure form controls are visible */
+  input, select, textarea {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+  
+  /* Ensure icons are visible */
+  svg {
+    forced-color-adjust: auto;
+    fill: CanvasText;
+  }
+}
