@@ -2116,7 +2116,7 @@ export function OrganigrammePage() {
                                                                     <div className="flex items-center gap-2">
                                                                       <Network className="h-4 w-4 text-teal-500" />
                                                                      Direction de la Protection des Agents de l’État et de l’Indemnisation          
-                                                                      <Badge variant="outline" className="border-purple-600 text-purple-600">DPAEI</Badge>
+                                                                      <Badge variant="outline" className="border-teal-500 text-teal-500">DPAEI</Badge>
                                                                     </div>
                                                                   </AccordionTrigger>
                                                                   <AccordionContent>
@@ -2185,7 +2185,7 @@ export function OrganigrammePage() {
                                                                     <div className="flex items-center gap-2">
                                                                       <Network className="h-4 w-4 text-teal-500" />
                                                                      Direction des Affaires Juridiques et de l’Arbitrage International d’Investissement          
-                                                                      <Badge variant="outline" className="border-purple-600 text-purple-600">DAJAII</Badge>
+                                                                      <Badge variant="outline" className="border-teal-500 text-teal-500">DAJAII</Badge>
                                                                     </div>
                                                                   </AccordionTrigger>
                                                                   <AccordionContent>
