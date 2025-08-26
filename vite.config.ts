@@ -68,6 +68,8 @@ export default defineConfig({
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
       }
     },
+    // Add target for browser compatibility
+    target: ['es2015', 'edge88', 'firefox78', 'chrome87', 'safari13'],
     // Enable minification for production
     minify: 'terser',
     terserOptions: {
