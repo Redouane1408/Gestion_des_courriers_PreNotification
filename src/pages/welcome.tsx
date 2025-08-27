@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 // Import thumbnails as modules for better build optimization
-import thumbnail1 from '../assets/Overview-Cover.svg';
+import thumbnail1 from 'public/videos/thumbnails/Overview-Cover.png';
 import thumbnail2 from '../assets/logo-courriel-management-05.svg';
 import thumbnail3 from '../assets/Logo-MF.svg';
 // Fallback thumbnail for videos without specific thumbnails
@@ -143,7 +143,7 @@ export function Example() {
     {
       step: "04",
       title: "Routage",
-      description: "Définissez les destinataires et le circuit de validation",
+      description: "Définissez les destinataires et les circuits de validation",
       icon: Send,
       color: "from-orange-500 to-orange-600"
     },
