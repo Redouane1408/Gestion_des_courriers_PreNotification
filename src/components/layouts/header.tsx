@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect } from "react"
-import thumbnail2 from '../assets/logo-courriel-management-05.svg';
+import thumbnail2 from '@/assets/logo-courriel-management-05.svg';
 
 export function Header() {
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();

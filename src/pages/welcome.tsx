@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 // Import thumbnails as modules for better build optimization
-import thumbnail1 from 'public/videos/thumbnails/Overview-Cover.png';
+import thumbnail1 from '/videos/thumbnails/Overview-Cover.png';
 import thumbnail2 from '../assets/logo-courriel-management-05.svg';
 import thumbnail3 from '../assets/Logo-MF.svg';
 // Fallback thumbnail for videos without specific thumbnails
@@ -363,7 +363,7 @@ export function Example() {
               }
             }}
           >
-            Ges des
+            Gestion des
             <br />
             <motion.span
               className="inline-block"
