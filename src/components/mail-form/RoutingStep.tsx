@@ -418,6 +418,15 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
                     onValueChange={(value) => {
                       setSelectedDirectionGeneral(value);
                       onInputChange('fromDirectionGeneralId', parseInt(value));
+                      // Reset dependent fields when Direction General changes
+                      setSelectedDivision('');
+                      onInputChange('fromDivisionId', null);
+                      onInputChange('fromDirectionId', null);
+                      onInputChange('fromSousDirectionId', null);
+                      setDivisions([]);
+                      setDirections([]);
+                      setSousDirections([]);
+                      // Fetch new divisions for this direction general
                       if (value) fetchDivisions(parseInt(value));
                     }}
                   >
@@ -445,6 +454,7 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
                       // Reset dependent fields
                       onInputChange('fromDirectionId', null);
                       onInputChange('fromSousDirectionId', null);
+                      // Clear direction and sous-direction data
                       setDirections([]);
                       setSousDirections([]);
                       // Fetch directions for this division
@@ -658,6 +668,11 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
                               directionId: '',
                               sousDirectionId: ''
                             });
+                            // Reset dependent dropdown data
+                            setToDivisions([]);
+                            setToDirections([]);
+                            setToSousDirections([]);
+                            // Fetch new divisions for this direction general
                             if (value) fetchDivisions(parseInt(value), true);
                           }}
                         >
@@ -679,13 +694,20 @@ export function RoutingStep({ formState, onInputChange, completedSteps }: Routin
                         <Select
                           value={currentDestination.divisionId || ''}
                           onValueChange={(value) => {
+                            // Reset direction and sous-direction when division changes
                             setCurrentDestination({
                               ...currentDestination,
                               divisionId: value,
                               directionId: '',
                               sousDirectionId: ''
                             });
-                            if (value) fetchDirections(parseInt(value), true);
+                            // Clear direction and sous-direction data
+                            setToDirections([]);
+                            setToSousDirections([]);
+                            // Only fetch new directions if a division is selected
+                            if (value) {
+                              fetchDirections(parseInt(value), true);
+                            }
                           }}
                           disabled={!currentDestination.directionGeneralId}
                         >

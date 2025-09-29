@@ -5,11 +5,16 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { 
   Mail, Archive, Users, BarChart3, Shield, Zap, ArrowRight, FileText, Clock, CheckCircle,
-  UserPlus, Settings, Eye, Send, Search, Bell, Lock, ChevronRight
+  UserPlus, Eye, Send, Search, Bell, Lock, ChevronRight
 } from 'lucide-react';
 
 // Import thumbnails as modules for better build optimization
 import thumbnail1 from '/videos/thumbnails/Overview-Cover.png';
+import thumbnail4 from '/videos/thumbnails/Gestion-des-Archives.png';
+import thumbnail5 from '/videos/thumbnails/Gestion-des-utilisateurs.png';
+import thumbnail6 from '/videos/thumbnails/Suivi.png';
+import thumbnail7 from '/videos/thumbnails/Autre-Option.png';
+import thumbnail8 from '/videos/thumbnails/Organigramme.png';
 import thumbnail2 from '../assets/logo-courriel-management-05.svg';
 import thumbnail3 from '../assets/Logo-MF.svg';
 // Fallback thumbnail for videos without specific thumbnails
@@ -170,33 +175,32 @@ export function Example() {
       icon: UserPlus,
       details: [
         "Créer de nouveaux comptes utilisateurs",
-        "Attribuer les rôles et permissions",
         "Gérer les mots de passe et accès",
-        "Désactiver ou supprimer des comptes"
+        "Activer ou Désactiver des comptes"
       ]
     },
-    {
-      title: "Configuration système",
-      description: "Configurez les paramètres de votre direction et sous-directions",
-      icon: Settings,
-      details: [
-        "Définir la structure organisationnelle",
-        "Configurer les circuits de validation",
-        "Paramétrer les notifications",
-        "Gérer les modèles de documents"
-      ]
-    },
+   
     {
       title: "Supervision",
       description: "Surveillez l'activité et les performances de votre direction",
       icon: Eye,
       details: [
-        "Consulter les tableaux de bord",
+        "Consulter le tableau de bord",
         "Analyser les statistiques d'usage",
         "Suivre les délais de traitement",
-        "Générer des rapports d'activité"
+        
       ]
-    }
+    },
+    {
+      title: "Suivi des courriers",
+      description: "Suivez l'état d'avancement de vos courriers en temps réel",
+      icon: Search,
+      details: [
+        "Consulter l'historique complet",
+        "Voir les étapes de validation",
+        "Recevoir des notifications"
+      ]
+    },
   ];
 
   const userGuideSteps = [
@@ -211,26 +215,17 @@ export function Example() {
         "Joindre les pièces nécessaires"
       ]
     },
-    {
-      title: "Suivi des courriers",
-      description: "Suivez l'état d'avancement de vos courriers en temps réel",
-      icon: Search,
-      details: [
-        "Consulter l'historique complet",
-        "Voir les étapes de validation",
-        "Recevoir des notifications",
-        "Identifier les blocages"
-      ]
-    },
+    
     {
       title: "Gestion des archives",
       description: "Accédez et gérez vos courriers archivés facilement",
       icon: Archive,
       details: [
+        "Consulter le tableau de bord",
         "Rechercher dans les archives",
         "Filtrer par critères",
         "Télécharger les documents",
-        "Consulter les métadonnées"
+        "Consulter l'historique de son niveau "
       ]
     }
   ];
@@ -642,7 +637,7 @@ export function Example() {
               {
                 icon: Shield,
                 title: "Sécurité Renforcée",
-                description: "Chiffrement de bout en bout, authentification multi-facteurs et audit complet des accès. Vos données sont protégées selon les standards les plus élevés de sécurité.",
+                description: "Chiffrement de bout en bout, authentification multi-facteurs et audit complet des accès. ",
                 gradient: "from-purple-500 to-pink-500"
               },
               {
@@ -874,59 +869,58 @@ export function Example() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: "Introduction à la plateforme",
-                description: "Découvrez l'interface et les fonctionnalités principales",
+                title: "Overview",
+                description: "Découvrir une solution moderne pour gérer, suivre, archiver et sécuriser les courriers",
                 duration: "0:28",
                 videoSrc: "/videos/Overview.mp4",
                 thumbnail: thumbnail1, // Use imported thumbnail
                 category: "Overview",
-
-                views: "+1k"
-              },
-              {
-                title: "Créer et envoyer un courrier",
-                description: "Guide complet pour rédiger et envoyer vos courriers",
-                duration: "8:45",
-                videoSrc: "/videos/create-mail.mp4",
-                /* thumbnail: thumbnailCreateMail, */ // Use imported thumbnail
-                category: "Essentiel",
-                views: "2.1k"
+                views: "7"
               },
               {
                 title: "Gestion des archives",
-                description: "Organisez et retrouvez facilement vos documents",
-                duration: "6:20",
-                videoSrc: "/videos/archive-management.mp4",
-                /* thumbnail: thumbnailArchiveManagement, */ // Use imported thumbnail
-                category: "Avancé",
-                views: "890"
-              },
-              {
-                title: "Tableau de bord et statistiques",
-                description: "Analysez vos données et suivez vos performances",
-                duration: "7:15",
-                videoSrc: "/videos/dashboard-stats.mp4",
-                /* thumbnail: thumbnailDashboardStats, */ // Use imported thumbnail
-                category: "Analyse",
-                views: "1.5k"
+                description: "Créer, modifier ou supprimer des courriers archivés en toute simplicité.",
+                duration: "1:16",
+                videoSrc: "/videos/Gestion-des-Courriers.mp4",
+                thumbnail: thumbnail4, // Use imported thumbna
+                category: "Essentiel",
+                views: "2"
               },
               {
                 title: "Gestion des utilisateurs",
-                description: "Administrez les comptes et les permissions",
-                duration: "9:30",
-                videoSrc: "/videos/user-management.mp4",
-                /* thumbnail: thumbnailUserManagement, */ // Use imported thumbnail
+                description: "Créer, modifier, activer et désactiver des comptes utilisateurs pour gérer facilement les accès au système.",
+                duration: "0:58",
+                videoSrc: "/videos/Gestion-des-utilisateurs.mp4",
+                thumbnail: thumbnail5, // Use imported thumbnail
                 category: "Admin",
-                views: "750"
+                views: "1"
               },
               {
-                title: "Sécurité et bonnes pratiques",
-                description: "Protégez vos données et optimisez votre workflow",
-                duration: "4:50",
-                videoSrc: "/videos/security-practices.mp4",
-                /* thumbnail: thumbnailSecurityPractices, */ // Use imported thumbnail
-                category: "Sécurité",
-                views: "980"
+                title: "Suivi complet des échanges",
+                description: "Suivre l'historique et appliquer une recherche multi-critère",
+                duration: "1:05",
+                videoSrc: "/videos/suivi.mp4",
+                thumbnail: thumbnail6, // Use imported thumbnail
+                category: "Analyse",
+                views: "3"
+              },
+              {
+                title: "Autres Options",
+                description: "Rester informé aux alertes automatiques et accéder rapidement aux documents télèchargés.",
+                duration: "0:41",
+                videoSrc: "/videos/Autre-option.mp4",
+                thumbnail: thumbnail7,// Use imported thumbnail
+                category: "Admin",
+                views: "10"
+              },
+              {
+                title: "Organigramme du ministére",
+                description: "Visualiser la structure hiérarchique.",
+                duration: "0:30",
+                videoSrc: "/videos/Organigramme.mp4",
+                thumbnail: thumbnail8,// Use imported thumbnail
+                category: "Assistant",
+                views: "2"
               }
             ].map((video, index) => (
               <motion.div
