@@ -1058,20 +1058,12 @@ export function Example() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-          >
-            <motion.button
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl transition-all duration-300 group"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span>Voir tous les tutoriels</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-            <p className="text-gray-400 text-sm mt-4">
-              Plus de 15 heures de contenu pour maîtriser la plateforme
-            </p>
+          >            
           </motion.div>
+
+        
         </div>
+        
       </motion.section>
 
       {/* Comprehensive Footer */}
